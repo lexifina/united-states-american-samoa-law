@@ -1,0 +1,2 @@
+# Section 4. Secretary of Samoan Affairs.
+The Secretary of Samoan Affairs shall be appointed by the Governor from among the leading registered matais. He shall hold office during the pleasure of the Governor. The Secretary of Samoan Affairs shall be the head of the Department of Local Government. In conjunction with the District Governors he shall co-ordinate the administration of the district, county, and village affairs as provided by law and also in conjunction with the District Governors he shall supervise all ceremonial functions as provided by law.

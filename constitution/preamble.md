@@ -1,0 +1,7 @@
+# Preamble
+Whereas the Congress of the United States, in its Act of February 20, 1929, provided that until the Congress shall provide for the Government of the islands of American Samoa, all civil, judicial, and military powers shall be vested in such person or persons and exercised in such manner as the President of the United States shall direct; and
+Whereas by Executive Order No. 10264 the President of the United States directed that the Secretary of the Interior should take such action as may be necessary and. appropriate and in harmony with applicable law, for the administration of civil government in American Samoa; and
+Whereas it is appropriate that, in the process of developing self-government, the people of American Samoa should enjoy certain rights and responsibilities inherent in the representative form of government; and
+Whereas it is desirable that these rights and responsibilities be clearly set forth in a Constitution, and the adoption of a Constitution is in harmony with applicable law; and
+Whereas the Constitution adopted in 1960 provided for a revision thereof:
+Now, therefore, this revised Constitution, having been ratified and approved by the Secretary of the Interior and having been approved by a Constitutional Convention of the people of American Samoa and a majority of the voters of American Samoa voting at the 1966, election, is established to further advance government of the people, by the people, and for the people of American Samoa.
