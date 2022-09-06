@@ -1,0 +1,2 @@
+# Section 10. Political districts and counties.
+It is hereby recognized that there are three political districts in American Samoa, viz. Manu’a, composed of the political counties of Ta’u, Faleasao, Fitiuta, Olosega and Ofu; Eastern, composed of the political counties of Sua, Vaifanua, Saole, Ituau and Ma’uputasi; and Western, composed of the political counties of Fofo, Leasina, Tualatai, Lealataua and Ma’upu.

@@ -1,0 +1,2 @@
+# Section 3. Secretary.
+The Secretary of American Samoa, who may be referred to as Lieutenant Governor of American Samoa, shall have all the powers and duties of the Governor in the case of a vacancy in the office of Governor or the disability or temporary absence of the Governor. He shall record and preserve the laws and executive orders, and transmit copies thereof to the Secretary of the Interior. He shall have and perform such other duties as may be prescribed by law or assigned to him by the Governor.

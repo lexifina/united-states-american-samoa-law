@@ -1,0 +1,3 @@
+# Section 4. Manner of Election.
+Senators shall be elected in accordance with Samoan custom by the county councils of the counties they are to represent, the number of senators from a county or counties to be as indicated: Fitiuta, Faleasao, and Ta’u, two senators; Olosega and Ofu, one senator; Saole, one senator; Vaifanua, one senator; Sua, two senators; Ma’uputasi, three senators; Ituau, two senators; Ma’upu, two senators; Leasina, one senator; Tualatai, one senator; Fofo, one senator; and Lealataua, one senator. The decisions of the members of the county councils of the counties concerned shall be certified by the county chiefs of such counties.
+Representatives shall be chosen by secret ballot of the qualified electors of their respective representative districts.
