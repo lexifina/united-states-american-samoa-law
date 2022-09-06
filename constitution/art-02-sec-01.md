@@ -1,0 +1,6 @@
+# Section I. Legislature.
+There shall be a Legislature which shall consist of a Senate and House of Representatives. The Legislature shall have authority to pass legislation with respect to subjects of local application, except that:
+1. No such legislation may be inconsistent with, this Constitution or the laws of the United States applicable in American Samoa;
+2. No such legislation may conflict with treaties or international agreements of the United States;
+3. Money bills enacted by the Legislature of American Samoa shall not provide for the appropriation of funds in excess of such amounts as are available from revenues raised pursuant to the tax laws and other revenue laws of American Samoa. Prior to his final submission to the Secretary of the Interior of requests for Federal funds necessary for the support of governmental functions in American Samoa, the Governor shall prepare a preliminary budget plan. He shall submit such plan to the Legislature in joint session for its review and approval with respect to such portions as relate to expenditures of funds proposed to be appropriated by the Congress of the United States. Amended 1971, S.J.R. No.4, effective March 19, 1971.
+4. Legislation involving the expenditure of funds other than as budgeted shall include revenue measures to provide the needed funds.

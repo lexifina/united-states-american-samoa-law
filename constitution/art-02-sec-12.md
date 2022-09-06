@@ -1,0 +1,2 @@
+# Section 12. Freedom from arrest.
+Senators and representatives and any delegate from Swains Island in all cases except treason, felony, or breach of the peace, shall be privileged from arrest during a session (including a special joint session) of the Legislature, and in going to and returning from the same. No member of the Legislature shall be held to answer before any tribunal other than the Legislature itself for any speech or debate in the Legislature.

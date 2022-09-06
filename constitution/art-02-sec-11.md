@@ -1,0 +1,2 @@
+# Section 11. Powers of each house.
+Each house shall keep a journal of its proceedings and publish the same, determine its rules of procedure, punish members for disorderly behavior, and, with the consent of two-thirds of its entire membership, may expel a member, but not a second time for the same offense. Each House shall sit upon its own adjournments, but neither House shall, without the concurrence of the other, adjourn for more than 3 days, nor to any other place than that in which it may be sitting.

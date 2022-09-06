@@ -1,0 +1,2 @@
+# Section 1. Freedom of religion, speech, press, rights of assembly and petition.
+There shall be separation of church and government, and no law shall be enacted respecting an establishment of religion or prohibiting the free exercise thereof; or abridging the freedom of speech or of the press, or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances.
