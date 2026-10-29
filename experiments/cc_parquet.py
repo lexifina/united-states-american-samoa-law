@@ -20,7 +20,7 @@ from pathlib import Path
 
 import duckdb
 
-LAB = Path(r'C:/Users/alany/AppData/Local/Temp/claude/C--Users-alany-Documents-lexifina/f78588c6-2cad-4776-8ba7-4e66c11c682c/scratchpad/lab')
+LAB = Path(__file__).resolve().parent / '.tmp'
 CCPQ = LAB / 'ccpq'
 DATA = 'https://data.commoncrawl.org/'
 UA = 'lexifina-watch/1.0 (+https://lexifina.com/watch; corpus@lexifina.com)'
