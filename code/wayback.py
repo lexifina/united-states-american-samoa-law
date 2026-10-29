@@ -492,6 +492,42 @@ def host_get(url: str, cache: Path | str | None = None, tries: int = 5, timeout:
     return None
 
 
+# --- Arquivo.pt (Portuguese public web archive): open CDX + raw replay --------------------------------------------------
+# Approved by the user 2026-10-29 ("yes, do the thing that gives us max speed") although its robots.txt disallows
+# /wayback and asks 1 request per 5 s: it goes through host_get's adaptive per-host rate, which backs off on any
+# 429/503/timeout. Strong for Lusophone and Latin American official sites (Planalto, IMPO, ...) captured since ~2008.
+PT_ARCHIVE = 'https://arquivo.pt/wayback'
+
+
+def pt_captures(url: str, match: str = 'exact', cache: Path | str | None = None, status: str = '200',
+                limit: int = 100000) -> list[dict]:
+    """Every Arquivo.pt capture of url (or under it with match='prefix'): [{'timestamp','url','status','digest',...}]."""
+    from urllib.parse import quote
+    q = f'{PT_ARCHIVE}/cdx?url={quote(url, safe=":/")}&matchType={match}&output=json&limit={limit}'
+    if status:
+        q += f'&filter=status:{status}'
+    raw = host_get(q, cache)
+    if not raw:
+        return []
+    out = []
+    for line in raw.decode('utf-8', 'replace').splitlines():
+        if line.startswith('{'):
+            try:
+                out.append(json.loads(line))
+            except ValueError:
+                pass
+    return out
+
+
+def pt_get(rec_or_url, ts: str | None = None, cache: Path | str | None = None) -> bytes | None:
+    """The raw archived body of one Arquivo.pt capture (a pt_captures record, or url + ts)."""
+    if isinstance(rec_or_url, dict):
+        url, ts = rec_or_url['url'], rec_or_url['timestamp']
+    else:
+        url = rec_or_url
+    return host_get(f'{PT_ARCHIVE}/{ts}id_/{url}', cache)
+
+
 def fetch_direct(url: str, cache: Path | str | None = None, tries: int = 4) -> bytes | None:
     """GET a non-archive.org URL (Common Crawl's index) with caching and retries; it does not use archive.org's rate."""
     cache = Path(cache) if cache else None

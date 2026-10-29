@@ -33,7 +33,10 @@ Its metadata names amending acts and dates for many countries. The licence is no
 ## 5. Laws.Africa / Peachjam LIIs: archived captures only (see africa-law/PEACHJAM.md)
 There is no open bulk dump (commons.laws.africa returns 404, and the paid API costs ZAR 42k a month per country). Read pages through Common Crawl (wayback.cc_captures, which now works without the index server) and archive.org.
 
-## 6. Common Crawl and archive.org
+## 6. Arquivo.pt (Portuguese public web archive): user-approved, max speed
+`wayback.pt_captures()` and `wayback.pt_get()`: open CDX plus raw replay, measured at 5,000 captures in 1 s and 40 pages in 7 s. Holds Planalto, IMPO and many official sites since about 2008. Use it before archive.org.
+
+## 7. Common Crawl and archive.org
 See SPEED RULE 2 in south-america-law/BRIEF.md: Common Crawl's index files are now read directly, with no rate limit; archive.org is last.
 
 Never: AustLII (it bans AI and dataset use), bot challenges, logins or paywalls.
