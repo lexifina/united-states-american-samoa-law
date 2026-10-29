@@ -1,0 +1,85 @@
+{
+ "crawls_available": 128,
+ "rows": [
+  {
+   "page": "Latvia Satversme (likumi.lv)",
+   "crawls_searched": 24,
+   "captures_200": 0,
+   "years": "-",
+   "distinct_years": 0,
+   "seconds": 400.2
+  },
+  {
+   "page": "NZ Constitution Act (legislation.govt.nz)",
+   "crawls_searched": 24,
+   "captures_200": 0,
+   "years": "-",
+   "distinct_years": 0,
+   "seconds": 4.2
+  },
+  {
+   "page": "Spain Constitution (boe.es)",
+   "crawls_searched": 24,
+   "captures_200": 0,
+   "years": "-",
+   "distinct_years": 0,
+   "seconds": 17.2
+  },
+  {
+   "page": "Estonia Constitution (riigiteataja.ee)",
+   "crawls_searched": 24,
+   "captures_200": 0,
+   "years": "-",
+   "distinct_years": 0,
+   "seconds": 0.5
+  },
+  {
+   "page": "Austria B-VG (ris.bka.gv.at)",
+   "crawls_searched": 24,
+   "captures_200": 0,
+   "years": "-",
+   "distinct_years": 0,
+   "seconds": 4.2
+  },
+  {
+   "page": "Latvia Satversme (likumi.lv)",
+   "crawls_searched": 128,
+   "captures_200": 0,
+   "years": "-",
+   "distinct_years": 0,
+   "seconds": 185.4
+  },
+  {
+   "page": "NZ Constitution Act (legislation.govt.nz)",
+   "crawls_searched": 128,
+   "captures_200": 0,
+   "years": "-",
+   "distinct_years": 0,
+   "seconds": 27.7
+  },
+  {
+   "page": "Spain Constitution (boe.es)",
+   "crawls_searched": 128,
+   "captures_200": 0,
+   "years": "-",
+   "distinct_years": 0,
+   "seconds": 19.2
+  },
+  {
+   "page": "Estonia Constitution (riigiteataja.ee)",
+   "crawls_searched": 128,
+   "captures_200": 0,
+   "years": "-",
+   "distinct_years": 0,
+   "seconds": 27.7
+  },
+  {
+   "page": "Austria B-VG (ris.bka.gv.at)",
+   "crawls_searched": 128,
+   "captures_200": 0,
+   "years": "-",
+   "distinct_years": 0,
+   "seconds": 1.9
+  }
+ ]
+}

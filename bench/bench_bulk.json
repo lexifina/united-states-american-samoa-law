@@ -1,0 +1,108 @@
+{
+ "at": "2026-10-29T14:18:49Z",
+ "runs": [
+  {
+   "approach": "official open-data API (Spain BOE, whole history per act)",
+   "threads": 1,
+   "requests": 12,
+   "ok": 12,
+   "seconds": 29.94,
+   "versions": 4007,
+   "versions_per_request": 333.9,
+   "versions_per_s": 133.9,
+   "MB": 11.24
+  },
+  {
+   "approach": "official open-data API (Spain BOE, whole history per act)",
+   "threads": 6,
+   "requests": 24,
+   "ok": 24,
+   "seconds": 8.29,
+   "versions": 6454,
+   "versions_per_request": 268.9,
+   "versions_per_s": 778.7,
+   "MB": 17.07
+  },
+  {
+   "approach": "live official HTML via host_get (BOE act pages)",
+   "threads": 1,
+   "requests": 8,
+   "ok": 8,
+   "seconds": 10.2,
+   "pages_per_s": 0.78,
+   "versions_per_request": 1.0,
+   "MB": 3.94
+  },
+  {
+   "approach": "live official HTML via host_get (BOE act pages)",
+   "threads": 4,
+   "requests": 16,
+   "ok": 16,
+   "seconds": 13.1,
+   "pages_per_s": 1.22,
+   "versions_per_request": 1.0,
+   "MB": 10.62
+  },
+  {
+   "approach": "live official HTML via host_get (BOE act pages)",
+   "threads": 12,
+   "requests": 24,
+   "ok": 24,
+   "seconds": 7.17,
+   "pages_per_s": 3.35,
+   "versions_per_request": 1.0,
+   "MB": 15.85
+  },
+  {
+   "approach": "official bulk dump (Norway Lovdata, all current laws)",
+   "requests": 1,
+   "http": 200,
+   "seconds": 2.72,
+   "MB": 5.8,
+   "acts_in_one_request": 754
+  },
+  {
+   "approach": "official version list (Estonia Riigi Teataja, Constitution redactions page)",
+   "requests": 1,
+   "http": 200,
+   "seconds": 0.4,
+   "version_links": 0
+  },
+  {
+   "approach": "official open-data API (Austria RIS OGD, B-VG provisions)",
+   "requests": 1,
+   "http": 200,
+   "seconds": 1.24,
+   "documents": 100,
+   "MB": 0.01
+  },
+  {
+   "approach": "hosted reconstructed archive (legalize-lt)",
+   "ok": true,
+   "clone_metadata_s": 37.4,
+   "full_clone_s": 94.6,
+   "commits": 73023,
+   "law_files": 16174,
+   "first_commits": [
+    "2026-09-24 [reform] Dėl finansavimo skyrimo projektui, pateiktam pagal 2022–2030 metų plėtros programos valdytojos Lietuvos Respublikos vidaus reikalų ministerijos viešojo valdymo plėtros programos pažangos priemonę Nr. 01-004-08-04-01 „Didinti visuomenės įsitraukimą į vietos problemų sprendimą“",
+    "2026-09-25 [reform] Dėl Lietuvos Respublikos sveikatos apsaugos ministro 1999 m. lapkričio 29 d. įsakymo Nr. 515 „Dėl Sveikatos priežiūros įstaigų veiklos apskaitos ir atskaitomybės tvarkos“ pakeitimo",
+    "2026-09-25 [reform] Dėl Lietuvos Respublikos susisiekimo ministro 2022 m. gruodžio 22 d. įsakymo Nr. 3-581 „Dėl 2022–2030 metų plėtros programos valdytojos Lietuvos Respublikos susisiekimo ministerijos susisiekimo plėtros programos pažangos priemonės Nr. 10-001-05-04-01 „Didinti susisiekimo sistemos kuriamą vertę ir infrastruktūros panaudojimo efektyvumą“ aprašo patvirtinimo“ pakeitimo"
+   ],
+   "err": ""
+  },
+  {
+   "approach": "hosted reconstructed archive (legalize-lv)",
+   "ok": true,
+   "clone_metadata_s": 15.4,
+   "full_clone_s": 40.3,
+   "commits": 16511,
+   "law_files": 16307,
+   "first_commits": [
+    "2026-10-21 [reform] Grozījumi Ārstniecības likumā",
+    "2026-10-21 [reform] Grozījumi Ieroču aprites likumā",
+    "2026-10-21 [reform] Grozījumi Valsts un pašvaldību institūciju amatpersonu un darbinieku atlīdzības likumā"
+   ],
+   "err": ""
+  }
+ ]
+}
