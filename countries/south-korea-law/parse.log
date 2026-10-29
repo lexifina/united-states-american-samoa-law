@@ -1,0 +1,113 @@
+{"act": "heonbeop", "from": "1952-07-07", "laws": ["heonbeop-2"], "changed": 23, "spacing": 0, "reverted": [], "uncredited": ["art-0103"], "early": []}
+{"act": "heonbeop", "from": "1954-11-29", "laws": ["heonbeop-3"], "changed": 28, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "heonbeop", "from": "1960-06-15", "laws": ["heonbeop-4"], "changed": 59, "spacing": 3, "reverted": ["art-0044", "art-0066"], "uncredited": ["art-0099", "art-0100", "art-0101", "art-0102", "art-0103", "buchik-19480717-00001"], "early": []}
+{"act": "heonbeop", "from": "1960-11-29", "laws": ["heonbeop-5"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": ["buchik-19600615-00004"], "early": []}
+{"act": "heonbeop", "from": "1963-12-17", "laws": ["heonbeop-6"], "changed": 136, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "heonbeop", "from": "1969-10-21", "laws": ["heonbeop-7"], "changed": 5, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "heonbeop", "from": "1972-12-27", "laws": ["heonbeop-8"], "changed": 113, "spacing": 1, "reverted": [], "uncredited": [], "early": []}
+{"act": "heonbeop", "from": "1980-10-27", "laws": ["heonbeop-9"], "changed": 131, "spacing": 0, "reverted": ["art-0001"], "uncredited": [], "early": []}
+{"act": "heonbeop", "from": "1988-02-25", "laws": ["heonbeop-10"], "changed": 133, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "heonbeop", "end_mismatch": []}
+{"act": "minbeop", "from": "1963-01-01", "laws": ["law-1250"], "changed": 10, "spacing": 5, "reverted": [], "uncredited": ["art-0129", "art-0160", "art-0789", "buchik-19580222-00471"], "early": []}
+{"act": "minbeop", "from": "1963-03-01", "out_of_order": "law-1237", "base": "law-471@19600101", "delta": 9}
+{"act": "minbeop", "from": "1963-03-01", "laws": ["law-1237"], "changed": 2, "spacing": 1, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "1965-01-01", "laws": ["law-1668"], "changed": 13, "spacing": 2, "reverted": ["art-0129"], "uncredited": ["art-0022", "art-0125", "art-0126", "art-0129", "art-0840", "art-0841", "art-0874", "art-1080", "buchik-19580222-00471", "structure"], "early": []}
+{"act": "minbeop", "from": "1970-06-18", "laws": ["law-2200"], "changed": 16, "spacing": 5, "reverted": ["art-0022", "art-0125", "art-0126", "art-0129", "art-0840", "art-0841", "art-0874", "art-1080", "structure"], "uncredited": ["art-0022", "art-0125", "art-0126", "art-0129", "art-0840", "art-0841", "art-0874", "art-1080", "buchik-19580222-00471", "structure"], "early": []}
+{"act": "minbeop", "from": "1979-01-01", "laws": ["law-3051"], "changed": 18, "spacing": 2, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "1984-09-01", "laws": ["law-3723"], "changed": 14, "spacing": 7, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "1991-01-01", "laws": ["law-4199"], "changed": 120, "spacing": 5, "reverted": [], "uncredited": ["art-0049", "art-0085", "art-0160", "art-0801", "art-0811", "art-0845", "art-1066", "art-1067", "art-1069"], "early": []}
+{"act": "minbeop", "from": "1998-01-01", "laws": ["law-5454"], "changed": 28, "spacing": 19, "reverted": [], "uncredited": ["art-0133", "art-0781", "art-0971", "art-1046", "structure"], "early": []}
+{"act": "minbeop", "from": "1998-06-14", "out_of_order": "law-5431", "base": "law-4199@19910101", "delta": 32}
+{"act": "minbeop", "from": "1998-06-14", "laws": ["law-5431"], "changed": 11, "spacing": 7, "reverted": [], "uncredited": ["art-0163", "art-0873", "art-1072"], "early": []}
+{"act": "minbeop", "from": "2002-01-14", "laws": ["law-6591"], "changed": 51, "spacing": 5, "reverted": ["art-0133", "art-0163", "art-0801", "art-0807", "art-0811", "art-0845", "art-0873", "art-1046", "art-1072"], "uncredited": ["art-0133", "art-0163", "art-0533", "art-0773", "art-0774", "art-0790", "art-0792", "art-0797", "art-0798", "art-0799", "art-0801", "art-0807", "art-0809", "art-0811", "art-0845", "art-0847", "art-0867", "art-0868", "art-0873", "art-0875", "art-0876", "art-0877", "art-0879", "art-0880", "art-0890", "art-0894", "art-0895", "art-0898", "art-0912", "art-0917", "art-0974", "art-0980", "art-0983", "art-0984", "art-0988", "art-0990", "art-0992", "art-0996", "art-1002", "art-1009", "art-1046", "art-1072", "structure"], "early": [{"unit": "art-0052-02", "later": ["20011229"], "fix": "absent"}, {"unit": "art-0060-02", "later": ["20011229"], "fix": "absent"}, {"unit": "art-0318", "later": ["20011229"], "fix": "kept"}, {"unit": "art-0354", "later": ["20011229"], "fix": "kept"}, {"unit": "art-1037", "later": ["20011229"], "fix": "kept"}]}
+{"act": "minbeop", "from": "2002-07-01", "out_of_order": "law-6544", "base": "law-5454@19980101", "delta": 26}
+{"act": "minbeop", "from": "2002-07-01", "laws": ["law-6544"], "changed": 17, "spacing": 2, "reverted": ["art-0912", "art-0917", "art-0971", "art-0988", "art-0990", "art-0996", "art-1002"], "uncredited": ["art-0245", "art-0819", "art-0912", "art-0917", "art-0971", "art-0988", "art-0990", "art-0996", "art-1002"], "early": []}
+{"act": "minbeop", "from": "2005-03-31", "laws": ["law-7427"], "changed": 96, "spacing": 2, "reverted": ["art-0245", "art-0886", "art-0917", "art-0971", "art-0988", "art-0990", "art-0996", "art-1002"], "uncredited": ["art-0245", "art-0917", "art-0971", "art-0988", "art-0990", "art-0996", "art-1002", "buchik-19580222-00471"], "early": []}
+{"act": "minbeop", "from": "2005-12-29", "laws": ["law-7765"], "changed": 7, "spacing": 1, "reverted": ["buchik-19580222-00471"], "uncredited": ["art-0937", "art-1098", "buchik-19580222-00471", "buchik-20020114-06591", "buchik-20050331-07427"], "early": []}
+{"act": "minbeop", "from": "2006-04-01", "out_of_order": "law-7428", "base": "law-7427@20050331", "delta": 8}
+{"act": "minbeop", "from": "2006-04-01", "laws": ["law-7428"], "changed": 1, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2007-12-21", "laws": ["law-8720"], "changed": 20, "spacing": 0, "reverted": [], "uncredited": ["art-0083", "art-0122", "art-0178", "art-0311", "art-0338", "art-0407", "art-0816", "art-0827", "art-0828", "art-0860"], "early": [{"unit": "art-0812", "later": ["20070517"], "fix": "kept"}, {"unit": "art-0814", "later": ["20070517"], "fix": "kept"}, {"unit": "art-0836", "later": ["20070517"], "fix": "kept"}, {"unit": "art-0859", "later": ["20070517"], "fix": "kept"}, {"unit": "art-0878", "later": ["20070517"], "fix": "kept"}]}
+{"act": "minbeop", "from": "2008-01-01", "out_of_order": "law-8435", "base": "law-7765@20051229", "delta": 20}
+{"act": "minbeop", "from": "2008-01-01", "laws": ["law-8435"], "changed": 9, "spacing": 0, "reverted": [], "uncredited": ["art-0338", "art-0758", "art-1045"], "early": []}
+{"act": "minbeop", "from": "2009-08-09", "laws": ["law-9650"], "changed": 16, "spacing": 4, "reverted": ["art-0049", "art-0085", "art-0160", "art-0338", "art-0758", "art-1045", "art-1066", "art-1067", "art-1069"], "uncredited": ["art-0049", "art-0085", "art-0160", "art-0271", "art-0338", "art-0758", "art-1045", "art-1066", "art-1067", "art-1069"], "early": []}
+{"act": "minbeop", "from": "2012-02-10", "laws": ["law-11300"], "changed": 284, "spacing": 268, "reverted": ["art-0311", "art-0971", "art-1045"], "uncredited": ["art-0049", "art-0178", "art-0218", "art-0311", "art-0338", "art-0482", "art-0971", "art-1045", "buchik-19900113-04199"], "early": []}
+{"act": "minbeop", "from": "2013-07-01", "laws": ["law-10429", "law-10645", "law-11300", "law-11728"], "changed": 163, "spacing": 5, "reverted": ["art-1045", "buchik-19580222-00471", "buchik-19900113-04199"], "uncredited": ["art-0338", "art-1045", "buchik-19580222-00471", "buchik-19900113-04199", "buchik-19971213-05431"], "early": []}
+{"act": "minbeop", "from": "2014-12-30", "laws": ["law-12881"], "changed": 17, "spacing": 0, "reverted": ["buchik-19580222-00471"], "uncredited": ["buchik-19580222-00471"], "early": []}
+{"act": "minbeop", "from": "2015-07-01", "laws": ["law-13124"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2015-10-16", "out_of_order": "law-12777", "base": "law-11728@20130701", "delta": 32}
+{"act": "minbeop", "from": "2015-10-16", "laws": ["law-12777"], "changed": 13, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2016-01-06", "laws": ["law-13710"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2016-02-04", "out_of_order": "law-13125", "base": "law-13124@20150701", "delta": 28}
+{"act": "minbeop", "from": "2016-02-04", "laws": ["law-13125"], "changed": 14, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2016-12-20", "laws": ["law-14409"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2017-06-03", "out_of_order": "law-14278", "base": "law-13710@20160106", "delta": 18}
+{"act": "minbeop", "from": "2017-06-03", "laws": ["law-14278"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2018-02-01", "laws": ["law-14965"], "changed": 4, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2020-10-20", "laws": ["law-17503"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2021-01-26", "laws": ["law-17905"], "changed": 5, "spacing": 0, "reverted": ["buchik-19580222-00471"], "uncredited": ["buchik-19580222-00471"], "early": []}
+{"act": "minbeop", "from": "2022-12-13", "laws": ["law-19069"], "changed": 6, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2023-06-28", "laws": ["law-19098"], "changed": 7, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2024-05-17", "laws": ["law-19409"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2025-01-31", "laws": ["law-20432"], "changed": 6, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2026-01-01", "laws": ["law-20432"], "changed": 1, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "from": "2026-03-17", "laws": ["law-21454"], "changed": 8, "spacing": 1, "reverted": [], "uncredited": [], "early": []}
+{"act": "minbeop", "end_mismatch": []}
+{"act": "hyeongbeop", "from": "1975-03-25", "laws": ["law-2745"], "changed": 8, "spacing": 2, "reverted": [], "uncredited": ["art-0083", "art-0099", "art-0200", "art-0328"], "early": []}
+{"act": "hyeongbeop", "from": "1988-12-31", "laws": ["law-4040"], "changed": 5, "spacing": 3, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "1996-07-01", "laws": ["law-5057"], "changed": 277, "spacing": 101, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "1998-01-01", "laws": ["law-5454"], "changed": 6, "spacing": 4, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2002-06-30", "laws": ["law-6543"], "changed": 8, "spacing": 5, "reverted": [], "uncredited": ["art-0104-02"], "early": []}
+{"act": "hyeongbeop", "from": "2004-01-20", "laws": ["law-7077"], "changed": 221, "spacing": 219, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2005-07-29", "laws": ["law-7623"], "changed": 14, "spacing": 0, "reverted": [], "uncredited": ["art-0027", "art-0033", "art-0036", "art-0120", "art-0130", "art-0175", "art-0213", "art-0241", "art-0270", "art-0331-02"], "early": [{"unit": "art-0151", "later": ["20050331"], "fix": "kept"}, {"unit": "art-0155", "later": ["20050331"], "fix": "kept"}, {"unit": "art-0328", "later": ["20050331"], "fix": "kept"}]}
+{"act": "hyeongbeop", "from": "2008-01-01", "out_of_order": "law-7427", "base": "law-7077@20040120", "delta": 6}
+{"act": "hyeongbeop", "from": "2008-01-01", "laws": ["law-7427"], "changed": 4, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2010-04-15", "laws": ["law-10259"], "changed": 391, "spacing": 387, "reverted": [], "uncredited": ["art-0222", "art-0228"], "early": []}
+{"act": "hyeongbeop", "from": "2010-10-16", "laws": ["law-10259"], "changed": 6, "spacing": 2, "reverted": [], "uncredited": ["art-0222"], "early": []}
+{"act": "hyeongbeop", "from": "2013-04-05", "laws": ["law-11731"], "changed": 20, "spacing": 1, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2013-06-19", "laws": ["law-11574", "law-11731"], "changed": 107, "spacing": 89, "reverted": [], "uncredited": ["art-0008", "art-0012", "art-0091"], "early": []}
+{"act": "hyeongbeop", "from": "2014-05-14", "laws": ["law-12575"], "changed": 3, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2014-12-30", "laws": ["law-12898"], "changed": 4, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2016-01-06", "laws": ["law-13719"], "changed": 11, "spacing": 0, "reverted": [], "uncredited": ["art-0015"], "early": []}
+{"act": "hyeongbeop", "from": "2016-05-29", "laws": ["law-14178"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2016-12-20", "laws": ["law-14415"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2017-12-12", "laws": ["law-15163"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2018-01-07", "out_of_order": "law-13719", "base": "law-13719@20160106", "delta": 7}
+{"act": "hyeongbeop", "from": "2018-01-07", "laws": ["law-13719"], "changed": 1, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2018-10-16", "laws": ["law-15793"], "changed": 3, "spacing": 1, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2018-12-18", "laws": ["law-15982"], "changed": 3, "spacing": 0, "reverted": [], "uncredited": ["art-0270"], "early": []}
+{"act": "hyeongbeop", "from": "2020-05-19", "laws": ["law-17265"], "changed": 3, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2020-10-20", "laws": ["law-17511"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": ["buchik-20140514-12575"], "early": []}
+{"act": "hyeongbeop", "from": "2021-12-09", "laws": ["law-17571"], "changed": 66, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2023-08-08", "laws": ["law-19582"], "changed": 5, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2024-02-09", "laws": ["law-19582"], "changed": 4, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2025-03-18", "laws": ["law-20795"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2025-04-08", "laws": ["law-20908"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2025-12-23", "laws": ["law-21231"], "changed": 4, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2025-12-31", "laws": ["law-21307"], "changed": 3, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2026-03-12", "laws": ["law-21450"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2026-09-13", "laws": ["law-21450"], "changed": 7, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "from": "2026-10-02", "laws": ["law-22007"], "changed": 5, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "hyeongbeop", "end_mismatch": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2012-03-30", "no_change": ["law-10465"]}
+{"act": "gaeinjeongbo-bohobeop", "from": "2013-03-23", "laws": ["law-11690"], "changed": 22, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2014-03-24", "laws": ["law-12504"], "changed": 5, "spacing": 1, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2014-08-07", "out_of_order": "law-11990", "base": "law-11690@20130323", "delta": 14}
+{"act": "gaeinjeongbo-bohobeop", "from": "2014-08-07", "laws": ["law-11990"], "changed": 9, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2014-11-19", "laws": ["law-12844"], "changed": 22, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2015-07-24", "laws": ["law-13423"], "changed": 13, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2016-01-01", "laws": ["law-12504", "law-13423"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2016-07-25", "laws": ["law-13423"], "changed": 9, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2016-09-30", "laws": ["law-14107"], "changed": 10, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2017-03-30", "laws": ["law-14107"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2017-07-26", "laws": ["law-14839"], "changed": 23, "spacing": 0, "reverted": ["art-0012", "art-0013", "art-0032", "art-0033", "art-0034", "art-0035", "art-0061", "art-0062", "art-0064", "art-0066", "art-0068", "art-0069"], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2017-10-19", "laws": ["law-14765", "law-14839"], "changed": 3, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2020-08-05", "laws": ["law-16930"], "changed": 69, "spacing": 0, "reverted": [], "uncredited": ["buchik-20170726-14839"], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2023-09-15", "laws": ["law-19234"], "changed": 74, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2024-03-15", "laws": ["law-19234"], "changed": 7, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2025-03-13", "laws": ["law-19234"], "changed": 1, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2025-10-02", "laws": ["law-20897"], "changed": 6, "spacing": 3, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2026-09-11", "laws": ["law-21445"], "changed": 18, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2027-03-09", "laws": ["law-21910"], "changed": 9, "spacing": 1, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "from": "2027-07-01", "out_of_order": "law-21445", "base": "law-21445@20260911", "delta": 11}
+{"act": "gaeinjeongbo-bohobeop", "from": "2027-07-01", "laws": ["law-21445"], "changed": 2, "spacing": 0, "reverted": [], "uncredited": [], "early": []}
+{"act": "gaeinjeongbo-bohobeop", "end_mismatch": []}

@@ -1,0 +1,88 @@
+=== PAGE 30 Rect(0.0, 0.0, 488.3999938964844, 733.2000122070312)
+  96   53  391 TimesNewRomanPS-ItalicMT     11.0 | The Constitution of the Democratic Socialist Republic of Sri Lanka
+ 422   42  431 TimesNewRomanPS-BoldMT        9.0 | 13
+  75  100  340 TimesNewRomanPS-ItalicMT      9.0 | 9[23. (1) All laws and subordinate legislation shall be 
+  57  116  340 TimesNewRomanPSMT            11.0 | enacted or made and published in Sinhala and Tamil, together 
+  57  129  223 TimesNewRomanPSMT            11.0 | with a translation thereof in English : 
+  75  149  340 TimesNewRomanPSMT            11.0 | Provided that Parliament shall, at the stage of enactment of 
+  57  162  340 TimesNewRomanPSMT            11.0 | any law determine which text shall prevail in the event of any 
+  57  175  188 TimesNewRomanPSMT            11.0 | inconsistency between texts : 
+  75  194  340 TimesNewRomanPSMT            11.0 | Provided further that in respect of all other written laws and 
+  57  207  340 TimesNewRomanPSMT            11.0 | the text in which such written laws was enacted or adopted or 
+  57  221  340 TimesNewRomanPSMT            11.0 | made, shall prevail in the event of any inconsistency between 
+  57  234  106 TimesNewRomanPSMT            11.0 | such texts. 
+  75  253  340 TimesNewRomanPSMT            11.0 | (2) All Orders, Proclamations, Rules, By-laws, Regulations 
+  57  266  340 TimesNewRomanPSMT            11.0 | and Notifications made or issued under any written law other 
+  57  279  340 TimesNewRomanPSMT            11.0 | than those made or issued by a Provincial Council or a Local 
+  57  293  340 TimesNewRomanPSMT            11.0 | Authority and the Gazette shall be published in Sinhala and 
+  57  306  287 TimesNewRomanPSMT            11.0 | Tamil together with a translation thereof in English. 
+  75  325  340 TimesNewRomanPSMT            11.0 | (3) All Orders, Proclamations, Rules, By-laws, Regulations 
+  57  338  340 TimesNewRomanPSMT            11.0 | and Notifications made or issued under any written law by 
+  57  351  340 TimesNewRomanPSMT            11.0 | any Provincial Council or Local Authority and all documents, 
+  57  365  340 TimesNewRomanPSMT            11.0 | including circulars and forms issued by such body or any 
+  57  378  340 TimesNewRomanPSMT            11.0 | public institution shall be published in the language used in the 
+  57  391  340 TimesNewRomanPSMT            11.0 | administration in the respective areas in which they function, 
+  57  404  259 TimesNewRomanPSMT            11.0 | together with a translation thereof in English. 
+  75  423  340 TimesNewRomanPSMT            11.0 | (4) All laws and subordinate legislation in force immediately 
+  57  437  340 TimesNewRomanPSMT            11.0 | prior to the commencement of the Constitution, shall be 
+  57  450  340 TimesNewRomanPSMT            11.0 | published in the Gazette in the Sinhala and Tamil Language as 
+  57  463  176 TimesNewRomanPSMT            11.0 | expeditiously as possible.] 
+  75  480  340 TimesNewRomanPS-BoldMT       11.0 | 24. 10[(1) Sinhala and Tamil shall be the languages of the 
+  57  495  340 TimesNewRomanPSMT            11.0 | Courts throughout Sri Lanka and Sinhala shall be used as the 
+  57  509  340 TimesNewRomanPSMT            11.0 | language of the courts situated in all the areas of Sri Lanka except 
+  57  522  340 TimesNewRomanPSMT            11.0 | those in any area where Tamil is the language of administration. 
+  57  535  340 TimesNewRomanPSMT            11.0 | The record and proceedings shall be in the language of the 
+  57  548  340 TimesNewRomanPSMT            11.0 | Court. In the event of an appeal from any court records shall 
+  57  561  340 TimesNewRomanPSMT            11.0 | also be prepared in the language of the court hearing the appeal, 
+  57  575  340 TimesNewRomanPSMT            11.0 | if the language of such court is other than the language used by 
+  57  588  258 TimesNewRomanPSMT            11.0 | the court from which the appeal is preferred : 
+  75  607  340 TimesNewRomanPSMT            11.0 | Provided that the Minister in charge of the subject of Justice 
+  57  620  340 TimesNewRomanPSMT            11.0 | may, with the concurrence of the Cabinet of Ministers direct 
+ 352  103  402 TimesNewRomanPS-BoldMT        9.0 | Language of 
+ 352  113  399 TimesNewRomanPS-BoldMT        9.0 | Legislation. 
+ 352  485  419 TimesNewRomanPS-BoldMT        9.0 | Languages of the 
+ 352  495  380 TimesNewRomanPS-BoldMT        9.0 | courts. 
+  57  652  359 TimesNewRomanPSMT             8.7 | 9 -	 Original Article 23 replaced by the Sixteenth Amendment to the Constitution Sec. 3. 
+  57  663  414 TimesNewRomanPSMT             8.7 | 10 -	 Original para (1) repealed and substituted by the Sixteenth Amendment to the Constitution Sec. 4(1). 
+=== PAGE 31 Rect(0.0, 0.0, 488.3999938964844, 733.2000122070312)
+  96   53  391 TimesNewRomanPS-ItalicMT     11.0 | The Constitution of the Democratic Socialist Republic of Sri Lanka
+  57   42   66 TimesNewRomanPS-BoldMT        9.0 | 14
+ 150  103  434 TimesNewRomanPSMT            11.0 | that the record of any court shall also be maintained and the 
+ 150  116  434 TimesNewRomanPSMT            11.0 | proceedings conducted in a language other than the language of 
+ 150  129  204 TimesNewRomanPSMT            11.0 | the court ; ] 
+ 168  149  434 TimesNewRomanPSMT            11.0 | (2) Any party or applicant or any person legally entitled to 
+ 150  162  434 TimesNewRomanPSMT            11.0 | represent such party or applicant may initiate proceedings and 
+ 150  175  434 TimesNewRomanPSMT            11.0 | submit to court pleadings and other documents and participate in 
+ 150  186  399 TimesNewRomanPSMT            11.0 | the proceedings in courts, 11[in either Sinhala or Tamil.] 
+ 168  207  434 TimesNewRomanPSMT            11.0 | (3) Any judge, juror, party or applicant or any person 
+ 150  221  434 TimesNewRomanPSMT            11.0 | legally entitled to represent such party or applicant, who is not 
+ 150  234  434 TimesNewRomanPSMT            11.0 | conversant with the language used in a court, shall be entitled 
+ 150  244  434 TimesNewRomanPSMT            11.0 | to interpretation and to translation into 11 [Sinhala or Tamil] 
+ 150  260  434 TimesNewRomanPSMT            11.0 | provided by the State, to enable him to understand and participate 
+ 150  273  434 TimesNewRomanPSMT            11.0 | in the proceedings before such court and shall also be entitled 
+ 150  284  434 TimesNewRomanPSMT            11.0 | to obtain in 12[such language] any such part of the record or a 
+ 150  300  434 TimesNewRomanPSMT            11.0 | translation thereof, as the case may be, as he may be entitled to 
+ 150  313  258 TimesNewRomanPSMT            11.0 | obtain according to law. 
+ 168  332  434 TimesNewRomanPSMT            11.0 | (4) The Minister in charge of the subject of Justice may, 
+ 150  345  434 TimesNewRomanPSMT            11.0 | with the concurrence of the Cabinet of Ministers, issue, 
+ 150  356  434 TimesNewRomanPSMT            11.0 | directions permitting 13[the use of English] in or in relation to 
+ 150  372  434 TimesNewRomanPSMT            11.0 | the records and proceedings in any court for all purposes or for 
+ 150  385  434 TimesNewRomanPSMT            11.0 | such purposes as may be specified therein. Every judge shall be 
+ 150  398  313 TimesNewRomanPSMT            11.0 | bound to implement such directions. 
+ 168  417  255 TimesNewRomanPSMT            11.0 | (5) In this Article – 
+ 168  437  434 TimesNewRomanPSMT            11.0 | “Court” means any court or tribunal created and established 
+ 150  450  434 TimesNewRomanPSMT            11.0 | for the administration of justice including the adjudication and 
+ 150  463  434 TimesNewRomanPSMT            11.0 | settlement of industrial and other disputes, or any other tribunal 
+ 150  476  434 TimesNewRomanPSMT            11.0 | or institution exercising judicial or quasi-judicial functions 
+ 150  489  434 TimesNewRomanPSMT            11.0 | or any tribunal or institution created and established for the 
+ 150  503  328 TimesNewRomanPSMT            11.0 | conciliation and settlement of disputes ; 
+ 168  522  434 TimesNewRomanPSMT            11.0 | "Judge” includes the President, Chairman, Presiding Officer 
+ 150  535  285 TimesNewRomanPSMT            11.0 | and member of any court ; and
+ 168  554  434 TimesNewRomanPSMT            11.0 | “Record” includes Pleadings, Judgments, Orders and Other 
+ 150  567  275 TimesNewRomanPSMT            11.0 | judicial and Ministerial acts.
+  57  612  433 TimesNewRomanPSMT             8.7 | 11 -	 Substituted by the Sixteenth Amendment to the Constitution Sec. 4(2) for “in either of the National 
+  75  621  119 TimesNewRomanPSMT             8.7 | Languages”. 
+  57  632  433 TimesNewRomanPSMT             8.7 | 12 -	 Substituted by the Sixteenth Amendment to the Constitution Sec. 4(3)(a) for “the appropriate National 
+  75  641  115 TimesNewRomanPSMT             8.7 | Language.” 
+  57  652  433 TimesNewRomanPSMT             8.7 | 13 -	 Substituted by the Sixteenth Amendment to the Constitution Sec. 4(3)(b) for “either of the National 
+  75  661  119 TimesNewRomanPSMT             8.7 | Languages.” 

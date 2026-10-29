@@ -1,0 +1,1 @@
+Verified 2026-10-29: today's text of each act is the official CNLEGIS text of its latest act (Constitution 2010; Loi 2014-038 as enacted; Loi 2014-006 with art. 20 as quoted in Loi 2016-031; Code du travail Loi 2024-014 from its official PDF), every version from its own dated act (verify.py all_equal; check.py 0 mismatches; --compare identical).

@@ -1,0 +1,10 @@
+register 2013 vs 2016 differs only in: art-026, art-034, art-035, art-072, art-075, art-088, art-093, art-129, art-136, tranz-04
+HCC7 8 b): art-078 replaced (5 paragraphs)
+HCC7 8 b): art-089 replaced (3 paragraphs)
+HCC7 3: art-085 (4) phrase removed: cu excepția cazului prevăzut la articolul 78 alineatul (5),
+2024 edition: repealed-article lines not kept as files: art-082, art-083
+units: 2006 174, 2016 174, 2024 180
+HCC7 unit art-078 equals the 2024 edition: False
+HCC7 unit art-089 equals the 2024 edition: True
+HCC7 unit art-085 equals the 2024 edition: False
+2016 -> 2024: 111 units differ (uncredited)

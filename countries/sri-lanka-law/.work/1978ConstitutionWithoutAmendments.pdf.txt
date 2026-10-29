@@ -1,0 +1,219 @@
+=== PAGE 5 Rect(0.0, 0.0, 559.0, 796.0)
+ 158   32  553 Times-BoldItalic             13.3 | CONSTITUTION OF THE REPUBLIC          Cap.1  
+  83   60  267 Times-Italic                 10.5 | (b) if the law recognizes his right to
+ 114   73  266 Times-Roman                  10.5 | inspect or to obtain copies of or
+ 114   84  266 Times-Roman                  10.5 | extracts from any official register,
+ 114   96  266 Times-Roman                  10.5 | record, publication or other
+ 114  108  266 Times-Roman                  10.5 | document, to obtain a copy of, or an
+ 114  120  266 Times-Roman                  10.5 | extract from such register, record,
+ 114  132  266 Times-Roman                  10.5 | publication or other document, or a
+ 114  144  267 Times-Roman                  10.5 | translation thereof, as the case may
+ 114  156  266 Times-Roman                  10.9 | be, in either of the National
+ 114  168  183 Times-Roman                  10.3 | Languages: and
+  85  179  267 Times-Italic                 10.5 | (c) where a document is executed by any
+ 115  191  267 Times-Roman                  10.5 | official for the purpose of being
+ 115  203  267 Times-Roman                  10.5 | issued to him, to obtain such
+ 115  215  266 Times-Roman                   9.7 | document or a translation thereof, in
+ 115  227  255 Times-Roman                  10.5 | either of the National Languages.
+  84  249  266 Times-Roman                  10.5 | (3) A local authority in the Northern or
+  75  261  267 Times-Roman                  10.5 | Eastern Province which conducts its business
+  74  272  267 Times-Roman                  10.5 | in either of the National Languages shall be
+  74  284  267 Times-Roman                  10.5 | entitled to receive communications from, and
+  74  296  267 Times-Roman                  10.5 | to communicate and transact business with,
+  74  308  267 Times-Roman                  10.5 | any official in his official capacity, in such
+  75  320  163 Times-Roman                  10.5 | National Language.
+  84  341  267 Times-Roman                  10.5 | (4) All Orders, Proclamations, rules,
+  74  353  267 Times-Roman                  10.5 | by-laws, regulations and notifications made
+  74  365  267 Times-Roman                  10.5 | or issued under any written law, the
+  73  377  266 Times-Roman                  10.5 | Gazette, and all o...ier official documents
+  74  388  266 Times-Roman                  10.5 | including circulars and forms issued or used
+  74  400  267 Times-Roman                  10.5 | by any public institution or local authority,
+  74  412  266 Times-Roman                  10.5 | shall be published in both National
+  74  424  122 Times-Roman                  10.5 | Languages.
+  84  448  267 Times-Roman                  10.5 | (5) A person shall be entitled to be
+  74  460  266 Times-Roman                  10.5 | examined through the medium of either of
+  74  472  266 Times-Roman                  10.5 | the National Languages at any examination
+  75  485  267 Times-Roman                  10.5 | for the admission of persons to the Public
+  74  496  267 Times-Roman                  10.5 | Service, Judicial Service, Local Government
+  74  508  267 Times-Roman                  10.5 | Service, a public corporation or statutory
+  74  519  267 Times-Roman                  10.5 | institution, subject to the condition that he
+  74  531  267 Times-Roman                  10.5 | may be required to acquire a sufficient
+  75  543  267 Times-Roman                  10.5 | knowledge of the Official Language within a
+  75  555  267 Times-Roman                  10.5 | reasonable time after admission to any such
+  75  567  267 Times-Roman                  10.5 | Service, public corporation or statutory
+  75  579  268 Times-Roman                  10.5 | institution where such knowledge is
+  75  591  268 Times-Roman                  10.5 | reasonably necessary for the discharge of his
+  75  603  106 Times-Roman                  10.8 | duties:
+  85  619  268 Times-Roman                  10.5 | Provided that a person may be required to
+  75  631  268 Times-Roman                  10.5 | have a sufficient knowledge of the
+  75  643  268 Times-Roman                  10.5 | Official Language as a condition for
+  74  654  266 Times-Roman                  10.5 | admission to any such Service, public
+  75  666  268 Times-Roman                  10.5 | corporation or statutory institution where no
+  75  678  268 Times-Roman                  10.5 | function of the office or employment for
+  75  691  268 Times-Roman                  10.2 | which he is recruited can be discharged
+  75  702  268 Times-Roman                  10.5 | otherwise than with a sufficient knowledge of
+  75  714  172 Times-Roman                  10.5 | the Official Language.
+ 290   61  374 Times-Roman                  11.5 | (6) In this Article-
+ 291   81  472 Times-Roman                  10.5 | "official" means the President, any
+ 319   94  471 Times-Roman                  10.5 | Minister, Deputy Minister, or any
+ 318  105  471 Times-Roman                  10.5 | officer of a public institution or
+ 319  117  404 Times-Roman                  10.5 | local authority; and
+ 288  136  471 Times-Roman                  10.5 | " public institution " means a department
+ 318  148  470 Times-Roman                  10.5 | or institution of the Government, a
+ 318  160  471 Times-Roman                  10.5 | public corporation or statutory
+ 318  172  364 Times-Roman                  10.3 | institution.
+ 288  191  530 Times-Bold                   10.4 | 23. (1) All laws and subordinate     Language of
+ 278  202  471 Times-Roman                  10.5 | legislation shall be enacted or made, and 
+ 483  203  510 Times-Roman                   7.7 | Legislation.
+ 278  214  470 Times-Roman                  10.5 | published, in both National Languages
+ 278  226  470 Times-Roman                  10.5 | together with a translation in the English
+ 278  238  470 Times-Roman                  10.5 | Language. In the event of any inconsistency
+ 278  249  470 Times-Roman                  10.5 | between any two texts, the text in the Official
+ 278  261  377 Times-Roman                  10.5 | Language shall prevail.
+ 289  289  471 Times-Roman                  10.5 | (2) All laws and subordinate legislation in
+ 279  301  306 Times-Roman                  10.5 | force 
+ 318  301  383 Times-Roman                  10.5 | immediately 
+ 396  301  422 Times-Roman                  10.5 | prior 
+ 434  301  445 Times-Roman                  10.5 | to 
+ 457  301  471 Times-Roman                  10.5 | the
+ 278  313  471 Times-Roman                  10.5 | commencement of the Constitution, shall be
+ 278  325  471 Times-Roman                  10.5 | published in the Gazette in both National
+ 279  337  445 Times-Roman                  10.5 | Languages as expeditiously as possible.
+ 289  364  472 Times-Roman                  10.5 | (3) The law published in Sinhala under
+ 279  376  472 Times-Roman                  10.5 | the provisions of paragraph (2) of this
+ 279  388  472 Times-Roman                  10.5 | Article, shall, as from the date of such
+ 280  400  472 Times-Roman                  10.5 | publication, be deemed to be the law and
+ 280  412  465 Times-Roman                  10.5 | supersede the corresponding law in English.
+ 289  455  525 Times-Bold                   10.5 | 24. (1) The Official Language shall be     Language of
+ 279  467  513 Times-Roman                  10.1 | the  language  of  the  courts  throughout  Sri                   the courts.
+ 279  479  471 Times-Roman                  10.5 | Lanka and accordingly their records and
+ 279  491  471 Times-Roman                  10.5 | proceedings shall be in the Official
+ 279  504  326 Times-Roman                  10.4 | Language:
+ 289  526  471 Times-Roman                  10.5 | Provided that the language of the courts
+ 279  538  472 Times-Roman                  10.5 | exercising original jurisdiction in the
+ 279  550  472 Times-Roman                  10.5 | Northern and Eastern Provinces shall also be
+ 279  562  472 Times-Roman                  10.5 | Tamil and their records and proceedings shall
+ 279  574  472 Times-Roman                  10.5 | be in the Tamil Language. In the event of an
+ 279  586  472 Times-Roman                  10.5 | appeal from any such court, records in both
+ 279  598  472 Times-Roman                  10.5 | National Languages shall be prepared for the
+ 279  609  438 Times-Roman                  10.5 | use of the court hearing such appeal;
+ 289  627  385 Times-Roman                  10.5 | Provided further that-
+ 289  645  473 Times-Italic                 10.5 | (a) the Minister in charge of the subject 01
+ 319  657  472 Times-Roman                  10.5 | Justice may, with the concurrence of
+ 319  669  471 Times-Roman                  10.5 | the Cabinet of Ministers, direct that
+ 319  681  472 Times-Roman                  10.5 | the record of any such court shall
+ 319  692  472 Times-Roman                  10.5 | also be maintained and proceedings
+ 319  704  370 Times-Roman                  10.5 | conducted 
+ 382  704  393 Times-Roman                  10.5 | in 
+ 405  704  422 Times-Roman                  10.5 | the 
+ 433  704  472 Times-Roman                  10.5 | Official
+ 320  716  385 Times-Roman                  10.5 | Language; and
+ 265  738  284 Times-Roman                  12.2 | 1/8
+=== PAGE 6 Rect(0.0, 0.0, 551.0, 799.0)
+ 159   43  392 Times-Italic                 13.5 | CONSTITUTION OF THE REPUBLIC 
+ 488   43  531 Times-Bold                   13.5 | [Cap. 1
+  83   71  266 Times-Italic                 10.6 | (b) the record of any particular proceeding
+ 113   83  266 Times-Roman                  10.6 | in such court shall also be
+ 113   95  171 Times-Roman                  10.6 | maintained 
+ 180   95  192 Times-Roman                  10.6 | in 
+ 201   95  218 Times-Roman                  10.6 | the 
+ 227   95  266 Times-Roman                  10.6 | Official
+ 113  107  266 Times-Roman                  10.6 | Language if so required by the
+ 113  119  266 Times-Roman                  10.6 | judge of such court, or by any party
+ 113  131  266 Times-Roman                  10.6 | or applicant or any person legally
+ 113  143  266 Times-Roman                  10.6 | entitled to represent such party or
+ 113  155  266 Times-Roman                  10.6 | applicant in such proceeding, where
+ 113  167  266 Times-Roman                  10.6 | such judge, party, applicant or
+ 113  178  266 Times-Roman                  10.6 | person is not conversant with the
+ 113  190  187 Times-Roman                  11.3 | Tamil Language.
+  83  218  266 Times-Roman                  10.6 | (2) Any party or applicant or any person
+  73  230  266 Times-Roman                  10.6 | legally entitled to represent such party or
+  74  242  266 Times-Roman                  10.6 | applicant may initiate proceedings, and
+  74  254  266 Times-Roman                  10.6 | submit to court pleadings and other
+  73  265  267 Times-Roman                  10.6 | documents, and participate in the proceedings
+  74  277  267 Times-Roman                  10.6 | in court, in either of the National Languages.
+  84  306  267 Times-Roman                  10.6 | (3) Any judge, juror, party or applicant or
+  74  318  267 Times-Roman                  10.6 | any person legally entitled to represent such
+  74  329  267 Times-Roman                  10.6 | party or applicant, who is not conversant with
+  74  341  267 Times-Roman                  10.6 | the language used in a court, shall be entitled
+  74  353  267 Times-Roman                  10.6 | to interpretation and to translation into the
+  74  366  267 Times-Roman                  10.6 | appropriate National Language, provided
+  74  377  267 Times-Roman                  10.6 | by the State, to enable him to understand and
+  74  389  267 Times-Roman                  10.6 | participate in the proceedings before such
+  74  401  267 Times-Roman                  10.6 | court, and shall also be entitled to obtain in
+  74  413  267 Times-Roman                  10.6 | either of the National Languages, any such
+  74  425  267 Times-Roman                  10.6 | part of the record or a translation thereof, as
+  74  437  267 Times-Roman                  10.6 | the case may be, as he may be entitled to
+  74  448  177 Times-Roman                  11.1 | obtain according to law.
+  84  474  266 Times-Roman                  10.6 | (4) The Minister in charge of the subject
+  73  486  267 Times-Roman                  10.6 | of Justice may, with the concurrence of the
+  74  498  267 Times-Roman                  10.6 | Cabinet of Ministers, issue directions
+  74  510  266 Times-Roman                  10.6 | permitting the use of a language other than a
+  74  521  267 Times-Roman                  10.6 | National Language in or in relation to the
+  74  533  267 Times-Roman                  10.6 | records and proceedings in any court for all
+  74  545  267 Times-Roman                  10.6 | purposes or for such purposes as may be
+  74  557  267 Times-Roman                  10.6 | specified therein. Every judge shall be bound
+  74  569  199 Times-Roman                  10.6 | to implement such directions.
+  85  593  169 Times-Roman                  10.6 | (5) In this Article-
+  85  608  268 Times-Roman                  10.4 | "court" means any court or tribunal
+ 115  620  268 Times-Roman                  10.6 | created and established for the
+ 115  631  268 Times-Roman                  10.6 | administration of justice including
+ 115  644  268 Times-Roman                  10.6 | the adjudication and settlement of
+ 116  656  268 Times-Roman                  10.6 | industrial and other disputes, or any
+ 115  668  268 Times-Roman                  10.6 | other tribunal or institution
+ 115  680  268 Times-Roman                  10.6 | exercising judicial or quasi-judicial
+ 116  692  268 Times-Roman                  10.6 | functions or any tribunal or
+ 116  703  268 Times-Roman                  10.6 | institution created and established
+ 116  715  268 Times-Roman                  10.6 | for the conciliation and settlement
+ 116  727  169 Times-Roman                  10.6 | of disputes;
+ 289   72  329 Times-Roman                  10.6 | "judge" 
+ 347   72  389 Times-Roman                  10.6 | includes 
+ 399   72  416 Times-Roman                  10.6 | the 
+ 424   72  471 Times-Roman                  10.6 | President.
+ 319   85  471 Times-Roman                  10.6 | Chairman, presiding officer and
+ 319   96  431 Times-Roman                  10.6 | member of any court; and
+ 289  113  472 Times-Roman                  10.6 | " record " includes pleadings, judgments,
+ 319  126  368 Times-Roman                  10.6 | orders an 
+ 380  126  471 Times-Roman                  10.6 | other judicial and
+ 319  138  387 Times-Roman                  10.6 | ministerial acts.
+ 289  157  512 Times-Bold                   11.7 | 25. The State shall provide adequate Provision for
+ 279  168  504 Times-Roman                  10.6 | facilities for the use of the languages provided  adequate
+ 280  180  532 Times-Roman                  11.3 | for in this Chapter,                                         facilitiesforuse
+ 474  190  546 Times-Roman                   8.7 | of languages provided
+ 474  203  540 Times-Roman                   8.7 | for in this Chapter.
+ 338  239  411 Times-Bold                   11.6 | CHAPTER V
+ 342  264  399 Times-Roman                  10.5 | CITIZENSHIP
+ 290  288  520 Times-Bold                   11.2 | 26. (1) There shall be one status of  Citizenship of
+ 279  300  513 Times-Roman                  10.3 | citizenship    known   as  " the   status   of   a    citizen        Sri Lanka.
+ 280  312  343 Times-Roman                  10.6 | of Sri Lanka ".
+ 290  335  472 Times-Roman                  10.6 | (2) A citizen of Sri Lanka shall for all
+ 280  347  471 Times-Roman                  10.6 | purposes be described only as a " citizen of
+ 280  359  472 Times-Roman                  10.6 | Sri Lanka ", whether such person became
+ 280  371  472 Times-Roman                  10.6 | entitled to citizenship by descent or by virtue
+ 280  383  472 Times-Roman                  10.6 | of registration in accordance with the law
+ 280  395  374 Times-Roman                  10.6 | relating to citizenship.
+ 290  419  472 Times-Roman                  10.6 | (3) No distinction shall be drawn between
+ 280  430  472 Times-Roman                  10.6 | citizens of Sri Lanka for any purpose by
+ 280  442  472 Times-Roman                  10.6 | reference to the mode of acquisition of such
+ 280  454  472 Times-Roman                  10.6 | status, as to whether acquired by descent or
+ 280  466  384 Times-Roman                  10.6 | by virtue of registration.
+ 290  490  473 Times-Roman                  10.6 | (4) No citizen of Sri Lanka shall be
+ 280  502  472 Times-Roman                  10.6 | deprived of his status of a citizen of Sri
+ 279  514  471 Times-Roman                  10.6 | Lanka, except under and by virtue of the
+ 280  526  472 Times-Roman                  10.6 | provisions of sections 19, 20, 21 and 22 of the
+ 280  537  352 Times-Roman                  10.3 | Citizenship Act:
+ 290  562  473 Times-Roman                  10.0 | Provided that the provisions of sections 23
+ 280  573  473 Times-Roman                  10.6 | and 24 of that Act shall also be applicable to
+ 280  585  473 Times-Roman                  10.6 | a person who became entitled to the status of
+ 280  597  473 Times-Roman                  10.6 | a citizen of Sri Lanka by virtue of
+ 281  610  472 Times-Roman                  10.0 | registration under the provisions of sections
+ 282  622  388 Times-Roman                  10.6 | 11, 12 or 13 of that Act.
+ 291  645  473 Times-Roman                  10.0 | (5) Every person who immediately prior to
+ 281  657  473 Times-Roman                  10.6 | the commencement of the Constitution was a
+ 280  668  473 Times-Roman                  10.6 | citizen of Sri Lanka, whether by descent or
+ 281  680  473 Times-Roman                  10.2 | by virtue of registration in accordance with
+ 281  692  473 Times-Roman                  10.3 | any law relating to citizenship, shall be
+ 281  704  473 Times-Roman                  10.6 | entitled to the status and to the rights of a
+ 281  716  474 Times-Roman                  10.6 | citizen of Sri Lanka as provided in the
+ 281  728  431 Times-Roman                  10.0 | preceding provisions of this Article.
+ 265  750  285 Times-Roman                  12.3 | 1/9

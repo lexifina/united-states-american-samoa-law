@@ -1,0 +1,70 @@
+ustav: Assembly tokens 12201, gazette tokens 18666, similarity 0.771, gazette paragraph starts unmapped 256, mapped 619, Assembly-own starts 693, gazette-only starts 177
+ustav 1991: preamble 8 paragraphs, 134 articles, 18 headings
+ustav: kept hyphen ГРАДЕЖ-НО
+ustav: kept hyphen ОДБ-РАНА,
+ustav: kept hyphen РЕ-ПУБЛИКА
+ustav: kept hyphen ЗАШ-ТИТА
+ustav: kept hyphen КА-КО
+ustav: kept hyphen АКТИВ-НОСТИ
+ustav: kept hyphen ВИ-СИНАТА
+ustav: amendment XIX gazette vs Assembly copy word differences: - утврдена + утврдени + на + сите - другите + други - на
+ustav: amendment XXVI gazette vs Assembly copy word differences: - пропишанасо + пропишана + со - утврденисо + утврдени + со
+ustav: kept hyphen ГОРАН-СКОТО
+ustav: kept hyphen ПРОИЗВОДС-ТВО
+ustav: kept hyphen КА-КО
+ustav: kept hyphen ИЗВЕШ-ТАЈ
+ustav: amendment XXXII gazette vs Assembly copy word differences: + 1 - 1на + на
+amendment 1 replace_stav art 3 stav 3 alinea None: was "['Границата на Република Македонија може да се менува само во согласност со Уставот.']"
+amendment 1 add_stav_end art 3 stav None alinea None: was 'None'
+amendment 2 append_to_stav art 49 stav 1 alinea None: was 'Републиката се грижи за положбата и правата на припадниците на македонскиот народ во сосед'
+amendment 3 replace_stav art 12 stav 5 alinea None: was "['Притворот може да трае по одлука на суд најдолго 90 дена од денот на притворувањето.']"
+amendment 4 replace_preamble art None stav None alinea None: was "['Тргнувајќи од историското културно, духовно и државно наследство на македонскиот народ и"
+amendment 5 replace_art art 7 stav None alinea None: was "[['Во Република Македонија службен јазик е македонскиот јазик и неговото кирилско писмо.']"
+amendment 6 insert_after_alinea art 8 stav 1 alinea 2: was '- слободното изразување на националната припадност;'
+amendment 7 replace_stav art 19 stav 4 alinea None: was "['Македонската православна црква, другите верски заедници и религиозни групи се слободни в"
+amendment 7 replace_stav art 19 stav 3 alinea None: was "['Македонската православна црква, другите верски заедници и религиозни групи се одвоени од"
+amendment 8 replace_art art 48 stav None alinea None: was "[['Припадниците на националностите имаат право слободно да ги изразуваат, негуваат и разви"
+amendment 9 replace_stav art 56 stav 2 alinea None: was "['Републиката гарантира заштита, унапредување и збогатување на историското и уметничкото б"
+amendment 10 replace_art art 69 stav None alinea None: was "[['Собранието може да работи ако на седницата присуствува мнозинството од вкупниот број пр"
+amendment 11 replace_stav art 77 stav 2 alinea None: was "['Народниот правобранител ги штити уставните и законските права на граѓаните кога им се по"
+amendment 11 replace_stav art 77 stav 1 alinea None: was "['Собранието избира народен правобранител.']"
+amendment 12 replace_art art 78 stav None alinea None: was "[['Собранието основа Совет за меѓунационални односи.'], ['Советот го сочинуваат:'], ['прет"
+amendment 12 delete_alinea art 84 stav 1 alinea 7: was '- ги предлага членовите на Советот за меѓунационални односи;'
+amendment 13 append_to_stav art 86 stav 2 alinea None: was 'Советот за безбедност на Републиката го сочинуваат: претседателот на Републиката, претседа'
+amendment 14 append_to_stav art 104 stav 2 alinea None: was 'Собранието ги избира членовите на Советот.'
+amendment 15 replace_stav art 109 stav 2 alinea None: was "['Собранието ги избира судиите на Уставниот суд со мнозинство гласови од вкупниот број пра"
+amendment 16 replace_stav art 114 stav 5 alinea None: was "['Локалната самоуправа се уредува со закон кој се донесува со двотретинско мнозинство глас"
+amendment 17 replace_stav art 115 stav 1 alinea None: was "['Во единиците на локалната самоуправа граѓаните непосредно и преку претставници учествува"
+amendment 17 replace_stav art 117 stav 2 alinea None: was "['Во градот Скопје граѓаните непосредно и преку претставници учествуваат во одлучувањето з"
+amendment 18 insert_stav art 131 stav 4 alinea None: was 'None'
+amendment 19 replace_art art 17 stav None alinea None: was "[['Се гарантира слободата и тајноста на писмата и на сите други облици на општење.'], ['Са"
+amendment 20 add_stav_end art 13 stav None alinea None: was 'None'
+amendment 21 replace_art art 15 stav None alinea None: was "[['Се гарантира правото на жалба против поединечните правни акти донесени во постапка во п"
+amendment 22 replace_alinea art 84 stav 1 alinea 5: was '- предлага двајца членови на Републичкиот судски совет;'
+amendment 23 replace_stav art 89 stav 3 alinea None: was "['Претседателот и министрите уживаат имунитет. За нивниот имунитет одлучува Владата.']"
+amendment 24 replace_alinea art 91 stav 1 alinea 12: was '- предлага јавен обвинител;'
+amendment 25 replace_art art 98 stav None alinea None: was "[['Судската власт ја вршат судовите.'], ['Судовите се самостојни и независни. Судовите суд"
+amendment 26 replace_stav art 99 stav 3 alinea None: was "['Судијата се разрешува:', '- ако тоа сам го побара;', '- ако трајно ја загуби способноста"
+amendment 27 replace_stav art 100 stav 3 alinea None: was "['Судиската функција е неспојлива со вршење на друга јавна функција и професија или со чле"
+amendment 27 replace_stav art 100 stav 2 alinea None: was "['За имунитетот на судиите одлучува Собранието.']"
+amendment 28 replace_art art 104 stav None alinea None: was "[['Републичкиот судски совет го сочинуваат седум членови.'], ['Собранието ги избира членов"
+amendment 29 replace_art art 105 stav None alinea None: was "[['Републичкиот судски совет:', '- на Собранието му предлага избор и разрешување на судии "
+amendment 29 delete_alinea art 68 stav 1 alinea 15: was '- врши избор и разрешување на судии;'
+amendment 30 replace_stavs art 106 stav (2, 3) alinea None: was "[['Јавното обвинителство ги врши своите функции врз основа и во рамките на Уставот и закон"
+amendment 30 delete_art art 107 stav None alinea None: was "[['Јавниот обвинител ужива имунитет.'], ['За неговиот имунитет одлучува Собранието.'], ['Ф"
+amendment 31 replace_stav art 81 stav 5 alinea None: was "['За претседател е избран кандидатот кој добил мнозинство гласови од избирачите кои гласал"
+amendment 32 replace_stav art 4 stav 2 alinea None: was "['На државјанин на Република Македонија не може да му биде одземено државјанството, ниту д"
+amendment 34 preamble_edits art None stav None alinea None: was "['Граѓаните на Република Македонија, Македонскиот народ, како и граѓаните кои живеат во не"
+amendment 35 add_stav_end art 3 stav None alinea None: was 'None'
+amendment 36 replace_art art 49 stav None alinea None: was "[['Републиката се грижи за положбата и правата на припадниците на македонскиот народ во со"
+amendment 33 rename art None stav None alinea None: was 'None'
+zakon: text outside an article: ЗА ЗАШТИТА НА ЛИЧНИТЕ ПОДАТОЦИ (*)
+zzlp zakon-2021-294 art 1 title clen-014 stav None: was '## Обработка на лични податоци поврзани со осудите за кривични дела'
+zzlp zakon-2021-294 art 2 replace_n clen-014 stav None: was 'Обработката на личните податоци во врска со осуди за кривични дела или која е поврзана со заштитни м'
+zzlp zakon-2021-294 art 3 insert_after clen-039 stav 9: was '(9) Контролорот изврши преиспитување за да процени дали обработката се врши во согласност со процена'
+zzlp zakon-2021-294 art 4 delete clen-064 stav 1: was '(1) Агенцијата е надлежна за извршување на задачите и на овластувањата доделени согласно со овој зак'
+zzlp zakon-2021-294 art 5 replace_word clen-122 stav None: was 'Одредбите од глава II (освен член 12), III, IV (освен членови 46 и 47), V и VIII од овој закон ќе пр'
+zzlp zakon-2025-101 art 1 insert_after_ci clen-048 stav 2: was '(2) Одредбите од оваа глава нема да се применуваат за пренос на личните податоци од ставот (1) на ов'
+zzlp zakon-2025-101 art 1 insert_after_ci clen-048 stav 3: was '(3) Во случај на пренос на лични податоци во земја членка на Европската унија, односно земја членка '
+zzlp zakon-2025-101 art 2 insert_after_ci clen-056 stav None: was 'Начинот на известувањето за пренос на лични податоци во земјите членки на Европската унија и за земј'
+zzlp zakon-2025-101 art 2 insert_after_ci clen-056 stav None: was 'Начинот на известувањето за пренос на лични податоци во земјите членки на Европската унија, во земји'

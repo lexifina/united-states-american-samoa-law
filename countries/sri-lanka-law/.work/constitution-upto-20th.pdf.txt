@@ -1,0 +1,113 @@
+=== PAGE 27 Rect(0.0, 0.0, 439.3699951171875, 700.1576538085938)
+  86   47  355 TTD2t00                      10.0 | The Constitution of the Democratic Socialist Republic of Sri Lanka 
+  29   42   44 TT1CFt00                     10.0 | 10  
+ 244   95  308 TT1CFt00                     10.0 | CHAPTER IV  
+ 239  117  311 TT15Ft00                     12.0 | LANGUAGE 
+ 154  142  389 TT15Ft00                     10.0 | 18.  4[(1)]The Official Language of  Sri Lanka shall be 
+ 154  153  189 TT1CFt00                     10.0 | Sinhala. 
+ 146  174  333 TT10Dt00                      5.9 |    5[(2) Tamil shall also be an official language. 
+ 154  195  307 TT1CFt00                     10.0 | (3) English shall be the link language. 
+ 154  216  168 TT1CFt00                     10.0 | (4) 
+ 234  218  248 TT1CFt00                     10.0 |  by 
+ 295  218  315 TT1CFt00                     10.0 |    for  
+ 326  218  392 TT1CFt00                     10.0 |  implementation 
+ 132  227  269 TT1CFt00                     10.0 | of the provisions of this Chapter.] 
+ 154  251  392 TT15Ft00                     10.0 | 19. The National Languages of Sri Lanka shall be Sinhala 
+ 132  259  177 TT1CFt00                     10.0 | and Tamil. 
+ 154  283  392 TT15Ft00                     10.0 | 20. A Member of Parliament or 6[a member of a 
+ 132  296  392 TT1CFt00                     10.0 | Provincial Council or a Local Authority] shall be entitled to 
+ 132  305  396 TT1CFt00                     10.0 | perform his duties and discharge his functions in Parliament  
+ 132  317  392 TTD2t00                       5.9 | 7[or in such Provincial Council or Local Authority] in either of 
+ 132  327  232 TT1CFt00                     10.0 | the National Languages. 
+ 154  355  392 TT15Ft00                     10.0 | 21. (1) A person shall be entitled to be educated through 
+ 132  364  328 TT1CFt00                     10.0 | the medium of either of the National Languages: 
+ 154  391  392 TT1CFt00                     10.0 | Provided that the provisions of this paragraph shall not 
+ 132  402  392 TT1CFt00                     10.0 | apply to an institution of higher education where the medium of 
+ 132  411  361 TT1CFt00                     10.0 | instruction is a language other than a National Language. 
+ 154  436  392 TT1CFt00                     10.0 | (2) Where one National Language is a medium of 
+ 132  447  392 TT1CFt00                     10.0 | instruction for or in any course, department or faculty of any 
+ 132  458  392 TT1CFt00                     10.0 | University directly or indirectly financed by the State, the other 
+ 132  469  392 TT1CFt00                     10.0 | National Language shall also be made a medium of instruction 
+ 132  480  392 TT1CFt00                     10.0 | for or in such course, department or faculty for students who 
+ 132  492  392 TT1CFt00                     10.0 | prior to their admission to such University, were educated 
+ 132  501  351 TT1CFt00                     10.0 | through the medium of such other National Language: 
+ 154  524  192 TT1CFt00                     10.0 | Provided 
+ 203  524  221 TT1CFt00                     10.0 | that 
+ 232  524  281 TT1CFt00                     10.0 | compliance 
+ 292  524  312 TT1CFt00                     10.0 | with 
+ 324  524  338 TT1CFt00                     10.0 | the 
+ 350  524  392 TT1CFt00                     10.0 | preceding 
+ 132  535  392 TT1CFt00                     10.0 | provisions of this paragraph shall not be obligatory if such 
+ 132  546  392 TT1CFt00                     10.0 | other National Language is the medium of instruction for or in 
+ 132  557  392 TT1CFt00                     10.0 | any like course, department or faculty either at any other 
+ 132  569  392 TT1CFt00                     10.0 | campus or branch of such University or of any other like 
+ 132  578  178 TT1CFt00                     10.0 | University. 
+  48  612  309 TT1CFt00                      7.0 | 4 - Renumbered as paragraph (1)by the Thirteenth Amendment to the Constitution Sec. 2(a). 
+  48  619  250 TT1CFt00                      7.0 | 5 - Inserted by the Thirteenth Amendment to the Constitution Sec. 2(b). 
+  48  627  370 TT1CFt00                      7.0 | 6 - Substituted by the Sixteenth Amendment to the Constitution Sec. 2(1) for “or a Member of a Local Authority”. 
+  48  635  348 TT1CFt00                      7.0 | 7 - Substituted by the Sixteenth Amendment to the Constitution Sec. 2(2) for “or in such Local Authority”. 
+  48  142  111 TT15Ft00                      8.0 | Official Language 
+  48  249  120 TT15Ft00                      8.0 | National Languages  
+  48  283  103 TT15Ft00                      8.0 | Use of National 
+  48  292   96 TT15Ft00                      8.0 | Languages in 
+  48  300   90 TT15Ft00                      8.0 | Parliament, 
+  48  307  114 TT15Ft00                      8.0 | Provincial Council 
+  48  314   84 TT15Ft00                      8.0 | and Local 
+  48  319   89 TT15Ft00                      8.0 | Authorities 
+  48  355   89 TT15Ft00                      8.0 | Medium of  
+  48  362   87 TT15Ft00                      8.0 | instruction 
+=== PAGE 28 Rect(0.0, 0.0, 439.3699951171875, 700.1576538085938)
+ 384   41  399 TT1CFt00                     10.0 | 11  
+  86   47  355 TTD2t00                      10.0 | The Constitution of the Democratic Socialist Republic of Sri Lanka 
+  70   98  308 TT1CFt00                     10.0 | (3) In this Article “University” includes any institution of 
+  48  107  120 TT1CFt00                     10.0 | higher education. 
+  70  130  308 TTD2t00                       5.9 | 8[22. (1) Sinhala and Tamil shall be the languages of 
+  48  142  308 TT1CFt00                     10.0 | administration throughout Sri Lanka and Sinhala shall be the 
+  48  154  308 TT1CFt00                     10.0 | language of administration and be used for the maintenance 
+  48  165  308 TT1CFt00                     10.0 | of public records and the transaction of all business by public 
+  48  176  308 TT1CFt00                     10.0 | institutions of all the Provinces of Sri Lanka other than the 
+  48  185  297 TT1CFt00                     10.0 | Northern and Eastern Provinces where Tamil shall be so used: 
+  70  206  308 TT1CFt00                     10.0 | Provided that the President may, having regard to the 
+  48  218  308 TT1CFt00                     10.0 | proportion which the Sinhala or Tamil linguistic minority 
+  48  229  308 TT1CFt00                     10.0 | population in any unit comprising a division of an Assistant 
+  48  240  308 TT1CFt00                     10.0 | Government Agent, bears to the total population of that area, 
+  48  251  308 TT1CFt00                     10.0 | direct that both Sinhala and Tamil or a language other than the 
+  48  262  308 TT1CFt00                     10.0 | language used as the language of administration in the province 
+  48  274  308 TT1CFt00                     10.0 | in which such area may be situated, be used as the language of 
+  48  282  164 TT1CFt00                     10.0 | administration for such area. 
+  70  304  308 TT1CFt00                     10.0 | (2) In any area where Sinhala is used as the language 
+  48  315  308 TT1CFt00                     10.0 | of administration a person other than an official acting in his 
+  48  324  184 TT1CFt00                     10.0 | official capacity, shall be entitled: 
+  77  345  108 TT1CFt00                     10.0 | (a) to 
+ 119  347  150 TT1CFt00                     10.0 | receive 
+ 239  347  261 TT1CFt00                     10.0 | from 
+ 271  347  288 TT1CFt00                     10.0 | and 
+ 299  347  309 TT1CFt00                     10.0 | to 
+  98  360  309 TT1CFt00                     10.0 | communicate and transact business with, any 
+  98  372  309 TT1CFt00                     10.0 | official in his official capacity, in either Tamil or 
+  98  382  134 TT1CFt00                     10.0 | English; 
+  77  401  309 TT1CFt00                     10.0 | (b) If the law recognizes his right to inspect or to obtain 
+  98  416  237 TT1CFt00                     10.0 | copies of or extracts from any 
+ 274  416  309 TT1CFt00                     10.0 | register, 
+  98  428  309 TT1CFt00                     10.0 | record, publication or other document, to obtain a 
+  98  440  309 TT1CFt00                     10.0 | copy of, or an extract from such register, record, 
+  98  452  309 TT1CFt00                     10.0 | publication or other document, or a translation 
+  98  464  309 TT1CFt00                     10.0 | thereof, as the case may be, in either Tamil or 
+  98  474  134 TT1CFt00                     10.0 | English. 
+  77  494  309 TT1CFt00                     10.0 | (c) where a document is executed by any official 
+  98  508  309 TT1CFt00                     10.0 | for the purpose of being issued to him, to obtain 
+  98  520  309 TT1CFt00                     10.0 | such document or a translation thereof, in either 
+  98  530  171 TT1CFt00                     10.0 | Tamil or English; 
+  72  556  309 TT1CFt00                     10.0 | (3) In any area where Tamil is used as the language of 
+  48  568  309 TT1CFt00                     10.0 | administration, a person other than an official acting in his 
+  48  580  309 TT1CFt00                     10.0 | official capacity, shall be entitled to exercise the rights and to 
+  48  593  309 TT1CFt00                     10.0 | obtain the services, referred to in sub paragraphs (a), (b) and (c) 
+  48  602  265 TT1CFt00                     10.0 | of paragraph (2) of this Article, in Sinhala or English.  
+  48  639   57 TT1CFt00                      7.0 | 8 - 
+  77  641   86 TT1CFt00                      7.0 | 22 
+ 114  641  123 TT1CFt00                      7.0 | by 
+ 191  641  198 TT1CFt00                      7.0 | to 
+ 207  641  242 TT1CFt00                      7.0 | Constitution
+ 256  639  264 TT1CFt00                      7.0 | 3.  
+ 324  129  372 TT15Ft00                      8.0 | Languages of 
+ 324  136  381 TT15Ft00                      8.0 | Administration  

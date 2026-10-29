@@ -1,0 +1,2112 @@
+{
+  "date": "2026-10-28",
+  "register": "https://claude.ai/artifact/DdS9F6yqpPZtV2i7FGQhYZ",
+  "countries": [
+    {
+      "path": "af",
+      "code": "AF",
+      "name": "Afghanistan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/afghanistan-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "al",
+      "code": "AL",
+      "name": "Albania",
+      "level": "country",
+      "repo": "https://github.com/lexifina/albania-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "dz",
+      "code": "DZ",
+      "name": "Algeria",
+      "level": "country",
+      "repo": "https://github.com/lexifina/algeria-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "ad",
+      "code": "AD",
+      "name": "Andorra",
+      "level": "country",
+      "repo": "https://github.com/lexifina/andorra-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ao",
+      "code": "AO",
+      "name": "Angola",
+      "level": "country",
+      "repo": "https://github.com/lexifina/angola-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ag",
+      "code": "AG",
+      "name": "Antigua and Barbuda",
+      "level": "country",
+      "repo": "https://github.com/lexifina/antigua-and-barbuda-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ar",
+      "code": "AR",
+      "name": "Argentina",
+      "level": "country",
+      "repo": "https://github.com/lexifina/argentina-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "am",
+      "code": "AM",
+      "name": "Armenia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/armenia-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "au",
+      "code": "AU",
+      "name": "Australia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/australia-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 12
+    },
+    {
+      "path": "at",
+      "code": "AT",
+      "name": "Austria",
+      "level": "country",
+      "repo": "https://github.com/lexifina/austria-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 1
+    },
+    {
+      "path": "az",
+      "code": "AZ",
+      "name": "Azerbaijan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/azerbaijan-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "bs",
+      "code": "BS",
+      "name": "Bahamas",
+      "level": "country",
+      "repo": "https://github.com/lexifina/bahamas-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "bh",
+      "code": "BH",
+      "name": "Bahrain",
+      "level": "country",
+      "repo": "https://github.com/lexifina/bahrain-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "bd",
+      "code": "BD",
+      "name": "Bangladesh",
+      "level": "country",
+      "repo": "https://github.com/lexifina/bangladesh-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "bb",
+      "code": "BB",
+      "name": "Barbados",
+      "level": "country",
+      "repo": "https://github.com/lexifina/barbados-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "by",
+      "code": "BY",
+      "name": "Belarus",
+      "level": "country",
+      "repo": "https://github.com/lexifina/belarus-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "be",
+      "code": "BE",
+      "name": "Belgium",
+      "level": "country",
+      "repo": "https://github.com/lexifina/belgium-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "bz",
+      "code": "BZ",
+      "name": "Belize",
+      "level": "country",
+      "repo": "https://github.com/lexifina/belize-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "bj",
+      "code": "BJ",
+      "name": "Benin",
+      "level": "country",
+      "repo": "https://github.com/lexifina/benin-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "bt",
+      "code": "BT",
+      "name": "Bhutan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/bhutan-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "bo",
+      "code": "BO",
+      "name": "Bolivia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/bolivia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ba",
+      "code": "BA",
+      "name": "Bosnia and Herzegovina",
+      "level": "country",
+      "repo": "https://github.com/lexifina/bosnia-and-herzegovina-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "bw",
+      "code": "BW",
+      "name": "Botswana",
+      "level": "country",
+      "repo": "https://github.com/lexifina/botswana-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "br",
+      "code": "BR",
+      "name": "Brazil",
+      "level": "country",
+      "repo": "https://github.com/lexifina/brazil-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 3
+    },
+    {
+      "path": "bn",
+      "code": "BN",
+      "name": "Brunei",
+      "level": "country",
+      "repo": "https://github.com/lexifina/brunei-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "bg",
+      "code": "BG",
+      "name": "Bulgaria",
+      "level": "country",
+      "repo": "https://github.com/lexifina/bulgaria-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "bf",
+      "code": "BF",
+      "name": "Burkina Faso",
+      "level": "country",
+      "repo": "https://github.com/lexifina/burkina-faso-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "bi",
+      "code": "BI",
+      "name": "Burundi",
+      "level": "country",
+      "repo": "https://github.com/lexifina/burundi-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "cv",
+      "code": "CV",
+      "name": "Cabo Verde",
+      "level": "country",
+      "repo": "https://github.com/lexifina/cabo-verde-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "kh",
+      "code": "KH",
+      "name": "Cambodia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/cambodia-law",
+      "existing": false,
+      "build": "none",
+      "sources": 1
+    },
+    {
+      "path": "cm",
+      "code": "CM",
+      "name": "Cameroon",
+      "level": "country",
+      "repo": "https://github.com/lexifina/cameroon-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ca",
+      "code": "CA",
+      "name": "Canada",
+      "level": "country",
+      "repo": "https://github.com/lexifina/canada-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 9
+    },
+    {
+      "path": "cf",
+      "code": "CF",
+      "name": "Central African Republic",
+      "level": "country",
+      "repo": "https://github.com/lexifina/central-african-republic-law",
+      "existing": false,
+      "build": "none",
+      "sources": 1
+    },
+    {
+      "path": "td",
+      "code": "TD",
+      "name": "Chad",
+      "level": "country",
+      "repo": "https://github.com/lexifina/chad-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "cl",
+      "code": "CL",
+      "name": "Chile",
+      "level": "country",
+      "repo": "https://github.com/lexifina/chile-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 2
+    },
+    {
+      "path": "cn",
+      "code": "CN",
+      "name": "China",
+      "level": "country",
+      "repo": "https://github.com/lexifina/china-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 4
+    },
+    {
+      "path": "co",
+      "code": "CO",
+      "name": "Colombia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/colombia-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "km",
+      "code": "KM",
+      "name": "Comoros",
+      "level": "country",
+      "repo": "https://github.com/lexifina/comoros-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "cg",
+      "code": "CG",
+      "name": "Republic of Congo",
+      "level": "country",
+      "repo": "https://github.com/lexifina/republic-of-congo-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "cd",
+      "code": "CD",
+      "name": "DR Congo",
+      "level": "country",
+      "repo": "https://github.com/lexifina/dr-congo-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "cr",
+      "code": "CR",
+      "name": "Costa Rica",
+      "level": "country",
+      "repo": "https://github.com/lexifina/costa-rica-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ci",
+      "code": "CI",
+      "name": "Côte d’Ivoire",
+      "level": "country",
+      "repo": "https://github.com/lexifina/cote-divoire-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "hr",
+      "code": "HR",
+      "name": "Croatia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/croatia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "cu",
+      "code": "CU",
+      "name": "Cuba",
+      "level": "country",
+      "repo": "https://github.com/lexifina/cuba-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "cy",
+      "code": "CY",
+      "name": "Cyprus",
+      "level": "country",
+      "repo": "https://github.com/lexifina/cyprus-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "cz",
+      "code": "CZ",
+      "name": "Czechia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/czechia-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 2
+    },
+    {
+      "path": "kp",
+      "code": "KP",
+      "name": "North Korea",
+      "level": "country",
+      "repo": "https://github.com/lexifina/north-korea-law",
+      "existing": false,
+      "build": "none",
+      "sources": 2
+    },
+    {
+      "path": "dk",
+      "code": "DK",
+      "name": "Denmark",
+      "level": "country",
+      "repo": "https://github.com/lexifina/denmark-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 2
+    },
+    {
+      "path": "dj",
+      "code": "DJ",
+      "name": "Djibouti",
+      "level": "country",
+      "repo": "https://github.com/lexifina/djibouti-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "dm",
+      "code": "DM",
+      "name": "Dominica",
+      "level": "country",
+      "repo": "https://github.com/lexifina/dominica-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "do",
+      "code": "DO",
+      "name": "Dominican Republic",
+      "level": "country",
+      "repo": "https://github.com/lexifina/dominican-republic-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ec",
+      "code": "EC",
+      "name": "Ecuador",
+      "level": "country",
+      "repo": "https://github.com/lexifina/ecuador-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "eg",
+      "code": "EG",
+      "name": "Egypt",
+      "level": "country",
+      "repo": "https://github.com/lexifina/egypt-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "sv",
+      "code": "SV",
+      "name": "El Salvador",
+      "level": "country",
+      "repo": "https://github.com/lexifina/el-salvador-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "gq",
+      "code": "GQ",
+      "name": "Equatorial Guinea",
+      "level": "country",
+      "repo": "https://github.com/lexifina/equatorial-guinea-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "er",
+      "code": "ER",
+      "name": "Eritrea",
+      "level": "country",
+      "repo": "https://github.com/lexifina/eritrea-law",
+      "existing": false,
+      "build": "none",
+      "sources": 1
+    },
+    {
+      "path": "ee",
+      "code": "EE",
+      "name": "Estonia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/estonia-law",
+      "existing": true,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "sz",
+      "code": "SZ",
+      "name": "Eswatini",
+      "level": "country",
+      "repo": "https://github.com/lexifina/eswatini-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "et",
+      "code": "ET",
+      "name": "Ethiopia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/ethiopia-law",
+      "existing": false,
+      "build": "none",
+      "sources": 1
+    },
+    {
+      "path": "fj",
+      "code": "FJ",
+      "name": "Fiji",
+      "level": "country",
+      "repo": "https://github.com/lexifina/fiji-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "fi",
+      "code": "FI",
+      "name": "Finland",
+      "level": "country",
+      "repo": "https://github.com/lexifina/finland-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 1
+    },
+    {
+      "path": "fr",
+      "code": "FR",
+      "name": "France",
+      "level": "country",
+      "repo": "https://github.com/lexifina/france-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 4
+    },
+    {
+      "path": "ga",
+      "code": "GA",
+      "name": "Gabon",
+      "level": "country",
+      "repo": "https://github.com/lexifina/gabon-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "gm",
+      "code": "GM",
+      "name": "Gambia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/gambia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ge",
+      "code": "GE",
+      "name": "Georgia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/georgia-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "de",
+      "code": "DE",
+      "name": "Germany",
+      "level": "country",
+      "repo": "https://github.com/lexifina/grundgesetz",
+      "existing": true,
+      "build": "partial",
+      "sources": 13
+    },
+    {
+      "path": "gh",
+      "code": "GH",
+      "name": "Ghana",
+      "level": "country",
+      "repo": "https://github.com/lexifina/ghana-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "gr",
+      "code": "GR",
+      "name": "Greece",
+      "level": "country",
+      "repo": "https://github.com/lexifina/greece-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "gd",
+      "code": "GD",
+      "name": "Grenada",
+      "level": "country",
+      "repo": "https://github.com/lexifina/grenada-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "gt",
+      "code": "GT",
+      "name": "Guatemala",
+      "level": "country",
+      "repo": "https://github.com/lexifina/guatemala-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "gn",
+      "code": "GN",
+      "name": "Guinea",
+      "level": "country",
+      "repo": "https://github.com/lexifina/guinea-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "gw",
+      "code": "GW",
+      "name": "Guinea-Bissau",
+      "level": "country",
+      "repo": "https://github.com/lexifina/guinea-bissau-law",
+      "existing": false,
+      "build": "none",
+      "sources": 1
+    },
+    {
+      "path": "gy",
+      "code": "GY",
+      "name": "Guyana",
+      "level": "country",
+      "repo": "https://github.com/lexifina/guyana-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ht",
+      "code": "HT",
+      "name": "Haiti",
+      "level": "country",
+      "repo": "https://github.com/lexifina/haiti-law",
+      "existing": false,
+      "build": "none",
+      "sources": 1
+    },
+    {
+      "path": "hn",
+      "code": "HN",
+      "name": "Honduras",
+      "level": "country",
+      "repo": "https://github.com/lexifina/honduras-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "hu",
+      "code": "HU",
+      "name": "Hungary",
+      "level": "country",
+      "repo": "https://github.com/lexifina/hungary-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 2
+    },
+    {
+      "path": "is",
+      "code": "IS",
+      "name": "Iceland",
+      "level": "country",
+      "repo": "https://github.com/lexifina/iceland-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "in",
+      "code": "IN",
+      "name": "India",
+      "level": "country",
+      "repo": "https://github.com/lexifina/india-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 3
+    },
+    {
+      "path": "id",
+      "code": "ID",
+      "name": "Indonesia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/indonesia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "ir",
+      "code": "IR",
+      "name": "Iran",
+      "level": "country",
+      "repo": "https://github.com/lexifina/iran-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "iq",
+      "code": "IQ",
+      "name": "Iraq",
+      "level": "country",
+      "repo": "https://github.com/lexifina/iraq-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ie",
+      "code": "IE",
+      "name": "Ireland",
+      "level": "country",
+      "repo": "https://github.com/lexifina/ireland-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 2
+    },
+    {
+      "path": "il",
+      "code": "IL",
+      "name": "Israel",
+      "level": "country",
+      "repo": "https://github.com/lexifina/israel-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "it",
+      "code": "IT",
+      "name": "Italy",
+      "level": "country",
+      "repo": "https://github.com/lexifina/italy-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 3
+    },
+    {
+      "path": "jm",
+      "code": "JM",
+      "name": "Jamaica",
+      "level": "country",
+      "repo": "https://github.com/lexifina/jamaica-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "jp",
+      "code": "JP",
+      "name": "Japan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/japan-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 3
+    },
+    {
+      "path": "jo",
+      "code": "JO",
+      "name": "Jordan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/jordan-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "kz",
+      "code": "KZ",
+      "name": "Kazakhstan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/kazakhstan-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 2
+    },
+    {
+      "path": "ke",
+      "code": "KE",
+      "name": "Kenya",
+      "level": "country",
+      "repo": "https://github.com/lexifina/kenya-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 2
+    },
+    {
+      "path": "ki",
+      "code": "KI",
+      "name": "Kiribati",
+      "level": "country",
+      "repo": "https://github.com/lexifina/kiribati-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "kw",
+      "code": "KW",
+      "name": "Kuwait",
+      "level": "country",
+      "repo": "https://github.com/lexifina/kuwait-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "kg",
+      "code": "KG",
+      "name": "Kyrgyzstan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/kyrgyzstan-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "la",
+      "code": "LA",
+      "name": "Laos",
+      "level": "country",
+      "repo": "https://github.com/lexifina/laos-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "lv",
+      "code": "LV",
+      "name": "Latvia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/latvia-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 2
+    },
+    {
+      "path": "lb",
+      "code": "LB",
+      "name": "Lebanon",
+      "level": "country",
+      "repo": "https://github.com/lexifina/lebanon-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ls",
+      "code": "LS",
+      "name": "Lesotho",
+      "level": "country",
+      "repo": "https://github.com/lexifina/lesotho-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "lr",
+      "code": "LR",
+      "name": "Liberia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/liberia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ly",
+      "code": "LY",
+      "name": "Libya",
+      "level": "country",
+      "repo": "https://github.com/lexifina/libya-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "li",
+      "code": "LI",
+      "name": "Liechtenstein",
+      "level": "country",
+      "repo": "https://github.com/lexifina/liechtenstein-law",
+      "existing": true,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "lt",
+      "code": "LT",
+      "name": "Lithuania",
+      "level": "country",
+      "repo": "https://github.com/lexifina/lithuania-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 2
+    },
+    {
+      "path": "lu",
+      "code": "LU",
+      "name": "Luxembourg",
+      "level": "country",
+      "repo": "https://github.com/lexifina/luxembourg-law",
+      "existing": true,
+      "build": "partial",
+      "sources": 2
+    },
+    {
+      "path": "mg",
+      "code": "MG",
+      "name": "Madagascar",
+      "level": "country",
+      "repo": "https://github.com/lexifina/madagascar-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "mw",
+      "code": "MW",
+      "name": "Malawi",
+      "level": "country",
+      "repo": "https://github.com/lexifina/malawi-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "my",
+      "code": "MY",
+      "name": "Malaysia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/malaysia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "mv",
+      "code": "MV",
+      "name": "Maldives",
+      "level": "country",
+      "repo": "https://github.com/lexifina/maldives-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ml",
+      "code": "ML",
+      "name": "Mali",
+      "level": "country",
+      "repo": "https://github.com/lexifina/mali-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "mt",
+      "code": "MT",
+      "name": "Malta",
+      "level": "country",
+      "repo": "https://github.com/lexifina/malta-law",
+      "existing": true,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "mh",
+      "code": "MH",
+      "name": "Marshall Islands",
+      "level": "country",
+      "repo": "https://github.com/lexifina/marshall-islands-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "mr",
+      "code": "MR",
+      "name": "Mauritania",
+      "level": "country",
+      "repo": "https://github.com/lexifina/mauritania-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "mu",
+      "code": "MU",
+      "name": "Mauritius",
+      "level": "country",
+      "repo": "https://github.com/lexifina/mauritius-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "mx",
+      "code": "MX",
+      "name": "Mexico",
+      "level": "country",
+      "repo": "https://github.com/lexifina/mexico-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "fm",
+      "code": "FM",
+      "name": "Micronesia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/micronesia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "md",
+      "code": "MD",
+      "name": "Moldova",
+      "level": "country",
+      "repo": "https://github.com/lexifina/moldova-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "mc",
+      "code": "MC",
+      "name": "Monaco",
+      "level": "country",
+      "repo": "https://github.com/lexifina/monaco-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "mn",
+      "code": "MN",
+      "name": "Mongolia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/mongolia-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "me",
+      "code": "ME",
+      "name": "Montenegro",
+      "level": "country",
+      "repo": "https://github.com/lexifina/montenegro-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ma",
+      "code": "MA",
+      "name": "Morocco",
+      "level": "country",
+      "repo": "https://github.com/lexifina/morocco-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "mz",
+      "code": "MZ",
+      "name": "Mozambique",
+      "level": "country",
+      "repo": "https://github.com/lexifina/mozambique-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "mm",
+      "code": "MM",
+      "name": "Myanmar",
+      "level": "country",
+      "repo": "https://github.com/lexifina/myanmar-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "na",
+      "code": "NA",
+      "name": "Namibia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/namibia-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "nr",
+      "code": "NR",
+      "name": "Nauru",
+      "level": "country",
+      "repo": "https://github.com/lexifina/nauru-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "np",
+      "code": "NP",
+      "name": "Nepal",
+      "level": "country",
+      "repo": "https://github.com/lexifina/nepal-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "nl",
+      "code": "NL",
+      "name": "Netherlands",
+      "level": "country",
+      "repo": "https://github.com/lexifina/netherlands-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 2
+    },
+    {
+      "path": "nz",
+      "code": "NZ",
+      "name": "New Zealand",
+      "level": "country",
+      "repo": "https://github.com/lexifina/new-zealand-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 4
+    },
+    {
+      "path": "ni",
+      "code": "NI",
+      "name": "Nicaragua",
+      "level": "country",
+      "repo": "https://github.com/lexifina/nicaragua-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "ne",
+      "code": "NE",
+      "name": "Niger",
+      "level": "country",
+      "repo": "https://github.com/lexifina/niger-law",
+      "existing": false,
+      "build": "none",
+      "sources": 1
+    },
+    {
+      "path": "ng",
+      "code": "NG",
+      "name": "Nigeria",
+      "level": "country",
+      "repo": "https://github.com/lexifina/nigeria-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "mk",
+      "code": "MK",
+      "name": "North Macedonia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/north-macedonia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "no",
+      "code": "NO",
+      "name": "Norway",
+      "level": "country",
+      "repo": "https://github.com/lexifina/norway-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "om",
+      "code": "OM",
+      "name": "Oman",
+      "level": "country",
+      "repo": "https://github.com/lexifina/oman-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "pk",
+      "code": "PK",
+      "name": "Pakistan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/pakistan-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "pw",
+      "code": "PW",
+      "name": "Palau",
+      "level": "country",
+      "repo": "https://github.com/lexifina/palau-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "pa",
+      "code": "PA",
+      "name": "Panama",
+      "level": "country",
+      "repo": "https://github.com/lexifina/panama-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "pg",
+      "code": "PG",
+      "name": "Papua New Guinea",
+      "level": "country",
+      "repo": "https://github.com/lexifina/papua-new-guinea-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "py",
+      "code": "PY",
+      "name": "Paraguay",
+      "level": "country",
+      "repo": "https://github.com/lexifina/paraguay-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "pe",
+      "code": "PE",
+      "name": "Peru",
+      "level": "country",
+      "repo": "https://github.com/lexifina/peru-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "ph",
+      "code": "PH",
+      "name": "Philippines",
+      "level": "country",
+      "repo": "https://github.com/lexifina/philippines-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "pl",
+      "code": "PL",
+      "name": "Poland",
+      "level": "country",
+      "repo": "https://github.com/lexifina/poland-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "pt",
+      "code": "PT",
+      "name": "Portugal",
+      "level": "country",
+      "repo": "https://github.com/lexifina/portugal-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 2
+    },
+    {
+      "path": "qa",
+      "code": "QA",
+      "name": "Qatar",
+      "level": "country",
+      "repo": "https://github.com/lexifina/qatar-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "kr",
+      "code": "KR",
+      "name": "South Korea",
+      "level": "country",
+      "repo": "https://github.com/lexifina/south-korea-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 2
+    },
+    {
+      "path": "ro",
+      "code": "RO",
+      "name": "Romania",
+      "level": "country",
+      "repo": "https://github.com/lexifina/romania-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 2
+    },
+    {
+      "path": "ru",
+      "code": "RU",
+      "name": "Russia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/russia-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "rw",
+      "code": "RW",
+      "name": "Rwanda",
+      "level": "country",
+      "repo": "https://github.com/lexifina/rwanda-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "kn",
+      "code": "KN",
+      "name": "Saint Kitts and Nevis",
+      "level": "country",
+      "repo": "https://github.com/lexifina/saint-kitts-and-nevis-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "lc",
+      "code": "LC",
+      "name": "Saint Lucia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/saint-lucia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "vc",
+      "code": "VC",
+      "name": "Saint Vincent and the Grenadines",
+      "level": "country",
+      "repo": "https://github.com/lexifina/saint-vincent-and-the-grenadines-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ws",
+      "code": "WS",
+      "name": "Samoa",
+      "level": "country",
+      "repo": "https://github.com/lexifina/samoa-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "sm",
+      "code": "SM",
+      "name": "San Marino",
+      "level": "country",
+      "repo": "https://github.com/lexifina/san-marino-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "st",
+      "code": "ST",
+      "name": "São Tomé and Príncipe",
+      "level": "country",
+      "repo": "https://github.com/lexifina/sao-tome-and-principe-law",
+      "existing": false,
+      "build": "none",
+      "sources": 1
+    },
+    {
+      "path": "sa",
+      "code": "SA",
+      "name": "Saudi Arabia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/saudi-arabia-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "sn",
+      "code": "SN",
+      "name": "Senegal",
+      "level": "country",
+      "repo": "https://github.com/lexifina/senegal-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "rs",
+      "code": "RS",
+      "name": "Serbia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/serbia-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "sc",
+      "code": "SC",
+      "name": "Seychelles",
+      "level": "country",
+      "repo": "https://github.com/lexifina/seychelles-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "sl",
+      "code": "SL",
+      "name": "Sierra Leone",
+      "level": "country",
+      "repo": "https://github.com/lexifina/sierra-leone-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "sg",
+      "code": "SG",
+      "name": "Singapore",
+      "level": "country",
+      "repo": "https://github.com/lexifina/singapore-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "sk",
+      "code": "SK",
+      "name": "Slovakia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/slovakia-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "si",
+      "code": "SI",
+      "name": "Slovenia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/slovenia-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "sb",
+      "code": "SB",
+      "name": "Solomon Islands",
+      "level": "country",
+      "repo": "https://github.com/lexifina/solomon-islands-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "so",
+      "code": "SO",
+      "name": "Somalia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/somalia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "za",
+      "code": "ZA",
+      "name": "South Africa",
+      "level": "country",
+      "repo": "https://github.com/lexifina/south-africa-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 3
+    },
+    {
+      "path": "ss",
+      "code": "SS",
+      "name": "South Sudan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/south-sudan-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "es",
+      "code": "ES",
+      "name": "Spain",
+      "level": "country",
+      "repo": "https://github.com/lexifina/spain-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 4
+    },
+    {
+      "path": "lk",
+      "code": "LK",
+      "name": "Sri Lanka",
+      "level": "country",
+      "repo": "https://github.com/lexifina/sri-lanka-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "sd",
+      "code": "SD",
+      "name": "Sudan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/sudan-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "sr",
+      "code": "SR",
+      "name": "Suriname",
+      "level": "country",
+      "repo": "https://github.com/lexifina/suriname-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "se",
+      "code": "SE",
+      "name": "Sweden",
+      "level": "country",
+      "repo": "https://github.com/lexifina/sweden-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 3
+    },
+    {
+      "path": "ch",
+      "code": "CH",
+      "name": "Switzerland",
+      "level": "country",
+      "repo": "https://github.com/lexifina/swiss-law",
+      "existing": true,
+      "build": "ready",
+      "sources": 5
+    },
+    {
+      "path": "sy",
+      "code": "SY",
+      "name": "Syria",
+      "level": "country",
+      "repo": "https://github.com/lexifina/syria-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "tj",
+      "code": "TJ",
+      "name": "Tajikistan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/tajikistan-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "tz",
+      "code": "TZ",
+      "name": "Tanzania",
+      "level": "country",
+      "repo": "https://github.com/lexifina/tanzania-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "th",
+      "code": "TH",
+      "name": "Thailand",
+      "level": "country",
+      "repo": "https://github.com/lexifina/thailand-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "tl",
+      "code": "TL",
+      "name": "Timor-Leste",
+      "level": "country",
+      "repo": "https://github.com/lexifina/timor-leste-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "tg",
+      "code": "TG",
+      "name": "Togo",
+      "level": "country",
+      "repo": "https://github.com/lexifina/togo-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "to",
+      "code": "TO",
+      "name": "Tonga",
+      "level": "country",
+      "repo": "https://github.com/lexifina/tonga-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "tt",
+      "code": "TT",
+      "name": "Trinidad and Tobago",
+      "level": "country",
+      "repo": "https://github.com/lexifina/trinidad-and-tobago-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "tn",
+      "code": "TN",
+      "name": "Tunisia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/tunisia-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "tr",
+      "code": "TR",
+      "name": "Turkey",
+      "level": "country",
+      "repo": "https://github.com/lexifina/turkey-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 2
+    },
+    {
+      "path": "tm",
+      "code": "TM",
+      "name": "Turkmenistan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/turkmenistan-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "tv",
+      "code": "TV",
+      "name": "Tuvalu",
+      "level": "country",
+      "repo": "https://github.com/lexifina/tuvalu-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "ug",
+      "code": "UG",
+      "name": "Uganda",
+      "level": "country",
+      "repo": "https://github.com/lexifina/uganda-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "ua",
+      "code": "UA",
+      "name": "Ukraine",
+      "level": "country",
+      "repo": "https://github.com/lexifina/ukraine-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 2
+    },
+    {
+      "path": "ae",
+      "code": "AE",
+      "name": "United Arab Emirates",
+      "level": "country",
+      "repo": "https://github.com/lexifina/united-arab-emirates-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "gb",
+      "code": "GB",
+      "name": "United Kingdom",
+      "level": "country",
+      "repo": "https://github.com/lexifina/uk-law-history",
+      "existing": true,
+      "build": "ready",
+      "sources": 6
+    },
+    {
+      "path": "us",
+      "code": "US",
+      "name": "United States",
+      "level": "country",
+      "repo": "https://github.com/lexifina/us-code-history",
+      "existing": true,
+      "build": "ready",
+      "sources": 18
+    },
+    {
+      "path": "uy",
+      "code": "UY",
+      "name": "Uruguay",
+      "level": "country",
+      "repo": "https://github.com/lexifina/uruguay-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "uz",
+      "code": "UZ",
+      "name": "Uzbekistan",
+      "level": "country",
+      "repo": "https://github.com/lexifina/uzbekistan-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "vu",
+      "code": "VU",
+      "name": "Vanuatu",
+      "level": "country",
+      "repo": "https://github.com/lexifina/vanuatu-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ve",
+      "code": "VE",
+      "name": "Venezuela",
+      "level": "country",
+      "repo": "https://github.com/lexifina/venezuela-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "vn",
+      "code": "VN",
+      "name": "Vietnam",
+      "level": "country",
+      "repo": "https://github.com/lexifina/vietnam-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "ye",
+      "code": "YE",
+      "name": "Yemen",
+      "level": "country",
+      "repo": "https://github.com/lexifina/yemen-law",
+      "existing": false,
+      "build": "none",
+      "sources": 1
+    },
+    {
+      "path": "zm",
+      "code": "ZM",
+      "name": "Zambia",
+      "level": "country",
+      "repo": "https://github.com/lexifina/zambia-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 2
+    },
+    {
+      "path": "zw",
+      "code": "ZW",
+      "name": "Zimbabwe",
+      "level": "country",
+      "repo": "https://github.com/lexifina/zimbabwe-law",
+      "existing": false,
+      "build": "scrape",
+      "sources": 1
+    },
+    {
+      "path": "va",
+      "code": "VA",
+      "name": "Vatican City",
+      "level": "country",
+      "note": "UN observer state",
+      "repo": "https://github.com/lexifina/vatican-city-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ps",
+      "code": "PS",
+      "name": "Palestine",
+      "level": "country",
+      "note": "UN observer state",
+      "repo": "https://github.com/lexifina/palestine-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "tw",
+      "code": "TW",
+      "name": "Taiwan",
+      "level": "country",
+      "note": "not a UN member",
+      "repo": "https://github.com/lexifina/taiwan-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 2
+    },
+    {
+      "path": "xk",
+      "code": "XK",
+      "name": "Kosovo",
+      "level": "country",
+      "note": "not a UN member; XK is a user-assigned code",
+      "repo": "https://github.com/lexifina/kosovo-law",
+      "existing": false,
+      "build": "partial",
+      "sources": 1
+    },
+    {
+      "path": "hk",
+      "code": "HK",
+      "name": "Hong Kong",
+      "level": "country",
+      "note": "special administrative region of China",
+      "repo": "https://github.com/lexifina/hong-kong-law",
+      "existing": false,
+      "build": "ready",
+      "sources": 2
+    },
+    {
+      "path": "mo",
+      "code": "MO",
+      "name": "Macau",
+      "level": "country",
+      "note": "special administrative region of China",
+      "repo": "https://github.com/lexifina/macau-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "je",
+      "code": "JE",
+      "name": "Jersey",
+      "level": "country",
+      "note": "British Crown dependency",
+      "repo": "https://github.com/lexifina/jersey-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "gg",
+      "code": "GG",
+      "name": "Guernsey",
+      "level": "country",
+      "note": "British Crown dependency",
+      "repo": "https://github.com/lexifina/guernsey-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "im",
+      "code": "IM",
+      "name": "Isle of Man",
+      "level": "country",
+      "note": "British Crown dependency",
+      "repo": "https://github.com/lexifina/isle-of-man-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "gi",
+      "code": "GI",
+      "name": "Gibraltar",
+      "level": "country",
+      "note": "British overseas territory",
+      "repo": "https://github.com/lexifina/gibraltar-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "bm",
+      "code": "BM",
+      "name": "Bermuda",
+      "level": "country",
+      "note": "British overseas territory",
+      "repo": "https://github.com/lexifina/bermuda-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "ky",
+      "code": "KY",
+      "name": "Cayman Islands",
+      "level": "country",
+      "note": "British overseas territory",
+      "repo": "https://github.com/lexifina/cayman-islands-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "vg",
+      "code": "VG",
+      "name": "British Virgin Islands",
+      "level": "country",
+      "note": "British overseas territory",
+      "repo": "https://github.com/lexifina/british-virgin-islands-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "gl",
+      "code": "GL",
+      "name": "Greenland",
+      "level": "country",
+      "note": "part of the Kingdom of Denmark",
+      "repo": "https://github.com/lexifina/greenland-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "fo",
+      "code": "FO",
+      "name": "Faroe Islands",
+      "level": "country",
+      "note": "part of the Kingdom of Denmark",
+      "repo": "https://github.com/lexifina/faroe-islands-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    },
+    {
+      "path": "pr",
+      "code": "PR",
+      "name": "Puerto Rico",
+      "level": "country",
+      "note": "territory of the United States",
+      "repo": "https://github.com/lexifina/puerto-rico-law",
+      "existing": false,
+      "build": "gazette",
+      "sources": 1
+    }
+  ]
+}

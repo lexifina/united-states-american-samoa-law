@@ -1,0 +1,78 @@
+=== PAGE 27 Rect(0.0, 0.0, 595.0, 842.0)
+ 239  133  423 Times-Italic                  9.5 | The Constitution of the Democratic Socialist
+ 286  144  376 Times-Italic                  9.5 | Republic of Sri Lanka
+ 116  132  125 Times-Roman                   8.0 | 10
+ 214  163  475 Times-Roman                  10.0 | (3)  In this Article “University” includes any institution of higher
+ 187  175  229 Times-Roman                  10.0 | education.
+ 197  204  475 Times-Roman                  10.0 | *[22. (1) Sinhala and Tamil shall be the languages of administration
+ 187  216  475 Times-Roman                  10.0 | throughout Sri Lanka and Sinhala shall be the language of administration
+ 187  228  475 Times-Roman                  10.0 | and be used for the maintenance of public records and the transaction of
+ 187  240  475 Times-Roman                  10.0 | all business by public institutions of all the Provinces of Sri Lanka other
+ 187  252  473 Times-Roman                  10.0 | than the Northern and Eastern Provinces where Tamil shall be so used :
+ 197  281  475 Times-Roman                  10.0 | Provided that the President may, having regard to the proportion which
+ 187  293  475 Times-Roman                  10.0 | the Sinhala or Tamil linguistic minority population in any unit comprising
+ 187  305  475 Times-Roman                  10.0 | a division of an Assistant Government Agent, bears to the total population
+ 187  317  475 Times-Roman                  10.0 | of that area, direct that both Sinhala and Tamil or a language other than
+ 187  329  475 Times-Roman                  10.0 | the language used as the language of administration in the province in
+ 187  341  475 Times-Roman                  10.0 | which such area may be situated, be used as the language of administration
+ 187  353  241 Times-Roman                  10.0 | for such area.
+ 214  381  475 Times-Roman                  10.0 | (2)  In any area where Sinhala is used as the language of
+ 187  393  475 Times-Roman                  10.0 | administration a person other than an official acting in his official capacity,
+ 187  405  255 Times-Roman                  10.0 | shall be entitled :
+ 211  434  475 Times-Roman                  10.0 | (a) to receive communications from and to communicate and
+ 229  446  475 Times-Roman                  10.0 | transact business with, any official in his official capacity, in
+ 229  458  324 Times-Roman                  10.0 | either Tamil or English ;
+ 211  487  475 Times-Roman                  10.0 | (b)  If the law recognizes his right to inspect or to obtain copies of
+ 229  499  475 Times-Roman                  10.0 | or extracts from any official register, record, publication or other
+ 229  511  475 Times-Roman                  10.0 | document, to obtain a copy of, or an extract from such register,
+ 229  523  475 Times-Roman                  10.0 | record, publication or other document, or a translation thereof,
+ 229  535  414 Times-Roman                  10.0 | as the case may be, in either Tamil or English ;
+ 212  564  475 Times-Roman                  10.0 | (c) where a document is executed by any official for the purpose
+ 229  576  475 Times-Roman                  10.0 | of being issued to him, to obtain such document or a translation
+ 229  588  367 Times-Roman                  10.0 | thereof, in either Tamil or English ;
+ 214  618  475 Times-Roman                  10.0 | (3)  In any area where Tamil is used as the language of
+ 187  630  475 Times-Roman                  10.0 | administration, a person other than an official acting in his official capacity,
+ 187  642  475 Times-Roman                  10.0 | shall be entitled to exercise the rights and to obtain the services, referred
+ 187  654  475 Times-Roman                  10.0 | to in sub paragraphs (a), (b) and (c) of paragraph (2) of this Article, in
+ 187  666  262 Times-Roman                  10.0 | Sinhala or English.
+ 192  688  462 Times-Roman                   8.0 | * Original Article 22 replaced by Section 03 of the Sixteenth Amendment to
+ 192  697  259 Times-Roman                   8.0 |    the Constitution.
+ 115  205  161 Times-Roman                   8.0 | Languages of
+ 115  215  171 Times-Roman                   8.0 | Administration.
+=== PAGE 28 Rect(0.0, 0.0, 595.0, 842.0)
+ 170  132  354 Times-Italic                  9.5 | The Constitution of the Democratic Socialist
+ 217  144  308 Times-Italic                  9.5 | Republic of Sri Lanka
+ 471  132  480 Times-Roman                   8.0 | 11
+ 146  163  407 Times-Roman                  10.0 | (4)  A Provincial Council or a Local Authority which conducts its
+ 119  176  407 Times-Roman                  10.0 | business in Sinhala shall be entitled to receive communications from and
+ 119  189  407 Times-Roman                  10.0 | to communicate and transact business with, any official in his official
+ 119  201  407 Times-Roman                  10.0 | capacity, in Sinhala and a Provincial Council or a Local  Authority which
+ 119  214  407 Times-Roman                  10.0 | conducts its business in Tamil shall be entitled to receive communications
+ 119  226  407 Times-Roman                  10.0 | from and to communicate and transact business with, any official in his
+ 119  239  223 Times-Roman                  10.0 | official capacity, in Tamil :
+ 129  272  407 Times-Roman                  10.0 | Provided, however, that a Provincial Council, Local Authority, Public
+ 119  285  407 Times-Roman                  10.0 | Institution or any official receiving communications from transacting
+ 119  297  407 Times-Roman                  10.0 | business with any other or Provincial Council, Local Authority, Public
+ 119  310  407 Times-Roman                  10.0 | Institution or an official functioning in an area in which a different language
+ 119  322  407 Times-Roman                  10.0 | is used as the Language of administration shall be entitled to receive
+ 119  335  407 Times-Roman                  10.0 | communications from and to communicate and transact business in
+ 119  348  152 Times-Roman                  10.0 | English.
+ 146  382  407 Times-Roman                  10.0 | (5)  A person shall be entitled to be examined through the medium
+ 119  394  407 Times-Roman                  10.0 | of either Sinhala or Tamil or a language of his choice at any examination
+ 119  407  407 Times-Roman                  10.0 | for the admission of persons to the Public Service, Judicial Service,
+ 119  420  407 Times-Roman                  10.0 | Provincial Public Service, Local Government Service or any public
+ 119  432  407 Times-Roman                  10.0 | institution, subject to the condition that he may be required to acquire a
+ 119  445  407 Times-Roman                  10.0 | sufficient knowledge of Tamil or Sinhala, as the case may be, within a
+ 119  457  407 Times-Roman                  10.0 | reasonable time after admission to such service or public institution where
+ 119  470  407 Times-Roman                  10.0 | such knowledge is reasonably necessary for the discharge of his duties :
+ 129  504  407 Times-Roman                  10.0 | Provided that a person may be required to have a sufficient knowledge
+ 119  517  407 Times-Roman                  10.0 | of Sinhala or Tamil, as a condition for admission to any such service or
+ 119  529  407 Times-Roman                  10.0 | public institution where no function of the office or employment for which
+ 119  542  407 Times-Roman                  10.0 | he is recruited can be discharged otherwise than with a sufficient
+ 119  555  238 Times-Roman                  10.0 | knowledge of such language.
+ 146  591  224 Times-Roman                  10.0 | (6)  In this Article –
+ 129  626  407 Times-Roman                  10.0 | “Official” means the President, any Minister, Deputy Minister, Governor,
+ 119  639  407 Times-Roman                  10.0 | Chief Minister or Minister of the Board of Ministers of a Province, or any
+ 119  651  407 Times-Roman                  10.0 | officer of a public institution ; local authority or Provincial Council ; and
+ 129  685  407 Times-Roman                  10.0 | “Public Institution” means a department or institution of the
+ 119  698  354 Times-Roman                  10.0 | Government, a public corporation or statutory institution.]

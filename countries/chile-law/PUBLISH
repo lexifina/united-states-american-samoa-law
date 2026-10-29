@@ -1,0 +1,1 @@
+2026-10-28: verify.py: Constitución, Código Civil and Ley 19.628 in force on 2026-10-28 equal LeyChile's current text provision by provision; every version carries the sha256 of its cached LeyChile response; check.py 0 mismatches; --compare identical.

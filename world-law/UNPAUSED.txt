@@ -1,0 +1,6 @@
+# Countries whose "Paused, not yet law" commit on main the user has resolved (2026-10-29: "resolve the paused countries").
+# autopush treats that commit as the scaffold for these slugs only. Rights pauses (brunei) are NOT listed.
+togo
+micronesia
+palau
+marshall-islands

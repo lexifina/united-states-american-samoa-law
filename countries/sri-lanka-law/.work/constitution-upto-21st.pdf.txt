@@ -1,0 +1,89 @@
+=== PAGE 34 Rect(0.0, 0.0, 515.8800048828125, 728.52001953125)
+ 419   61  433 Times New Roman              10.0 | 11  
+ 124   62  393 Times New Roman,Italic       10.0 | The Constitution of the Democratic Socialist Republic of Sri Lanka 
+ 183  112  253 Times New Roman              11.0 | CHAPTER IV  
+ 184  131  250 Times New Roman,Bold         11.0 | LANGUAGE 
+ 110  155  347 Times New Roman,Bold         11.0 | 18. 4[(1)]The Official Language of  Sri Lanka shall 
+  86  171  138 Times New Roman              11.0 | be Sinhala. 
+ 110  195  314 Times New Roman,BoldItal      7.2 |  5[(2) Tamil shall also be an official language. 
+ 110  221  280 Times New Roman              11.0 | (3) English shall be the link language. 
+ 110  247  347 Times New Roman              11.0 | (4) Parliament shall by law provide for the 
+  86  261  310 Times New Roman              11.0 | implementation of the provisions of this Chapter.] 
+ 110  286  347 Times New Roman,Bold         11.0 | 19. The National Languages of Sri Lanka shall be 
+  86  301  173 Times New Roman              11.0 | Sinhala and Tamil. 
+ 110  325  347 Times New Roman,Bold         11.0 | 20. A Member of Parliament or 6[a member of a 
+  86  340  347 Times New Roman              11.0 | Provincial Council or a Local Authority] shall be entitled 
+  86  355  347 Times New Roman              11.0 | to perform his duties and discharge his functions in Parliament 
+  86  368  347 Times New Roman,BoldItal      7.2 | 7[or in such Provincial Council or Local Authority] in 
+  86  384  236 Times New Roman              11.0 | either of the National Languages. 
+ 110  417  347 Times New Roman,Bold         11.0 | 21. (1) A person shall be entitled to be educated 
+  86  432  340 Times New Roman              11.0 | through the medium of either of the National Languages: 
+ 129  457  347 Times New Roman              11.0 | Provided that the provisions of this paragraph 
+  86  471  347 Times New Roman              11.0 | shall not apply to an institution of higher education where 
+  86  486  347 Times New Roman              11.0 | the medium of instruction is a language other than a 
+  86  500  176 Times New Roman              11.0 | National Language. 
+ 110  524  364 Times New Roman              11.0 | (2) Where one National Language is a medium       
+  86  539  347 Times New Roman              11.0 | of instruction for or in any course, department or faculty 
+  86  553  347 Times New Roman              11.0 | of any University directly or indirectly financed by the 
+  86  568  347 Times New Roman              11.0 | State, the other National Language shall also be made a 
+  86  583  347 Times New Roman              11.0 | medium of instruction for or in such course, department or 
+  86  597  347 Times New Roman              11.0 | faculty for students who prior to their admission to such 
+  98  616  402 Times New Roman               9.0 | 4 - Renumbered as paragraph (1) by the Thirteenth Amendment to the Constitution  
+  98  627  148 Times New Roman               9.0 |   Sec. 2(a).  
+  98  639  361 Times New Roman               9.0 | 5 - Inserted by the Thirteenth Amendment to the Constitution Sec. 2(b).  
+  98  650  367 Times New Roman               9.0 | 6 - Substituted by the Sixteenth Amendment to the Constitution Sec. 2(1). 
+  98  661  381 Times New Roman               9.0 | 7 - Substituted by the Sixteenth Amendment to the Constitution Section. 2(2). 
+ 362  157  396 Times New Roman,Bold          9.0 | Official  
+ 362  167  403 Times New Roman,Bold          9.0 | Language 
+ 362  287  400 Times New Roman,Bold          9.0 | National  
+ 362  298  409 Times New Roman,Bold          9.0 | Languages  
+ 362  329  400 Times New Roman,Bold          9.0 | Use of      
+ 362  340  398 Times New Roman,Bold          9.0 | National 
+ 362  350  416 Times New Roman,Bold          9.0 | Languages in 
+ 362  361  412 Times New Roman,Bold          9.0 | Parliament,  
+ 362  371  404 Times New Roman,Bold          9.0 | Provincial 
+ 362  381  415 Times New Roman,Bold          9.0 | Councils and 
+ 362  392  386 Times New Roman,Bold          9.0 | Local 
+ 362  402  408 Times New Roman,Bold          9.0 | Authorities 
+ 363  419  410 Times New Roman,Bold          9.0 | Medium of  
+ 363  429  407 Times New Roman,Bold          9.0 | instruction 
+=== PAGE 35 Rect(0.0, 0.0, 515.8800048828125, 728.52001953125)
+  88   63  103 Times New Roman              10.0 | 12  
+ 124   63  393 Times New Roman,Italic       10.0 | The Constitution of the Democratic Socialist Republic of Sri Lanka 
+ 170  112  431 Times New Roman              11.0 | University, were educated through the medium of such 
+ 170  127  286 Times New Roman              11.0 | other National Language: 
+ 212  152  431 Times New Roman              11.0 | Provided that compliance with the preceding 
+ 170  166  431 Times New Roman              11.0 | provisions of this paragraph shall not be obligatory if such 
+ 170  181  440 Times New Roman              11.0 | other National Language is the medium of instruction    
+ 170  195  445 Times New Roman              11.0 | for or in any like course, department or faculty either at      
+ 170  210  431 Times New Roman              11.0 | any other campus or branch of such University or of any 
+ 170  225  267 Times New Roman              11.0 | other like University. 
+ 194  250  431 Times New Roman              11.0 | (3) In this Article “University” includes any 
+ 170  264  309 Times New Roman              11.0 | institution of higher education. 
+ 194  290  442 Times New Roman,Bold         11.0 | 22. (1) Sinhala and Tamil shall be the languages     
+ 170  304  431 Times New Roman              11.0 | of administration throughout Sri Lanka and Sinhala shall 
+ 170  318  431 Times New Roman              11.0 | be the language of administration and be used for the 
+ 170  333  431 Times New Roman              11.0 | maintenance of public records and the transaction of all 
+ 170  348  431 Times New Roman              11.0 | business by public institutions of all the Provinces of Sri 
+ 170  362  431 Times New Roman              11.0 | Lanka other than the Northern and Eastern Provinces 
+ 170  377  304 Times New Roman              11.0 | where Tamil shall be so used: 
+ 212  402  431 Times New Roman              11.0 | Provided that the President may, having regard 
+ 170  416  431 Times New Roman              11.0 | to the proportion which the Sinhala or Tamil linguistic 
+ 170  431  442 Times New Roman              11.0 | minority population in any unit comprising a division     
+ 170  445  431 Times New Roman              11.0 | of an Assistant Government Agent, bears to the total 
+ 170  460  431 Times New Roman              11.0 | population of that area, direct that both Sinhala and Tamil 
+ 170  474  442 Times New Roman              11.0 | or a language other than the language used as the language     
+ 170  489  431 Times New Roman              11.0 | of administration in the province in which such area may 
+ 170  504  431 Times New Roman              11.0 | be situated, be used as the language of administration for 
+ 170  518  217 Times New Roman              11.0 | such area. 
+ 194  543  431 Times New Roman              11.0 | (2) In any area where Sinhala is used as the language 
+ 170  558  431 Times New Roman              11.0 | of administration a person other than an official acting in 
+ 170  572  338 Times New Roman              11.0 | his official capacity, shall be entitled: 
+ 213  595  228 Times New Roman              11.0 | (a) 
+ 242  595  431 Times New Roman              11.0 | to receive communications from and to 
+ 242  609  434 Times New Roman              11.0 | communicate and transact business with,  
+ 242  624  431 Times New Roman              11.0 | any official in his official capacity, in 
+ 242  638  351 Times New Roman              11.0 | either Tamil or English; 
+  97  657  356 Times New Roman               9.0 | 8 - Substituted by the Sixteenth Amendment to the Constitution Sec. 3.  
+  94  293  155 Times New Roman,BoldItal      9.0 | 8[Languages of 
+  94  301  158 Times New Roman,Bold          9.0 | Administration  

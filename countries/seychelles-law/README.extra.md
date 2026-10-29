@@ -1,0 +1,6 @@
+## Seychelles notes
+
+- **Checked against the Gazette.** The current text of the Constitution's last three amendments (Act 13 of 2022, Act 14 of 2024, Act 6 of 2025) and of every provision the Civil Status (Amendment) Act, 2021 (Act 45 of 2021) inserts or substitutes was compared with those Acts as printed in the Supplement to the Official Gazette (gazette.sc, PDFs with a text layer). They match word for word; the only differences are two full stops (Civil Status Act s. 87(3) lacks the Gazette's final full stop, and Schedule 3 para. 4(4) of the Constitution has one the Gazette lacks) and a stray "rs." printed in the Gazette copy of Act 45 of 2021.
+- **The Constitution's 2020 consolidation is left out.** SeyLII's 2020-06-01 expression is a separately keyed text that rewords 97 articles and is not the base of its next expression (2022-06-20); the 2022 version follows the 2018 version directly (see REPRODUCE.md, decisions).
+- **The Licences Act, 2010 is not in this branch yet.** Its latest SeyLII expression differs in a few words from the Licences (Amendment) Act, 2024 as gazetted, so it is held back until its text is verified.
+- **Repealed subprovisions are absent.** Where SeyLII prints only a number and an editorial note ("(8) [clause (8) ... repealed by ...]"), the line is left out.
