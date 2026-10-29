@@ -1,85 +1,29 @@
-{
- "crawls_available": 128,
- "rows": [
-  {
-   "page": "Latvia Satversme (likumi.lv)",
-   "crawls_searched": 24,
-   "captures_200": 0,
-   "years": "-",
-   "distinct_years": 0,
-   "seconds": 400.2
-  },
-  {
-   "page": "NZ Constitution Act (legislation.govt.nz)",
-   "crawls_searched": 24,
-   "captures_200": 0,
-   "years": "-",
-   "distinct_years": 0,
-   "seconds": 4.2
-  },
-  {
-   "page": "Spain Constitution (boe.es)",
-   "crawls_searched": 24,
-   "captures_200": 0,
-   "years": "-",
-   "distinct_years": 0,
-   "seconds": 17.2
-  },
-  {
-   "page": "Estonia Constitution (riigiteataja.ee)",
-   "crawls_searched": 24,
-   "captures_200": 0,
-   "years": "-",
-   "distinct_years": 0,
-   "seconds": 0.5
-  },
-  {
-   "page": "Austria B-VG (ris.bka.gv.at)",
-   "crawls_searched": 24,
-   "captures_200": 0,
-   "years": "-",
-   "distinct_years": 0,
-   "seconds": 4.2
-  },
-  {
-   "page": "Latvia Satversme (likumi.lv)",
-   "crawls_searched": 128,
-   "captures_200": 0,
-   "years": "-",
-   "distinct_years": 0,
-   "seconds": 185.4
-  },
-  {
-   "page": "NZ Constitution Act (legislation.govt.nz)",
-   "crawls_searched": 128,
-   "captures_200": 0,
-   "years": "-",
-   "distinct_years": 0,
-   "seconds": 27.7
-  },
-  {
-   "page": "Spain Constitution (boe.es)",
-   "crawls_searched": 128,
-   "captures_200": 0,
-   "years": "-",
-   "distinct_years": 0,
-   "seconds": 19.2
-  },
-  {
-   "page": "Estonia Constitution (riigiteataja.ee)",
-   "crawls_searched": 128,
-   "captures_200": 0,
-   "years": "-",
-   "distinct_years": 0,
-   "seconds": 27.7
-  },
-  {
-   "page": "Austria B-VG (ris.bka.gv.at)",
-   "crawls_searched": 128,
-   "captures_200": 0,
-   "years": "-",
-   "distinct_years": 0,
-   "seconds": 1.9
-  }
- ]
-}
+[
+ {
+  "page": "Latvia Satversme",
+  "crawls": 128,
+  "captures_200": 331,
+  "distinct_contents": 331,
+  "years": "2016-2026",
+  "distinct_years": 11,
+  "seconds": 879.3
+ },
+ {
+  "page": "Spain Constitution",
+  "crawls": 128,
+  "captures_200": 281,
+  "distinct_contents": 206,
+  "years": "2013-2026",
+  "distinct_years": 14,
+  "seconds": 215.9
+ },
+ {
+  "page": "Austria B-VG",
+  "crawls": 128,
+  "captures_200": 111,
+  "distinct_contents": 111,
+  "years": "2013-2026",
+  "distinct_years": 14,
+  "seconds": 111.2
+ }
+]
