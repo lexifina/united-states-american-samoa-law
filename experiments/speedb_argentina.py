@@ -109,5 +109,5 @@ out['texts_host_get'] = {'requests': len(urls), 'ok': sum(1 for g in got if g), 
                          'host_state': wayback.host_status('servicios.infoleg.gob.ar')}
 out['texts_fixed_1rps_seconds_same_count'] = len(urls) * 1.05
 
-(Path(__file__).with_suffix('.json')).write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding='utf-8')
+Path(__file__).with_suffix('.json').write_bytes(json.dumps(out, indent=1, ensure_ascii=False).encode('utf-8'))
 print(json.dumps({k: v for k, v in out.items() if k != 'vinculos_vs_modificatorias'}, indent=1, ensure_ascii=False))
