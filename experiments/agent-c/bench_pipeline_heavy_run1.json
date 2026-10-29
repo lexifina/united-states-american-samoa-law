@@ -1,0 +1,58 @@
+{
+ "host": "raw.githubusercontent.com",
+ "corpus": "justicecanada/laws-lois-xml",
+ "threads": 12,
+ "parse_work": 12,
+ "host_state_before": {
+  "rate": 25.0,
+  "next": 1793316704.4155393,
+  "pause_until": 0.0,
+  "ok": 2162,
+  "throttled": 0
+ },
+ "runs": [
+  {
+   "mode": "serve",
+   "docs": 150,
+   "fetched": 150,
+   "MB": 9.99,
+   "sections": 6538,
+   "wall_s": 13.8,
+   "fetch_done_s": 13.8,
+   "parse_cpu_s": 8.6,
+   "first_parse_at_s": 1.71,
+   "docs_per_min": 653.4
+  },
+  {
+   "mode": "batch",
+   "docs": 150,
+   "fetched": 150,
+   "MB": 9.72,
+   "sections": 7432,
+   "wall_s": 21.2,
+   "fetch_done_s": 12.5,
+   "parse_cpu_s": 8.7,
+   "first_parse_at_s": 12.48,
+   "docs_per_min": 425.3
+  },
+  {
+   "mode": "pipelined",
+   "docs": 150,
+   "fetched": 150,
+   "MB": 9.85,
+   "sections": 6318,
+   "wall_s": 19.0,
+   "fetch_done_s": 18.8,
+   "parse_cpu_s": 12.2,
+   "first_parse_at_s": 0.58,
+   "docs_per_min": 473.1
+  }
+ ],
+ "host_state_after": {
+  "rate": 25.0,
+  "next": 1793316780.6739323,
+  "pause_until": 0.0,
+  "ok": 2613,
+  "throttled": 0
+ }
+}

@@ -176,7 +176,8 @@ def main():
     ap.add_argument('--out', default='bench_timeout_sim.json')
     a = ap.parse_args()
     BANDWIDTH, SIZES = a.bandwidth, [a.big_size] * a.big + [150_000] * a.small
-    srv = http.server.ThreadingHTTPServer(('127.0.0.1', 0), H)
+    srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), H)
+    srv.handle_error = lambda *a: None   # curl aborting a timed-out download is expected
     srv.daemon_threads = True
     port = srv.server_address[1]
     threading.Thread(target=srv.serve_forever, daemon=True).start()
