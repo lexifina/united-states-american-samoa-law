@@ -1,0 +1,825 @@
+[
+ {
+  "repo": "albania-law",
+  "refs": 18,
+  "status": "already archived"
+ },
+ {
+  "repo": "andorra-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "angola-law",
+  "refs": 4,
+  "branches": 3,
+  "tags": 1,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "argentina-law",
+  "refs": 464,
+  "branches": 5,
+  "tags": 459,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "austria-law",
+  "refs": 249,
+  "status": "already archived"
+ },
+ {
+  "repo": "bahamas-law",
+  "refs": 19,
+  "status": "already archived"
+ },
+ {
+  "repo": "bangladesh-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "barbados-law",
+  "refs": 2,
+  "status": "already archived"
+ },
+ {
+  "repo": "belgium-law",
+  "refs": 675,
+  "status": "already archived"
+ },
+ {
+  "repo": "belize-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "benin-law",
+  "refs": 2,
+  "status": "already archived"
+ },
+ {
+  "repo": "bermuda-law",
+  "refs": 4,
+  "status": "already archived"
+ },
+ {
+  "repo": "bhutan-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "bolivia-law",
+  "refs": 13,
+  "status": "already archived"
+ },
+ {
+  "repo": "bosnia-and-herzegovina-law",
+  "refs": 2,
+  "status": "already archived"
+ },
+ {
+  "repo": "botswana-law",
+  "refs": 4,
+  "status": "already archived"
+ },
+ {
+  "repo": "brazil-law",
+  "refs": 1642,
+  "branches": 5,
+  "tags": 1637,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "brunei-law",
+  "refs": 2,
+  "status": "already archived"
+ },
+ {
+  "repo": "bulgaria-law",
+  "refs": 10,
+  "status": "already archived"
+ },
+ {
+  "repo": "burkina-faso-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "burundi-law",
+  "refs": 2,
+  "status": "already archived"
+ },
+ {
+  "repo": "cabo-verde-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "cameroon-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "chile-law",
+  "refs": 4208,
+  "branches": 5,
+  "tags": 4203,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "colombia-law",
+  "status": "ERROR",
+  "error": "[WinError 206] The filename or extension is too long"
+ },
+ {
+  "repo": "costa-rica-law",
+  "status": "ERROR",
+  "error": "remote: error: unable to write file /data/repositories/d/nw/d5/57/ee/1291167220/1438616822.git/objects/ghq_pH4rEb2ubV7/pack/pack-a76f5b264415b4dd1be2ab66700dd8d6c91673eb.pack: No such file or directory        \nremote: fatal: unable to rename temporary '*.pack' file to '/data/repositories/d/nw/d5/57/"
+ },
+ {
+  "repo": "cote-divoire-law",
+  "refs": 6,
+  "status": "already archived"
+ },
+ {
+  "repo": "cuba-law",
+  "refs": 1,
+  "status": "already archived"
+ },
+ {
+  "repo": "cyprus-law",
+  "refs": 67,
+  "status": "already archived"
+ },
+ {
+  "repo": "czechia-law",
+  "status": "ERROR",
+  "error": "remote: error: unable to write file /data/repositories/d/nw/d5/57/ee/1291167220/1438616822.git/objects/ghq_3HvY89THznJ/pack/pack-4b58b9491660e6b1e46fb826c4d553b7a0e791af.pack: No such file or directory        \nremote: fatal: unable to rename temporary '*.pack' file to '/data/repositories/d/nw/d5/57/"
+ },
+ {
+  "repo": "denmark-law",
+  "status": "ERROR",
+  "error": "remote: error: unable to write file /data/repositories/d/nw/d5/57/ee/1291167220/1438616822.git/objects/ghq_3HvY89THznJ/pack/pack-1ccd3ee5a2d5c1fc2c57f555acce0584b4d6f45b.pack: No such file or directory        \nremote: fatal: unable to rename temporary '*.pack' file to '/data/repositories/d/nw/d5/57/"
+ },
+ {
+  "repo": "dominica-law",
+  "refs": 2,
+  "status": "already archived"
+ },
+ {
+  "repo": "dominican-republic-law",
+  "refs": 6,
+  "status": "already archived"
+ },
+ {
+  "repo": "dr-congo-law",
+  "refs": 8,
+  "branches": 3,
+  "tags": 5,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "ecuador-law",
+  "refs": 159,
+  "branches": 4,
+  "tags": 155,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "el-salvador-law",
+  "refs": 2,
+  "status": "already archived"
+ },
+ {
+  "repo": "equatorial-guinea-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "eswatini-law",
+  "refs": 13,
+  "branches": 3,
+  "tags": 10,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "faroe-islands-law",
+  "status": "ERROR",
+  "error": "remote: error: unable to write file /data/repositories/d/nw/d5/57/ee/1291167220/1438616822.git/objects/ghq_3HvY89THznJ/pack/pack-f7ad85a0ab5464a129ed0a524b08e68efa69c663.pack: No such file or directory        \nremote: fatal: unable to rename temporary '*.pack' file to '/data/repositories/d/nw/d5/57/"
+ },
+ {
+  "repo": "finland-law",
+  "refs": 9,
+  "branches": 4,
+  "tags": 5,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "france-law",
+  "status": "ERROR",
+  "error": "remote: error: unable to write file /data/repositories/d/nw/d5/57/ee/1291167220/1438616822.git/objects/ghq_SIbMT0soUrs/pack/pack-fd3ca9f0b8bd012af543f5c9b44b415880bff893.pack: No such file or directory        \nremote: fatal: unable to rename temporary '*.pack' file to '/data/repositories/d/nw/d5/57/"
+ },
+ {
+  "repo": "gambia-law",
+  "refs": 2,
+  "branches": 2,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "ghana-law",
+  "refs": 11,
+  "branches": 3,
+  "tags": 8,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "greece-law",
+  "refs": 25,
+  "branches": 3,
+  "tags": 22,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "grenada-law",
+  "refs": 2,
+  "branches": 2,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "guatemala-law",
+  "refs": 1,
+  "branches": 1,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "guinea-law",
+  "refs": 7,
+  "branches": 3,
+  "tags": 4,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "guyana-law",
+  "refs": 44,
+  "branches": 4,
+  "tags": 40,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "ireland-law",
+  "refs": 37,
+  "branches": 4,
+  "tags": 33,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "italy-law",
+  "refs": 536,
+  "branches": 3,
+  "tags": 533,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "kenya-law",
+  "refs": 88,
+  "branches": 3,
+  "tags": 85,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "latvia-law",
+  "refs": 211,
+  "branches": 3,
+  "tags": 208,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "lesotho-law",
+  "refs": 17,
+  "branches": 3,
+  "tags": 14,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "liberia-law",
+  "refs": 12,
+  "branches": 3,
+  "tags": 9,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "lithuania-law",
+  "refs": 32,
+  "branches": 3,
+  "tags": 29,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "madagascar-law",
+  "refs": 21,
+  "branches": 4,
+  "tags": 17,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "malawi-law",
+  "refs": 10,
+  "branches": 3,
+  "tags": 7,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "malaysia-law",
+  "refs": 19,
+  "branches": 3,
+  "tags": 16,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "mali-law",
+  "refs": 11,
+  "branches": 3,
+  "tags": 8,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "marshall-islands-law",
+  "refs": 2,
+  "branches": 2,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "mauritius-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "mexico-law",
+  "refs": 246,
+  "branches": 3,
+  "tags": 243,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "micronesia-law",
+  "refs": 19,
+  "branches": 3,
+  "tags": 16,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "moldova-law",
+  "refs": 7,
+  "branches": 3,
+  "tags": 4,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "montenegro-law",
+  "refs": 29,
+  "branches": 2,
+  "tags": 27,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "mozambique-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "namibia-law",
+  "refs": 11,
+  "branches": 3,
+  "tags": 8,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "netherlands-law",
+  "refs": 445,
+  "branches": 3,
+  "tags": 442,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "new-zealand-law",
+  "refs": 184,
+  "branches": 2,
+  "tags": 182,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "nigeria-law",
+  "refs": 5,
+  "branches": 3,
+  "tags": 2,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "north-macedonia-law",
+  "refs": 54,
+  "branches": 2,
+  "tags": 52,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "norway-law",
+  "refs": 61,
+  "branches": 2,
+  "tags": 59,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "oman-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "palau-law",
+  "refs": 64,
+  "branches": 3,
+  "tags": 61,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "palestine-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "panama-law",
+  "refs": 2,
+  "branches": 2,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "papua-new-guinea-law",
+  "refs": 2,
+  "branches": 2,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "paraguay-law",
+  "refs": 259,
+  "branches": 4,
+  "tags": 255,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "peru-law",
+  "refs": 318,
+  "branches": 4,
+  "tags": 314,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "philippines-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "poland-law",
+  "refs": 45,
+  "branches": 3,
+  "tags": 42,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "portugal-law",
+  "refs": 253,
+  "branches": 3,
+  "tags": 250,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "qatar-law",
+  "refs": 4,
+  "status": "already archived"
+ },
+ {
+  "repo": "republic-of-congo-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "romania-law",
+  "refs": 379,
+  "status": "already archived"
+ },
+ {
+  "repo": "russia-law",
+  "status": "ERROR",
+  "error": "remote: error: unable to write file /data/repositories/d/nw/d5/57/ee/1291167220/1438616822.git/objects/ghq_lqw0LnJLlsX/pack/pack-cf2c7b3e33f0d0fef8e771de85e397ae610d4f1f.pack: No such file or directory        \nremote: fatal: unable to rename temporary '*.pack' file to '/data/repositories/d/nw/d5/57/"
+ },
+ {
+  "repo": "rwanda-law",
+  "refs": 10,
+  "status": "already archived"
+ },
+ {
+  "repo": "saint-lucia-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "san-marino-law",
+  "refs": 4,
+  "status": "already archived"
+ },
+ {
+  "repo": "sao-tome-and-principe-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "senegal-law",
+  "refs": 6,
+  "status": "already archived"
+ },
+ {
+  "repo": "serbia-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "seychelles-law",
+  "refs": 36,
+  "status": "already archived"
+ },
+ {
+  "repo": "sierra-leone-law",
+  "refs": 5,
+  "status": "already archived"
+ },
+ {
+  "repo": "solomon-islands-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "south-africa-law",
+  "refs": 66,
+  "status": "already archived"
+ },
+ {
+  "repo": "south-korea-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "south-sudan-law",
+  "refs": 2,
+  "status": "already archived"
+ },
+ {
+  "repo": "spain-law",
+  "status": "ERROR",
+  "error": "remote: error: unable to write file /data/repositories/d/nw/d5/57/ee/1291167220/1438616822.git/objects/ghq_eQUD8vwf5Ts/pack/pack-802e88710829ed0a84b675a634577fbf3cfb845e.pack: No such file or directory        \nremote: fatal: unable to rename temporary '*.pack' file to '/data/repositories/d/nw/d5/57/"
+ },
+ {
+  "repo": "sri-lanka-law",
+  "refs": 3,
+  "status": "already archived"
+ },
+ {
+  "repo": "sudan-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "suriname-law",
+  "refs": 13,
+  "branches": 4,
+  "tags": 9,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "syria-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "tajikistan-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "tanzania-law",
+  "refs": 23,
+  "branches": 3,
+  "tags": 20,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "togo-law",
+  "refs": 12,
+  "branches": 3,
+  "tags": 9,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "tonga-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "trinidad-and-tobago-law",
+  "status": "ERROR",
+  "error": "To https://github.com/lexifina/world-law-ops.git\n ! [remote rejected]     wip -> archive/trinidad-and-tobago-law/wip (missing necessary objects)\nerror: failed to push some refs to 'https://github.com/lexifina/world-law-ops.git'"
+ },
+ {
+  "repo": "tunisia-law",
+  "refs": 2,
+  "branches": 2,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "turkmenistan-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "tuvalu-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "uganda-law",
+  "refs": 27,
+  "branches": 3,
+  "tags": 24,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "ukraine-law",
+  "refs": 2,
+  "branches": 2,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "united-arab-emirates-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "uruguay-law",
+  "refs": 324,
+  "branches": 4,
+  "tags": 320,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "vanuatu-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "vatican-city-law",
+  "refs": 14,
+  "branches": 4,
+  "tags": 10,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "venezuela-law",
+  "refs": 34,
+  "branches": 4,
+  "tags": 30,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "vietnam-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "yemen-law",
+  "refs": 3,
+  "branches": 3,
+  "tags": 0,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "zambia-law",
+  "refs": 24,
+  "branches": 4,
+  "tags": 20,
+  "status": "archived",
+  "missing": []
+ },
+ {
+  "repo": "zimbabwe-law",
+  "refs": 21,
+  "branches": 3,
+  "tags": 18,
+  "status": "archived",
+  "missing": []
+ }
+]

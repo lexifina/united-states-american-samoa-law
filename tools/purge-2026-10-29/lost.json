@@ -1,0 +1,659 @@
+[
+ {
+  "repo": "albania-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "andorra-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "angola-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "argentina-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "armenia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "armenia-sublaws",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "australia-australian-capital-territory-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "australia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "australia-new-south-wales-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "australia-northern-territory-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "australia-south-australia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "australia-western-australia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "azerbaijan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "bahamas-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "bangladesh-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "barbados-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "belgium-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "belize-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "benin-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "bermuda-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "bhutan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "bolivia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "bosnia-and-herzegovina-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "botswana-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "brazil-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "brunei-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "bulgaria-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "burkina-faso-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "burundi-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "cabo-verde-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "cameroon-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "canada-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "canada-newfoundland-and-labrador-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "canada-northwest-territories-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "canada-ontario-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "canada-quebec-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "canada-saskatchewan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "chile-law",
+  "branches_with_loss": {
+   "wip": {
+    "lost": 1,
+    "from": "refs/a1/wip",
+    "e.g.": [
+     "wip/codes/PROGRESS.md"
+    ],
+    "kinds": [
+     "PROGRESS.md"
+    ]
+   }
+  }
+ },
+ {
+  "repo": "colombia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "cook-islands-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "costa-rica-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "cote-divoire-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "croatia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "cyprus-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "czechia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "denmark-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "dominica-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "dominican-republic-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "ecuador-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "el-salvador-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "equatorial-guinea-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "eswatini-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "faroe-islands-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "fiji-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "finland-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "france-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "gambia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "georgia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "greece-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "greenland-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "grenada-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "guatemala-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "guyana-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "ireland-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "japan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "kenya-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "kiribati-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "kosovo-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "kyrgyzstan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "latvia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "lesotho-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "liberia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "lithuania-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "madagascar-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "malawi-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "malaysia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "malta-acts",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "malta-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "marshall-islands-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "mauritius-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "mexico-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "micronesia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "moldova-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "mongolia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "namibia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "nauru-law",
+  "branches_with_loss": {
+   "wip": {
+    "lost": 1,
+    "from": "refs/bu/wip",
+    "e.g.": [
+     "tools/build-wip/PROGRESS.md"
+    ],
+    "kinds": [
+     "PROGRESS.md"
+    ]
+   }
+  }
+ },
+ {
+  "repo": "netherlands-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "new-zealand-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "nicaragua-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "nigeria-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "north-macedonia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "norway-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "oman-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "pakistan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "palau-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "palestine-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "panama-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "papua-new-guinea-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "paraguay-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "peru-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "philippines-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "poland-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "portugal-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "qatar-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "republic-of-congo-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "romania-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "russia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "rwanda-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "saint-lucia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "samoa-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "san-marino-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "sao-tome-and-principe-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "senegal-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "serbia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "seychelles-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "sierra-leone-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "slovakia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "solomon-islands-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "south-africa-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "south-korea-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "south-sudan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "spain-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "sri-lanka-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "sudan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "suriname-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "sweden-law",
+  "branches_with_loss": {
+   "wip": {
+    "lost": 1,
+    "from": "refs/bu/wip",
+    "e.g.": [
+     "scripts/PROGRESS.md"
+    ],
+    "kinds": [
+     "PROGRESS.md"
+    ]
+   }
+  }
+ },
+ {
+  "repo": "switzerland-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "syria-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "taiwan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "tajikistan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "tanzania-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "thailand-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "togo-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "tonga-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "trinidad-and-tobago-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "tunisia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "turkey-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "turkmenistan-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "tuvalu-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "uganda-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "ukraine-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "united-arab-emirates-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "united-states-american-samoa-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "united-states-california-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "united-states-guam-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "united-states-new-jersey-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "united-states-northern-mariana-islands-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "united-states-utah-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "uruguay-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "vanuatu-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "vatican-city-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "venezuela-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "vietnam-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "yemen-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "zambia-law",
+  "branches_with_loss": {}
+ },
+ {
+  "repo": "zimbabwe-law",
+  "branches_with_loss": {}
+ }
+]

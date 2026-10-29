@@ -1,0 +1,3297 @@
+[
+ {
+  "repo": "app",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 0,
+  "seconds": 3
+ },
+ {
+  "repo": "united-states-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 47,
+  "seconds": 4
+ },
+ {
+  "repo": "germany-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 3305,
+  "seconds": 254
+ },
+ {
+  "repo": "united-kingdom-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "README.md",
+     "REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 16,
+  "seconds": 2
+ },
+ {
+  "repo": "publish-test",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 4
+ },
+ {
+  "repo": ".github",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 20,
+  "seconds": 2
+ },
+ {
+  "repo": "switzerland-law",
+  "private_names_at_tip": [
+   "tools/fetch_all.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build.py",
+     "tools/fetch_all.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 11766,
+  "seconds": 85
+ },
+ {
+  "repo": "liechtenstein-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 103,
+  "seconds": 2
+ },
+ {
+  "repo": "estonia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 62,
+  "seconds": 2
+ },
+ {
+  "repo": "luxembourg-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 126,
+  "seconds": 1
+ },
+ {
+  "repo": "malta-law",
+  "private_names_at_tip": [
+   "tools/build/fetch_catalogue.py",
+   "tools/build/fetch_pdfs.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/build.py",
+     "tools/build/fetch_catalogue.py",
+     "tools/build/fetch_pdfs.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 7255,
+  "seconds": 52
+ },
+ {
+  "repo": "afghanistan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "albania-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 12,
+  "seconds": 1
+ },
+ {
+  "repo": "algeria-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "andorra-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "tools/build/build.py",
+     "tools/build/check_words.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "SOURCES.md",
+     "tools/build/repo/SOURCES.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1041,
+  "seconds": 25
+ },
+ {
+  "repo": "angola-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 17,
+  "seconds": 2
+ },
+ {
+  "repo": "antigua-and-barbuda-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "argentina-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [],
+    "history_only": 1
+   }
+  },
+  "other_author_emails": [],
+  "commits": 301,
+  "seconds": 18
+ },
+ {
+  "repo": "armenia-law",
+  "private_names_at_tip": [
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/build.py",
+     "tools/build/fetch.py",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 14430,
+  "seconds": 165
+ },
+ {
+  "repo": "australia-law",
+  "private_names_at_tip": [
+   "PROGRESS.md",
+   "tools/fetch_all.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 485,
+  "seconds": 11
+ },
+ {
+  "repo": "austria-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 303,
+  "seconds": 2
+ },
+ {
+  "repo": "azerbaijan-law",
+  "private_names_at_tip": [
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/fetch.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 10879,
+  "seconds": 85
+ },
+ {
+  "repo": "bahamas-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "README.md",
+     "REPRODUCE.md",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 14,
+  "seconds": 2
+ },
+ {
+  "repo": "bahrain-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 3
+ },
+ {
+  "repo": "bangladesh-law",
+  "private_names_at_tip": [
+   "PROGRESS.md"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "PROGRESS.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 6,
+  "seconds": 3
+ },
+ {
+  "repo": "barbados-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "belarus-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "belgium-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "wip/parse.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 436,
+  "seconds": 6
+ },
+ {
+  "repo": "belize-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "tools/build/build.py",
+     "tools/build/check_words.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 2457,
+  "seconds": 13
+ },
+ {
+  "repo": "benin-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 7,
+  "seconds": 1
+ },
+ {
+  "repo": "bhutan-law",
+  "private_names_at_tip": [
+   "PROGRESS.md"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "PROGRESS.md"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "PROGRESS.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 7,
+  "seconds": 5
+ },
+ {
+  "repo": "bolivia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "tools/wip_push.sh"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 26,
+  "seconds": 2
+ },
+ {
+  "repo": "bosnia-and-herzegovina-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "wip/.scratch/peek.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 2
+ },
+ {
+  "repo": "botswana-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 11,
+  "seconds": 10
+ },
+ {
+  "repo": "brazil-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [],
+    "history_only": 1
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "wip/batch3/parse_batch3.py",
+     "wip/corpus.d/90-batch3.json",
+     "wip/corpus.d/95-rju.json",
+     "wip/corpus.d/97-batch4.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 951,
+  "seconds": 29
+ },
+ {
+  "repo": "brunei-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 3,
+  "seconds": 4
+ },
+ {
+  "repo": "bulgaria-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 13,
+  "seconds": 1
+ },
+ {
+  "repo": "burkina-faso-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 13,
+  "seconds": 13
+ },
+ {
+  "repo": "burundi-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 4,
+  "seconds": 12
+ },
+ {
+  "repo": "cabo-verde-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 19,
+  "seconds": 12
+ },
+ {
+  "repo": "cambodia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 3
+ },
+ {
+  "repo": "cameroon-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 12,
+  "seconds": 5
+ },
+ {
+  "repo": "canada-law",
+  "private_names_at_tip": [
+   "tools/fetchlib.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/check_repo.py",
+     "tools/fetchlib.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 148,
+  "seconds": 11
+ },
+ {
+  "repo": "central-african-republic-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "chad-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "chile-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [],
+    "history_only": 1
+   }
+  },
+  "other_author_emails": [],
+  "commits": 2244,
+  "seconds": 96
+ },
+ {
+  "repo": "china-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 11,
+  "seconds": 1
+ },
+ {
+  "repo": "colombia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "tools/codes/compare_build.sh",
+     "tools/codes/test_build.sh",
+     "tools/cst/test_build.sh"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1883,
+  "seconds": 74
+ },
+ {
+  "repo": "comoros-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "republic-of-congo-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 17,
+  "seconds": 1
+ },
+ {
+  "repo": "dr-congo-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 24,
+  "seconds": 1
+ },
+ {
+  "repo": "costa-rica-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/build.py",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 39914,
+  "seconds": 196
+ },
+ {
+  "repo": "cote-divoire-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 12,
+  "seconds": 1
+ },
+ {
+  "repo": "croatia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build.py",
+     "tools/reproduce.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 12,
+  "seconds": 1
+ },
+ {
+  "repo": "cuba-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "cyprus-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 40,
+  "seconds": 16
+ },
+ {
+  "repo": "czechia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "tools/build/ingest.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 33782,
+  "seconds": 1711
+ },
+ {
+  "repo": "north-korea-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "denmark-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 12837,
+  "seconds": 113
+ },
+ {
+  "repo": "djibouti-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 2
+ },
+ {
+  "repo": "dominica-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 4,
+  "seconds": 2
+ },
+ {
+  "repo": "dominican-republic-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "SOURCES.md",
+     "tools/reproduce.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 5,
+  "seconds": 7
+ },
+ {
+  "repo": "ecuador-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "tools/push_wip.sh"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 289,
+  "seconds": 50
+ },
+ {
+  "repo": "egypt-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 3
+ },
+ {
+  "repo": "el-salvador-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 4
+ },
+ {
+  "repo": "equatorial-guinea-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 8,
+  "seconds": 6
+ },
+ {
+  "repo": "eritrea-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "eswatini-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "common crawl / archive tactics": {
+    "tip": [
+     "data/versions.json",
+     "tools/sources.json",
+     "wip/corpus.json",
+     "wip/sources.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 29,
+  "seconds": 7
+ },
+ {
+  "repo": "ethiopia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 6
+ },
+ {
+  "repo": "fiji-law",
+  "private_names_at_tip": [
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/docs.py",
+     "tools/build/fetch.py",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1296,
+  "seconds": 14
+ },
+ {
+  "repo": "finland-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 3164,
+  "seconds": 10
+ },
+ {
+  "repo": "gabon-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "gambia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 11,
+  "seconds": 1
+ },
+ {
+  "repo": "georgia-law",
+  "private_names_at_tip": [
+   "tools/build/fetch_catalogue.py",
+   "tools/build/fetch_versions.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/build.py",
+     "tools/build/fetch_catalogue.py",
+     "tools/build/fetch_versions.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 11878,
+  "seconds": 159
+ },
+ {
+  "repo": "ghana-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "common crawl / archive tactics": {
+    "tip": [
+     "wip/acts.json",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 25,
+  "seconds": 3
+ },
+ {
+  "repo": "greece-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "wip/repo/README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 30,
+  "seconds": 11
+ },
+ {
+  "repo": "grenada-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 5,
+  "seconds": 3
+ },
+ {
+  "repo": "guatemala-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "guinea-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "wip/repo/README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 12,
+  "seconds": 4
+ },
+ {
+  "repo": "guinea-bissau-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "guyana-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "tools/push_wip.sh"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 73,
+  "seconds": 4
+ },
+ {
+  "repo": "haiti-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "honduras-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "hungary-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 3
+ },
+ {
+  "repo": "iceland-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 2
+ },
+ {
+  "repo": "india-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 3
+ },
+ {
+  "repo": "indonesia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 3
+ },
+ {
+  "repo": "iran-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 3
+ },
+ {
+  "repo": "iraq-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 3
+ },
+ {
+  "repo": "ireland-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1847,
+  "seconds": 26
+ },
+ {
+  "repo": "israel-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 4
+ },
+ {
+  "repo": "italy-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 245,
+  "seconds": 14
+ },
+ {
+  "repo": "jamaica-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 4
+ },
+ {
+  "repo": "japan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 39,
+  "seconds": 7
+ },
+ {
+  "repo": "jordan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "kazakhstan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 3
+ },
+ {
+  "repo": "kenya-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 75,
+  "seconds": 7
+ },
+ {
+  "repo": "slovakia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 59,
+  "seconds": 5
+ },
+ {
+  "repo": "slovenia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 34,
+  "seconds": 3
+ },
+ {
+  "repo": "kiribati-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "monaco-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 41,
+  "seconds": 1
+ },
+ {
+  "repo": "kuwait-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "kyrgyzstan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 18,
+  "seconds": 1
+ },
+ {
+  "repo": "laos-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "latvia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 150,
+  "seconds": 3
+ },
+ {
+  "repo": "lebanon-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "lesotho-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "wip/acts.json",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "wip/lii.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 36,
+  "seconds": 3
+ },
+ {
+  "repo": "liberia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 26,
+  "seconds": 3
+ },
+ {
+  "repo": "libya-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 2
+ },
+ {
+  "repo": "lithuania-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "wip/corpus.json",
+     "wip/sources.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 29,
+  "seconds": 2
+ },
+ {
+  "repo": "madagascar-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 55,
+  "seconds": 3
+ },
+ {
+  "repo": "malawi-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/acts.json",
+     "wip/acts.json",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   },
+   "common crawl / archive tactics": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/acts.json",
+     "wip/acts.json",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 42,
+  "seconds": 2
+ },
+ {
+  "repo": "malaysia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "wip/corpus.json",
+     "wip/parse.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 33,
+  "seconds": 3
+ },
+ {
+  "repo": "maldives-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 2
+ },
+ {
+  "repo": "mali-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "wip/repo/README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 25,
+  "seconds": 2
+ },
+ {
+  "repo": "marshall-islands-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 3,
+  "seconds": 1
+ },
+ {
+  "repo": "mauritania-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "mauritius-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 20,
+  "seconds": 1
+ },
+ {
+  "repo": "mexico-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [
+   "PROGRESS.md"
+  ],
+  "markers": {
+   "home path": {
+    "tip": [],
+    "history_only": 1
+   },
+   "bot-challenge notes": {
+    "tip": [],
+    "history_only": 1
+   }
+  },
+  "other_author_emails": [],
+  "commits": 892,
+  "seconds": 14
+ },
+ {
+  "repo": "micronesia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "wip/repo/README.md"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 31,
+  "seconds": 1
+ },
+ {
+  "repo": "moldova-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "wip/corpus.json",
+     "wip/parse.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 14,
+  "seconds": 1
+ },
+ {
+  "repo": "mongolia-law",
+  "private_names_at_tip": [
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/fetch.py"
+    ],
+    "history_only": 0
+   },
+   "home path": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/check_letters.py",
+     "tools/build/check_repo.py",
+     "tools/build/docs.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 980,
+  "seconds": 19
+ },
+ {
+  "repo": "montenegro-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 26,
+  "seconds": 2
+ },
+ {
+  "repo": "morocco-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "mozambique-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 11,
+  "seconds": 1
+ },
+ {
+  "repo": "myanmar-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "namibia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 25,
+  "seconds": 2
+ },
+ {
+  "repo": "nauru-law",
+  "private_names_at_tip": [
+   "tools/build-wip/PROGRESS.md",
+   "tools/build-wip/fetch.py",
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build-wip/fetch.py"
+    ],
+    "history_only": 0
+   },
+   "home path": {
+    "tip": [
+     "tools/build-wip/PROGRESS.md"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "SOURCES.md",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 645,
+  "seconds": 10
+ },
+ {
+  "repo": "nepal-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "netherlands-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "wip/repo/README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 370,
+  "seconds": 8
+ },
+ {
+  "repo": "new-zealand-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "wip/corpus.json",
+     "wip/parse.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 127,
+  "seconds": 7
+ },
+ {
+  "repo": "nicaragua-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "SOURCES.md",
+     "tools/reproduce.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 16,
+  "seconds": 5
+ },
+ {
+  "repo": "niger-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "nigeria-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 17,
+  "seconds": 2
+ },
+ {
+  "repo": "north-macedonia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 45,
+  "seconds": 2
+ },
+ {
+  "repo": "norway-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 30,
+  "seconds": 2
+ },
+ {
+  "repo": "oman-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "wip/repo/README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 13,
+  "seconds": 1
+ },
+ {
+  "repo": "pakistan-law",
+  "private_names_at_tip": [
+   "acts/1839/interest-act/notes.md",
+   "acts/1850/caste-disabilities-removal-act/notes.md",
+   "acts/1850/judicial-officers-protection-act/notes.md",
+   "acts/1850/public-accountants-default-act/notes.md",
+   "acts/1851/tolls-act/notes.md",
+   "acts/1853/recusant-witnesses-act/notes.md",
+   "acts/1855/fatal-accidents-act/notes.md",
+   "acts/1855/legal-representatives-suits-act/notes.md",
+   "acts/1855/mesne-profits-and-improvements-act/notes.md",
+   "acts/1856/bills-of-lading-act/notes.md",
+   "acts/1856/hindu-widows-re-marriage-act/notes.md",
+   "acts/1860/pakistan-penal-code-ppc/notes.md",
+   "acts/1860/societies-registration-act/notes.md",
+   "acts/1861/police-act/notes.md",
+   "acts/1861/stage-carriages-act/notes.md",
+   "acts/1863/excise-spirits-act/notes.md",
+   "acts/1863/waste-lands-claims-act/notes.md",
+   "acts/1865/carriers-act/notes.md",
+   "acts/1867/public-gambling-act/notes.md",
+   "acts/1867/sarais-act/notes.md"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/fetch.py"
+    ],
+    "history_only": 0
+   },
+   "home path": {
+    "tip": [
+     "tools/build/build.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "SOURCES.md",
+     "tools/build/repo/SOURCES.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 945,
+  "seconds": 84
+ },
+ {
+  "repo": "palau-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 73,
+  "seconds": 40
+ },
+ {
+  "repo": "panama-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 3,
+  "seconds": 1
+ },
+ {
+  "repo": "papua-new-guinea-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 5,
+  "seconds": 1
+ },
+ {
+  "repo": "paraguay-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 179,
+  "seconds": 76
+ },
+ {
+  "repo": "peru-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "tools/push_wip.sh"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 445,
+  "seconds": 68
+ },
+ {
+  "repo": "philippines-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "wip/corpus.json",
+     "wip/parse.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 14,
+  "seconds": 10
+ },
+ {
+  "repo": "poland-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/reproduce.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 24,
+  "seconds": 9
+ },
+ {
+  "repo": "portugal-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 152,
+  "seconds": 13
+ },
+ {
+  "repo": "qatar-law",
+  "private_names_at_tip": [
+   "PROGRESS.md"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "PROGRESS.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 19,
+  "seconds": 9
+ },
+ {
+  "repo": "south-korea-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 170,
+  "seconds": 10
+ },
+ {
+  "repo": "romania-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "wip/corpus.d/10-constitutia.json",
+     "wip/repo/README.md"
+    ],
+    "history_only": 0
+   },
+   "common crawl / archive tactics": {
+    "tip": [
+     "data/versions.json",
+     "wip/corpus.d/40-codul-procedura-civila.json",
+     "wip/corpus.d/50-codul-procedura-penala.json",
+     "wip/corpus.d/60-codul-muncii.json",
+     "wip/corpus.d/70-legea-190-2018.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 251,
+  "seconds": 14
+ },
+ {
+  "repo": "russia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [
+   "PROGRESS.md"
+  ],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "REPRODUCE.md"
+    ],
+    "history_only": 0
+   },
+   "home path": {
+    "tip": [],
+    "history_only": 1
+   }
+  },
+  "other_author_emails": [],
+  "commits": 13292,
+  "seconds": 948
+ },
+ {
+  "repo": "rwanda-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 41,
+  "seconds": 5
+ },
+ {
+  "repo": "saint-kitts-and-nevis-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 6
+ },
+ {
+  "repo": "saint-lucia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 9,
+  "seconds": 8
+ },
+ {
+  "repo": "saint-vincent-and-the-grenadines-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "samoa-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "san-marino-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "SOURCES.md",
+     "tools/build/repo/REPRODUCE.md",
+     "tools/build/repo/SOURCES.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 70,
+  "seconds": 7
+ },
+ {
+  "repo": "sao-tome-and-principe-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 21,
+  "seconds": 2
+ },
+ {
+  "repo": "saudi-arabia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 14,
+  "seconds": 2
+ },
+ {
+  "repo": "senegal-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "common crawl / archive tactics": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/parse.py",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 10,
+  "seconds": 1
+ },
+ {
+  "repo": "singapore-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "serbia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 8,
+  "seconds": 1
+ },
+ {
+  "repo": "seychelles-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 50,
+  "seconds": 3
+ },
+ {
+  "repo": "sierra-leone-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "wip/parse.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 29,
+  "seconds": 3
+ },
+ {
+  "repo": "solomon-islands-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "wip/corpus.json",
+     "wip/parse.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 13,
+  "seconds": 2
+ },
+ {
+  "repo": "somalia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 2
+ },
+ {
+  "repo": "south-africa-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 118,
+  "seconds": 4
+ },
+ {
+  "repo": "south-sudan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 16,
+  "seconds": 2
+ },
+ {
+  "repo": "spain-law",
+  "private_names_at_tip": [
+   "build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "build/fetch.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 16739,
+  "seconds": 465
+ },
+ {
+  "repo": "sri-lanka-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "wip/.work/t1.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 20,
+  "seconds": 3
+ },
+ {
+  "repo": "sudan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 12,
+  "seconds": 6
+ },
+ {
+  "repo": "suriname-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 25,
+  "seconds": 2
+ },
+ {
+  "repo": "sweden-law",
+  "private_names_at_tip": [
+   "PROGRESS.md",
+   "scripts/fetch.py",
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/fetch.py"
+    ],
+    "history_only": 1
+   },
+   "home path": {
+    "tip": [
+     "PROGRESS.md",
+     "scripts/push_wip.sh",
+     "scripts/wip_cadence.sh"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [
+   "sfs-RA-FS"
+  ],
+  "commits": 31993,
+  "seconds": 87
+ },
+ {
+  "repo": "syria-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 11,
+  "seconds": 1
+ },
+ {
+  "repo": "tajikistan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 12,
+  "seconds": 1
+ },
+ {
+  "repo": "tanzania-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "common crawl / archive tactics": {
+    "tip": [
+     "wip/acts.json",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 62,
+  "seconds": 3
+ },
+ {
+  "repo": "thailand-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/build.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/reproduce.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 17,
+  "seconds": 2
+ },
+ {
+  "repo": "timor-leste-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 9,
+  "seconds": 2
+ },
+ {
+  "repo": "togo-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 16,
+  "seconds": 1
+ },
+ {
+  "repo": "tonga-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 51,
+  "seconds": 1
+ },
+ {
+  "repo": "trinidad-and-tobago-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "SOURCES.md",
+     "tools/build/repo/SOURCES.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1740,
+  "seconds": 41
+ },
+ {
+  "repo": "tunisia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 4,
+  "seconds": 1
+ },
+ {
+  "repo": "turkey-law",
+  "private_names_at_tip": [
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/fetch.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 3378,
+  "seconds": 53
+ },
+ {
+  "repo": "turkmenistan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 7,
+  "seconds": 12
+ },
+ {
+  "repo": "tuvalu-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 18,
+  "seconds": 2
+ },
+ {
+  "repo": "uganda-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "wip/acts.json",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 49,
+  "seconds": 3
+ },
+ {
+  "repo": "ukraine-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "united-arab-emirates-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 14,
+  "seconds": 1
+ },
+ {
+  "repo": "uruguay-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 328,
+  "seconds": 19
+ },
+ {
+  "repo": "uzbekistan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "vanuatu-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 14,
+  "seconds": 6
+ },
+ {
+  "repo": "venezuela-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 66,
+  "seconds": 7
+ },
+ {
+  "repo": "vietnam-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 13,
+  "seconds": 3
+ },
+ {
+  "repo": "yemen-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 12,
+  "seconds": 2
+ },
+ {
+  "repo": "zambia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "wip/acts.json",
+     "wip/corpus.json"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 39,
+  "seconds": 2
+ },
+ {
+  "repo": "zimbabwe-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 39,
+  "seconds": 1
+ },
+ {
+  "repo": "vatican-city-law",
+  "private_names_at_tip": [
+   "PROGRESS.md"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [],
+    "history_only": 1
+   },
+   "bot-challenge notes": {
+    "tip": [],
+    "history_only": 1
+   }
+  },
+  "other_author_emails": [],
+  "commits": 12,
+  "seconds": 1
+ },
+ {
+  "repo": "palestine-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 14,
+  "seconds": 2
+ },
+ {
+  "repo": "taiwan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "REPRODUCE.md",
+     "builder/build.py",
+     "builder/check_repo.py",
+     "builder/docs.py",
+     "builder/test_repo.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 8,
+  "seconds": 1
+ },
+ {
+  "repo": "kosovo-law",
+  "private_names_at_tip": [
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/fetch.py"
+    ],
+    "history_only": 0
+   },
+   "home path": {
+    "tip": [
+     "tools/build/build.py",
+     "tools/build/check_words.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "SOURCES.md",
+     "tools/build/repo/SOURCES.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1050,
+  "seconds": 47
+ },
+ {
+  "repo": "hong-kong-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 10384,
+  "seconds": 109
+ },
+ {
+  "repo": "macau-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "jersey-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 2
+ },
+ {
+  "repo": "guernsey-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "isle-of-man-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 1
+ },
+ {
+  "repo": "gibraltar-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 16,
+  "seconds": 1
+ },
+ {
+  "repo": "bermuda-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "tools/build/build.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1580,
+  "seconds": 19
+ },
+ {
+  "repo": "cayman-islands-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "british-virgin-islands-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 1
+ },
+ {
+  "repo": "greenland-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/glfetch.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 33,
+  "seconds": 2
+ },
+ {
+  "repo": "faroe-islands-law",
+  "private_names_at_tip": [
+   "kunngerd/1962/5/notes.md",
+   "kunngerd/1962/63/notes.md",
+   "kunngerd/1963/76/notes.md",
+   "kunngerd/1964/1/notes.md",
+   "kunngerd/1967/4/notes.md",
+   "kunngerd/1978/52/notes.md",
+   "kunngerd/1979/51/notes.md",
+   "kunngerd/1979/60/notes.md",
+   "kunngerd/1980/11/notes.md",
+   "kunngerd/1980/75/notes.md",
+   "kunngerd/1983/34/notes.md",
+   "kunngerd/1987/14/notes.md",
+   "kunngerd/1987/74/notes.md",
+   "kunngerd/1988/20/notes.md",
+   "kunngerd/1988/91/notes.md",
+   "kunngerd/1989/24/notes.md",
+   "kunngerd/1990/49/notes.md",
+   "kunngerd/1992/113/notes.md",
+   "kunngerd/1992/40/notes.md",
+   "kunngerd/1992/83/notes.md"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "SOURCES.md",
+     "tools/build/repo/SOURCES.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1332,
+  "seconds": 22
+ },
+ {
+  "repo": "puerto-rico-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 2,
+  "seconds": 3
+ },
+ {
+  "repo": "aland-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 12,
+  "seconds": 1
+ },
+ {
+  "repo": "australia-new-south-wales-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 2
+ },
+ {
+  "repo": "canada-saskatchewan-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 2
+ },
+ {
+  "repo": "australia-south-australia-law",
+  "private_names_at_tip": [
+   "tools/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "tools/fetch.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1161,
+  "seconds": 12
+ },
+ {
+  "repo": "australia-northern-territory-law",
+  "private_names_at_tip": [
+   "tools/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/fetch.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/reproduce.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1943,
+  "seconds": 22
+ },
+ {
+  "repo": "canada-ontario-law",
+  "private_names_at_tip": [
+   "tools/fetch_versions.py",
+   "tools/fetchlib.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 7732,
+  "seconds": 68
+ },
+ {
+  "repo": "australia-western-australia-law",
+  "private_names_at_tip": [
+   "aboriginal-affairs-planning-authority-act-1972/notes.md",
+   "aboriginal-communities-act-1979/notes.md",
+   "aboriginal-heritage-act-1972/notes.md",
+   "acts-amendment-and-repeal-financial-sector-reform-act-1999/notes.md",
+   "administration-act-1903/notes.md",
+   "adoption-act-1994/notes.md",
+   "advance-bank-merger-with-st-george-bank-act-1998/notes.md",
+   "age-of-majority-act-1972/notes.md",
+   "agent-general-act-1895/notes.md",
+   "agricultural-and-veterinary-chemicals-taxing-act-1995/notes.md",
+   "agricultural-and-veterinary-chemicals-western-australia-act-1995/notes.md",
+   "agricultural-produce-commission-act-1988/notes.md",
+   "agriculture-and-related-resources-protection-act-1976/notes.md",
+   "air-navigation-act-1937/notes.md",
+   "albany-hardwood-plantation-agreement-act-1993/notes.md",
+   "alcohol-and-other-drugs-act-1974/notes.md",
+   "alteration-of-statutory-designations-act-1974/notes.md",
+   "alumina-refinery-agreement-act-1961/notes.md",
+   "alumina-refinery-agreements-alcoa-amendment-act-1987/notes.md",
+   "alumina-refinery-mitchell-plateau-agreement-act-1971/notes.md"
+  ],
+  "private_names_in_history_only": [
+   "aboriginal-cultural-heritage-act-2021/notes.md",
+   "aboriginal-heritage-marandoo-act-1992/notes.md",
+   "advance-bank-merger-with-st-george-bank-taxing-act-1998/notes.md",
+   "aerial-spraying-control-act-1966/notes.md",
+   "agricultural-practices-disputes-act-1995/notes.md",
+   "agricultural-produce-chemical-residues-act-1983/notes.md",
+   "agricultural-products-act-1929/notes.md",
+   "agriculture-act-1988/notes.md",
+   "agriculture-protection-board-act-1950/notes.md",
+   "albany-cemeteries-act-1943/notes.md",
+   "albany-freezing-works-agreement-act-1945/notes.md",
+   "albany-lot-184-validation-of-title-act-1956/notes.md",
+   "albany-port-authority-act-1926/notes.md",
+   "albany-public-cemeteries-subsidies-act-1952/notes.md",
+   "albany-woollen-mills-ltd-agreement-act-1976/notes.md",
+   "animal-resources-authority-act-1981/notes.md",
+   "anti-corruption-commission-act-1988/notes.md",
+   "architects-act-1921/notes.md",
+   "argentine-ant-act-1968/notes.md",
+   "armadale-redevelopment-act-2001/notes.md"
+  ],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "SOURCES.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 9400,
+  "seconds": 111
+ },
+ {
+  "repo": "canada-northwest-territories-law",
+  "private_names_at_tip": [
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/fetch.py"
+    ],
+    "history_only": 0
+   },
+   "home path": {
+    "tip": [
+     "tools/build/build.py",
+     "tools/build/check_repo.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "SOURCES.md",
+     "tools/build/repo/SOURCES.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 480,
+  "seconds": 25
+ },
+ {
+  "repo": "australia-tasmania-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1603,
+  "seconds": 64
+ },
+ {
+  "repo": "malta-acts",
+  "private_names_at_tip": [
+   "PROGRESS.md",
+   "tools/build/fetch_acts.py",
+   "tools/build/fetch_catalogue.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/build.py",
+     "tools/build/build_acts.py",
+     "tools/build/fetch_acts.py",
+     "tools/build/fetch_catalogue.py"
+    ],
+    "history_only": 0
+   },
+   "home path": {
+    "tip": [
+     "PROGRESS.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 31552,
+  "seconds": 110
+ },
+ {
+  "repo": "canada-newfoundland-and-labrador-law",
+  "private_names_at_tip": [
+   "tools/fetchlib.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/fetchlib.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/reproduce.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 5029,
+  "seconds": 21
+ },
+ {
+  "repo": "australia-australian-capital-territory-law",
+  "private_names_at_tip": [
+   "build/fetch_all.py",
+   "build/fetchlib.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "build/build.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "build/fetchlib.py"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1145,
+  "seconds": 15
+ },
+ {
+  "repo": "armenia-sublaws",
+  "private_names_at_tip": [
+   "PROGRESS.md",
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/build.py",
+     "tools/build/fetch.py"
+    ],
+    "history_only": 0
+   },
+   "home path": {
+    "tip": [
+     "PROGRESS.md"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/repo-sublaws/REPRODUCE.md",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 31619,
+  "seconds": 344
+ },
+ {
+  "repo": "canada-quebec-law",
+  "private_names_at_tip": [
+   "PROGRESS.md"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "home path": {
+    "tip": [
+     "PROGRESS.md"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "PROGRESS.md",
+     "README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 4,
+  "seconds": 2
+ },
+ {
+  "repo": "canada-nova-scotia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 2
+ },
+ {
+  "repo": "united-states-guam-law",
+  "private_names_at_tip": [
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/fetch.py"
+    ],
+    "history_only": 0
+   },
+   "home path": {
+    "tip": [
+     "tools/build/build.py",
+     "tools/build/check_words.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 826,
+  "seconds": 32
+ },
+ {
+  "repo": "united-states-northern-mariana-islands-law",
+  "private_names_at_tip": [
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "tools/build/fetch.py"
+    ],
+    "history_only": 0
+   },
+   "home path": {
+    "tip": [
+     "tools/build/build.py",
+     "tools/build/check_words.py"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "REPRODUCE.md",
+     "tools/build/repo/REPRODUCE.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 807,
+  "seconds": 10
+ },
+ {
+  "repo": "united-states-american-samoa-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "bot-challenge notes": {
+    "tip": [
+     "README.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 1,
+  "seconds": 2
+ },
+ {
+  "repo": "united-states-district-of-columbia-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1677,
+  "seconds": 131
+ },
+ {
+  "repo": "united-states-indiana-law",
+  "private_names_at_tip": [],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "title-6/6-8.1-5/6-8.1-5-1.5.md"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "title-5/5-14-3/5-14-3-3.3.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 2146,
+  "seconds": 138
+ },
+ {
+  "repo": "united-states-new-jersey-law",
+  "private_names_at_tip": [
+   "build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 1146,
+  "seconds": 34
+ },
+ {
+  "repo": "united-states-california-law",
+  "private_names_at_tip": [
+   "build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "hsc/1383.15.md",
+     "ins/10123.68.md"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "hsc/108952.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 8127,
+  "seconds": 211
+ },
+ {
+  "repo": "united-states-utah-law",
+  "private_names_at_tip": [
+   "build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {},
+  "other_author_emails": [],
+  "commits": 503,
+  "seconds": 20
+ },
+ {
+  "repo": "cook-islands-law",
+  "private_names_at_tip": [
+   "tools/build/fetch.py"
+  ],
+  "private_names_in_history_only": [],
+  "markers": {
+   "speed tooling": {
+    "tip": [
+     "REPRODUCE.md",
+     "SOURCES.md",
+     "tools/build/fetch.py",
+     "tools/build/repo/REPRODUCE.md",
+     "tools/build/repo/SOURCES.md"
+    ],
+    "history_only": 0
+   },
+   "bot-challenge notes": {
+    "tip": [
+     "SOURCES.md",
+     "tools/build/repo/SOURCES.md"
+    ],
+    "history_only": 0
+   }
+  },
+  "other_author_emails": [],
+  "commits": 660,
+  "seconds": 10
+ }
+]
