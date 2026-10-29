@@ -30,6 +30,8 @@ AUDIT_MARKS = {
     'common crawl / archive tactics': re.compile(rb'data\.commoncrawl\.org|index\.commoncrawl\.org|cluster\.idx', re.I),
     'home path': re.compile(rb'(?i)(?:[A-Z]:(?:\\\\|\\|/)+Users(?:\\\\|\\|/)+alany|/c/Users/alany)'),
     'bot-challenge notes': re.compile(rb'(?i)cloudflare|bot challenge|captcha|firewall page'),
+    # How the work is run (shared with gitlaw-scraper-dell's audit): session names, subagents, client identification.
+    'agent workflow': re.compile(rb'\bgitlaw-[a-z]|\bsubagents?\b|\buser-agent\b|\bMozilla/\d', re.I),
     # How the sources were fetched: Lexifina's fetch scripts by name, their cache and request log, request counts.
     'scraping process': re.compile(rb'^[ \t]*(?:import|from)[ \t]+fetch\w*\b|\bfetch\w*\.(?:py|sh)\b|requests\.jsonl|'
                                    rb'cached by the sha256|fill the cache|\| Requests \||fetch scripts are kept', re.M),

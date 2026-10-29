@@ -176,3 +176,13 @@ The country repos and global-law are now **public**, and the user's rule is: nev
 - `private.is_private()` is widened to match. Build tools (`tools/`) leave out any script that mentions Cloudflare, captchas or Common Crawl hosts, and the playbook files (BRIEF, FANOUT, WAVE, ALT-SOURCES, …).
 - Agents: never push. The old per-country `push_wip.sh` / `wip_push.sh` scripts force-pushed to public wip branches and are disabled. Don't write notes about a site's defences (Cloudflare, captchas) or the fetch method into README.md, SOURCES.md or anything under `repo/`: those are published. Keep them in PROGRESS.md / ISSUES.md, which stay private.
 - `--dry-run` (`autopush.py --only <slug> --dry-run`) builds, checks and audits one country and prints what would be pushed, pushing nothing.
+
+## RESUMED, MAX SPEED (user, 2026-10-29 ~19:45 UTC: "DO AS IT SAYS ... OVERRIDE")
+The user approved the decisions relayed by global-law-main-composer:
+1. **Standing approval for two kinds of rewrite.** Both still need a clean check.py and audit_push, and both use --force-with-lease on the old tip. publish() approves them automatically:
+   - a replacement of ONLY the final documentation commit of main, when every law commit is byte-identical (old tip's parent == new tip's parent) and every tag is unchanged;
+   - a first build replacing a scaffold/placeholder main ("sources, before any law", or an unpaused "Paused, not yet law") or a thin old corpus (at most 3 law commits).
+
+   Anything else (law commits changing, tags moving, deleting branches, visibility) still needs the user's explicit yes per repo.
+2. **Push as often as possible.** The per-country autopush loop runs again (--each).
+3. **Scrape at max.** Agents resume. Bulk and open data first, then Common Crawl, then Arquivo.pt, then archive.org. Robots Disallow and Crawl-delay are still obeyed. No bot-challenge, login or paywall workarounds, and no IP rotation. PUSH RULES 3 and the privacy rules still hold: nothing about fetching goes into README, SOURCES, repo/ or corpus notes.

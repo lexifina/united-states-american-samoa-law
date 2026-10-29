@@ -164,6 +164,31 @@ def note_pending(slug: str, entry: dict | None) -> None:
         PENDING.write_text(json.dumps(cur, indent=1, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
 
 
+def standing_approval(slug: str, repo: Path, branch: str, old: str, new: str, local_tags: dict, remote_tags: dict) -> str:
+    """The rewrites the user approved in advance (2026-10-29 ~19:45 UTC), for main only, after a clean check and audit:
+    - 'doc-tip replacement': only the final documentation commit differs (same parent, so every law commit is the same
+      object) and every tag the remote holds is unchanged;
+    - 'first build': the remote main is the scaffold ("sources, before any law"), an unpaused "Paused, not yet law"
+      README, or a thin old corpus of at most 3 law commits.
+    Returns the kind, or '' when the rewrite still needs the user's yes."""
+    if branch != 'main':
+        return ''
+    if git(repo, 'rev-parse', f'{old}^', check=False) == git(repo, 'rev-parse', f'{new}^', check=False):
+        if all(local_tags.get(t) == s for t, s in remote_tags.items()):
+            return 'doc-tip replacement'
+        return ''
+    email, _, subject = git(repo, 'log', '-1', '--format=%ae%x1f%s', old).partition('\x1f')
+    unpaused = ROOT / 'scripts' / 'world-law' / 'UNPAUSED.txt'
+    if subject.endswith('sources, before any law') or (
+            email == 'world-law@lexifina.com' and subject.startswith('Paused, not yet law') and unpaused.exists()
+            and slug in unpaused.read_text(encoding='utf-8').split()):
+        return 'first build over the scaffold'
+    laws = [c for c in git(repo, 'log', '--format=%ae', old).split() if c.endswith('.invalid')]
+    if len(laws) <= 3:
+        return f'first build over a thin corpus ({len(laws)} law commits)'
+    return ''
+
+
 def docs_update(slug: str, repo: Path, old: str, new: str) -> str | None:
     """When a rebuild changes only the documentation commit (the laws are the same commits), a commit on top of the
     remote with the new documentation tree, so the update fast-forwards instead of replacing the remote's tip.
@@ -224,6 +249,15 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False) -
             plan.append(f'{b} same')
             continue
         if old and subprocess.run(['git', 'merge-base', '--is-ancestor', old, new], cwd=repo).returncode:
+            standing = standing_approval(slug, repo, b, old, new, local_tags, remote_tags)
+            if standing:
+                found = private.audit_push(repo, new, old)
+                if found:
+                    return f'NOT pushed: privacy audit found {len(found)} in {b}: {"; ".join(found[:5])}'
+                leases[f'refs/heads/{b}'] = old
+                plan.append(f'{b} {standing} {old[:9]}->{new[:9]} (standing approval, lease)')
+                refs.append(f'refs/heads/{b}:refs/heads/{b}')
+                continue
             docs = docs_update(slug, repo, old, new)
             if docs == 'same':
                 plan.append(f'{b} same (documentation already current)')
