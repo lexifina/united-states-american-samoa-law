@@ -88,7 +88,11 @@ def audit_push(repo: Path, new: str, old: str | None = None) -> list[str]:
             size = int(head[2])
             body = q[end + 1:end + 1 + size]
             i = end + 1 + size + 1
-            found += [f'{k}: {path}' for k, rx in AUDIT_MARKS.items() if rx.search(body)]
+            # Law files (<act>/<unit>.md) can use these words as law ("subagents" in money-transfer regulations): the
+            # workflow marker only applies to repository docs, data and tools.
+            docs = '/' not in path or path.startswith(('tools/', 'data/'))
+            found += [f'{k}: {path}' for k, rx in AUDIT_MARKS.items()
+                      if (docs or k != 'agent workflow') and rx.search(body)]
             found += [f'personal email: {path}' for rx in mails if rx.search(body)]
     people = set(git('log', '--format=%ae%n%ce', *span).decode('utf-8', 'replace').split())
     found += [f'commit identity outside lexifina.com: {e}' for e in sorted(people)
