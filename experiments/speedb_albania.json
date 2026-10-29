@@ -1,0 +1,243 @@
+{
+ "date": "2026-10-29T23:45:21Z",
+ "probes": [
+  {
+   "url": "https://qbz.gov.al/sitemap.xml",
+   "note": "discovery",
+   "seconds": 0.5,
+   "bytes": 1521,
+   "kind": "html"
+  },
+  {
+   "url": "https://qbz.gov.al/robots.txt",
+   "note": "discovery",
+   "seconds": 0.46,
+   "bytes": 1521,
+   "kind": "html"
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/openapi.json",
+   "note": "discovery",
+   "seconds": 0.4,
+   "bytes": 0,
+   "kind": "none"
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/api-docs",
+   "note": "discovery",
+   "seconds": 0.41,
+   "bytes": 0,
+   "kind": "none"
+  },
+  {
+   "url": "https://qbz.gov.al/v3/api-docs",
+   "note": "discovery",
+   "seconds": 0.55,
+   "bytes": 1521,
+   "kind": "html"
+  },
+  {
+   "url": "https://qbz.gov.al/api/openapi.json",
+   "note": "discovery",
+   "seconds": 0.56,
+   "bytes": 0,
+   "kind": "none"
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/docs",
+   "note": "discovery",
+   "seconds": 0.38,
+   "bytes": 0,
+   "kind": "none"
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/acts?type=Ligj&size=1000&page=0",
+   "note": "page size 1000",
+   "seconds": 0.88,
+   "bytes": 0,
+   "kind": "none"
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/acts?type=Ligj&size=5000&page=0",
+   "note": "page size 5000",
+   "seconds": 0.87,
+   "bytes": 0,
+   "kind": "none"
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/acts?type=Ligj&size=100&page=0&sort=versions,desc",
+   "note": "sort by versions",
+   "seconds": 0.7,
+   "bytes": 79401,
+   "kind": "json",
+   "keys": [
+    "items",
+    "page",
+    "size",
+    "total"
+   ],
+   "items": 100,
+   "total": 3907,
+   "first_versions": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/acts?type=Ligj&size=100&page=0&hasVersions=true",
+   "note": "filter hasVersions",
+   "seconds": 0.61,
+   "bytes": 79401,
+   "kind": "json",
+   "keys": [
+    "items",
+    "page",
+    "size",
+    "total"
+   ],
+   "items": 100,
+   "total": 3907,
+   "first_versions": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/acts?type=Ligj&size=100&page=0&minVersions=1",
+   "note": "filter minVersions",
+   "seconds": 0.55,
+   "bytes": 79401,
+   "kind": "json",
+   "keys": [
+    "items",
+    "page",
+    "size",
+    "total"
+   ],
+   "items": 100,
+   "total": 3907,
+   "first_versions": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/acts/7534",
+   "note": "one act record",
+   "seconds": 0.4,
+   "bytes": 678,
+   "kind": "json",
+   "keys": [
+    "id",
+    "type",
+    "kind",
+    "number",
+    "date",
+    "title",
+    "institution",
+    "gazette",
+    "pdf",
+    "word",
+    "rdf",
+    "eliPath",
+    "versions"
+   ]
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/acts/7534?expand=versions,relations",
+   "note": "expand",
+   "seconds": 0.48,
+   "bytes": 678,
+   "kind": "json",
+   "keys": [
+    "id",
+    "type",
+    "kind",
+    "number",
+    "date",
+    "title",
+    "institution",
+    "gazette",
+    "pdf",
+    "word",
+    "rdf",
+    "eliPath",
+    "versions"
+   ]
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/acts/7534?include=versions,relations",
+   "note": "include",
+   "seconds": 0.36,
+   "bytes": 678,
+   "kind": "json",
+   "keys": [
+    "id",
+    "type",
+    "kind",
+    "number",
+    "date",
+    "title",
+    "institution",
+    "gazette",
+    "pdf",
+    "word",
+    "rdf",
+    "eliPath",
+    "versions"
+   ]
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/versions?size=1000&page=0",
+   "note": "all versions endpoint",
+   "seconds": 0.37,
+   "bytes": 0,
+   "kind": "none"
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/relations?size=1000&page=0",
+   "note": "all relations endpoint",
+   "seconds": 0.39,
+   "bytes": 0,
+   "kind": "none"
+  },
+  {
+   "url": "https://qbz.gov.al/eli/ligj/2026/10/09/105",
+   "note": "ELI path",
+   "seconds": 0.36,
+   "bytes": 1521,
+   "kind": "html"
+  },
+  {
+   "url": "https://qbz.gov.al/api/v1/acts?size=1000&page=0",
+   "note": "all types, 1000",
+   "seconds": 0.79,
+   "bytes": 0,
+   "kind": "none"
+  }
+ ]
+}
