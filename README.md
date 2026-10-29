@@ -3,7 +3,7 @@
 Git-for-law operations, kept private by the user's rule (2026-10-29):
 
 - `world-law/`: the agent playbook and queues, plus the source research (`register.json`, `countries.json`).
-- `global-law/`: the census and the bridges.
+- `global-law/`: the census, the bridges and the competitor analysis (`competitors/`, open the HTML in a browser).
 - the shared builder and the push tooling.
 - `memory/`: the git-for-law memory notes.
 - `countries/`: every country's handoffs, issue lists, correspondence drafts, licence notes and scripts.

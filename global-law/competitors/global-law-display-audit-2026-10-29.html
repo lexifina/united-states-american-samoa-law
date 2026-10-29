@@ -1,0 +1,512 @@
+<title>Global Law Display Audit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (760px) that widens to 1120px for comparison tables; sections numbered because the report is read in order */
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --sunk:#eceef2; --ink:#161a21; --ink-2:#454c58; --muted:#717887; --rule:#d9dde4;
+  --accent:#8b2c37; --accent-soft:#f4e6e8; --bar:#8b2c37; --bar-dim:#b9bec8;
+  --good:#24724a; --good-soft:#e2f1e8; --warn:#9a6412; --warn-soft:#f8eedb; --bad:#b0281c; --bad-soft:#fae5e2; --none:#8a909c; --none-soft:#eef0f3;
+  --display:"Newsreader", Georgia, "Times New Roman", serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101318; --surface:#171b22; --sunk:#1e232c; --ink:#e7e9ed; --ink-2:#b6bbc5; --muted:#8a919d; --rule:#2b313b;
+  --accent:#e58a95; --accent-soft:#3a2026; --bar:#d77b87; --bar-dim:#4a515d;
+  --good:#6fcf97; --good-soft:#17321f; --warn:#e5b45a; --warn-soft:#352914; --bad:#f08a7e; --bad-soft:#3b1d1a; --none:#8a919d; --none-soft:#232831; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101318; --surface:#171b22; --sunk:#1e232c; --ink:#e7e9ed; --ink-2:#b6bbc5; --muted:#8a919d; --rule:#2b313b;
+  --accent:#e58a95; --accent-soft:#3a2026; --bar:#d77b87; --bar-dim:#4a515d;
+  --good:#6fcf97; --good-soft:#17321f; --warn:#e5b45a; --warn-soft:#352914; --bad:#f08a7e; --bad-soft:#3b1d1a; --none:#8a919d; --none-soft:#232831; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 80px}
+.col{max-width:760px}
+h1,h2,h3{font-family:var(--display);font-weight:600;text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(30px,5vw,46px);letter-spacing:-.01em}
+h2{font-size:clamp(23px,3.2vw,30px);margin-bottom:10px}
+h3{font-size:19px;margin:22px 0 8px}
+p{margin:0 0 12px}
+a{color:var(--accent);text-underline-offset:2px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code,.mono{font-family:var(--mono);font-size:.88em}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:18px;color:var(--ink-2);margin-top:14px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:16px;font-size:13px;color:var(--muted)}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px;margin:26px 0 8px}
+nav.toc a{font-size:13px;text-decoration:none;color:var(--ink-2);border:1px solid var(--rule);background:var(--surface);padding:4px 10px;border-radius:6px}
+nav.toc a:hover{border-color:var(--accent);color:var(--accent)}
+section{margin-top:56px;scroll-margin-top:16px}
+.secno{font-family:var(--mono);color:var(--accent);font-size:13px;display:block;margin-bottom:4px}
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:28px}
+.verdict div{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:16px;min-width:0}
+.verdict b{display:block;font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:6px;line-height:1.25}
+.verdict p{font-size:14px;color:var(--ink-2);margin:0}
+.scroll{overflow-x:auto;margin-top:14px;border:1px solid var(--rule);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule)}
+th{font-weight:600;font-size:12.5px;color:var(--ink-2);background:var(--sunk);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+tr.ours td{background:var(--accent-soft)}
+td.num{text-align:right;white-space:nowrap}
+.wide{min-width:880px}
+.vs{min-width:820px}
+.vs td:first-child{font-weight:600;white-space:nowrap;color:var(--ink-2)}
+.vs td{width:41%}
+.vs td:first-child{width:18%}
+ul.tight{margin:6px 0 12px;padding-left:20px}
+ul.tight li{margin:4px 0}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:14px}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;min-width:0}
+.panel h3{margin-top:0}
+.panel ol,.panel ul{margin:0;padding-left:20px}
+.panel li{margin:6px 0;font-size:14px}
+.chip{display:inline-flex;align-items:center;height:20px;line-height:20px;padding:0 7px;border-radius:4px;font-size:11.5px;font-weight:600;font-family:var(--mono);white-space:nowrap}
+.Y{background:var(--good-soft);color:var(--good)} .P{background:var(--warn-soft);color:var(--warn)} .N{background:var(--none-soft);color:var(--none)} .Q{background:var(--none-soft);color:var(--muted)} .X{background:var(--bad-soft);color:var(--bad)}
+.matrix td,.matrix th{padding:7px 6px;text-align:center}
+.matrix td:first-child,.matrix th:first-child{text-align:left;padding-left:12px;min-width:210px}
+.matrix th.gl,.matrix td.gl{background:var(--accent-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12.5px;color:var(--muted);margin-top:10px;align-items:center}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.layers td{text-align:center}
+.layers td:first-child{text-align:left}
+.dot{display:inline-flex;width:14px;height:14px;border-radius:50%;border:2px solid var(--ink-2);vertical-align:middle}
+.dot.f{background:var(--ink-2)} .dot.h{background:linear-gradient(90deg,var(--ink-2) 50%,transparent 50%)} .dot.e{background:transparent;border-color:var(--bar-dim)}
+.cell-note{display:block;font-size:11.5px;color:var(--muted);line-height:1.3;margin-top:3px}
+.commits{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:14px}
+.commit{background:var(--surface);border:1px solid var(--rule);border-radius:8px;min-width:0;display:flex;flex-direction:column}
+.commit header{padding:10px 14px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.commit header b{font-size:14px}
+.commit pre{margin:0;padding:12px 14px;font-family:var(--mono);font-size:12px;line-height:1.55;white-space:pre-wrap;word-break:break-word;color:var(--ink-2);flex:1}
+.commit footer{padding:9px 14px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--muted)}
+.chart{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;margin-top:14px;min-width:0}
+.chart h3{margin:0 0 2px;font-family:var(--body);font-size:14.5px;font-weight:600}
+.chart .sub{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.bars{display:grid;grid-template-columns:minmax(110px,190px) 1fr;gap:5px 12px;align-items:center;font-size:12.5px}
+.bars .lab{color:var(--ink-2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bars .track{position:relative;height:18px;display:flex;align-items:center;gap:6px;min-width:0}
+.bars .b{height:14px;background:var(--bar-dim);border-radius:0 4px 4px 0;min-width:2px;flex:none}
+.bars .b.hi{background:var(--bar)}
+.bars .v{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);white-space:nowrap}
+.bars .row:hover .b{filter:brightness(1.12)}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 9px;border-radius:6px;max-width:260px;z-index:20;line-height:1.4}
+.gaps{counter-reset:g;list-style:none;padding:0;margin:14px 0 0;display:grid;gap:10px}
+.gaps li{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:12px 14px 12px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;min-width:0}
+.gaps li .chip{grid-row:span 2;align-self:start;margin-top:2px}
+.gaps li b{font-weight:600}
+.gaps li span.d{color:var(--ink-2);font-size:14px}
+.recs{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:10px;counter-reset:r}
+.recs li{counter-increment:r;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:14px 16px 14px 52px;position:relative;min-width:0}
+.recs li::before{content:counter(r);position:absolute;left:16px;top:13px;font-family:var(--display);font-size:22px;font-weight:600;color:var(--accent)}
+.recs b{display:block;margin-bottom:3px}
+.recs .why{font-size:14px;color:var(--ink-2)}
+.recs .from{font-size:12.5px;color:var(--muted);margin-top:5px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.kpi{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:12px 14px}
+.kpi .n{font-family:var(--display);font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12.5px;color:var(--muted);margin-top:3px}
+.foot{font-size:13px;color:var(--muted)}
+.foot li{margin:4px 0}
+@media (prefers-reduced-motion:no-preference){nav.toc a{transition:border-color .15s,color .15s}}
+@media (max-width:560px){.bars{grid-template-columns:92px 1fr}.recs li{padding-left:44px}.recs li::before{left:13px}}
+</style>
+
+<div class="wrap">
+<header class="col">
+  <span class="eyebrow">Competitive audit · 29 October 2026</span>
+  <h1>What global-law shows, and what everyone else shows</h1>
+  <p class="lede">A field-by-field comparison of <code>lexifina/global-law</code> with <code>worldwidelaw/legal-sources</code>, the legalize.dev family, about 35 other git-for-law repositories and 17 law catalogues. Every competitor figure was read from that project's own repository, pages or API today.</p>
+  <div class="meta"><span>Our repo read at head <code>fd5c7a4</code>; visibility and stars re-checked 29 Oct, 18:40 UTC</span><span>4 research passes, 300+ reads</span><span>Unverified items are marked</span></div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#verdict">Verdict</a><a href="#field">The field</a><a href="#layers">Layers</a><a href="#wwl">vs legal-sources</a><a href="#legalize">vs legalize.dev</a><a href="#census">Git-for-law census</a><a href="#matrix">Field matrix</a><a href="#commits">Commit anatomy</a><a href="#self">Our own gaps</a><a href="#next">What to show next</a><a href="#method">Method</a>
+</nav>
+
+<section id="verdict" class="col" style="max-width:none">
+  <span class="secno">01</span>
+  <h2>Verdict</h2>
+  <div class="col">
+  <p>Of everyone we found, we show the most about each law: when it took effect, which law wrote each line, and how each answer can be rebuilt and checked. But a visitor sees little of it. The competitors show less about each law, and show it up front, with counts, freshness dates and a way to ask for more.</p>
+  </div>
+  <div class="verdict">
+    <div><b>Deepest record per law</b><p>In-force dates, author = the amending law, per-provision files, deterministic rebuilds, a robots.txt column per source and a retroactivity rule per corpus. No other project shows more than two of these.</p></div>
+    <div><b>Public, but thin on the page</b><p>global-law is public again after a short private spell, with 2 stars, both from today. The org's 232 law repos have 5 between them. Country folders render blank on GitHub, and 87 of the 107 linked repos still describe themselves as "sources so far".</p></div>
+    <div><b>legal-sources is a catalogue, not a record</b><p>3,518 sources with licence, blocked reason and counts, but no version history at all. The text is behind a paid API, and public code was last synced on 12 September.</p></div>
+    <div><b>legalize.dev is the real rival</b><p>Same model, 32 countries, live API, MCP, webhooks and law pages. But commits are dated by publication or job-run date, the author is always "Legalize", and 22 of its last 30 daily runs failed.</p></div>
+  </div>
+</section>
+
+<section id="field">
+  <span class="secno">02</span>
+  <h2>The field at a glance</h2>
+  <p class="col">What each project is, what coverage it claims on its own surfaces, and what date a version carries. "Point in time" means you can ask for the text as it stood on a past date.</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Project</th><th>What it is</th><th>Coverage it shows</th><th>Law text public?</th><th>Point in time</th><th>Date on a version</th><th>Access</th><th class="num">Stars</th><th>Alive?</th></tr></thead>
+    <tbody>
+      <tr class="ours"><td><b>lexifina/global-law</b> (ours)</td><td>Superproject: one folder per country, each country's law-history repo linked in as a submodule</td><td>211 country folders; 107 linked law repos in 101 countries; 339,326 root commits; 15,545 tags</td><td>Yes: global-law and 211 country repos are public; 6 linked sub-national repos are private</td><td>Every linked repo</td><td>In-force date (trailer is authoritative; pre-1970 handled)</td><td>CLI <code>law.py</code>; local MCP with 18 tools; no hosted access</td><td class="num">2</td><td>Rebuilt daily</td></tr>
+      <tr><td><b>worldwidelaw/legal-sources</b></td><td>Scraper code and source catalogue for Legal Data Hunter, a paid search product</td><td>3,518 sources, 237 codes (2,192 complete, 1,320 blocked); 79.3M rows in a private index</td><td>No: 10–15 sample records per source</td><td>No</td><td>Scrape time (<code>_fetched_at</code>)</td><td>Hosted MCP (7 tools), REST API; free 20/day, then $20–$3,000+/month</td><td class="num">411</td><td>Code last synced 2026-09-12; a bot commits every 2 h</td></tr>
+      <tr><td><b>legalize.dev</b> (38 repos)</td><td>Law as git: one Markdown file per law, one commit per reform</td><td>32 countries; 856,537 laws; 1,055,917 reforms (homepage)</td><td>Yes</td><td>Via API, by publication date</td><td>Publication (spec v0.5); job-run date for daily batches in ~10 countries; Spain adds <code>Effective-Date</code></td><td>Law pages for ES/PT/UK/EU; REST API (24 endpoints); MCP (16 tools); webhooks; €0–€149+/month</td><td class="num">1,966 (es)</td><td>Daily; 22 of the last 30 runs failed</td></tr>
+      <tr><td><b>legalize-kr</b> + precedent-kr</td><td>All Korean statutes and 125,203 judgments as git</td><td>5,771 law files; 105,648 commits</td><td>Yes</td><td>Yes (MCP by promulgation or in-force date)</td><td>Promulgation date; judgments by decision date</td><td>Local and remote MCP (11 tools), site</td><td class="num">1,542 / 134</td><td>Daily, mostly green</td></tr>
+      <tr><td><b>Kohei-Wada/houritsu</b></td><td>All Japanese law as git (closest design to ours)</td><td>All laws, history from about 2015; 23,316 commits</td><td>Yes</td><td>Yes, plus an <code>upcoming</code> branch</td><td>Enforcement date; author = the amending law</td><td>git only</td><td class="num">0</td><td>Daily</td></tr>
+      <tr><td><b>pisanvs/ley-chile</b></td><td>Chilean law as git, with site and MCP</td><td>338,476 of 353,528 buildable norms (README progress bar); 359,898 commits</td><td>Yes</td><td>Yes</td><td>Publication date</td><td>Site with redline view; no-auth MCP (7 tools); llms.txt</td><td class="num">43</td><td>Daily</td></tr>
+      <tr><td><b>DCCouncil/law-xml</b></td><td>The only official git record of a statute book (D.C.)</td><td>21,171 per-section XML files</td><td>Yes</td><td>Via the site's "Credits" chain per section</td><td>Staff workday ("10-27-26 commits")</td><td>code.dccouncil.gov</td><td class="num">352</td><td>Yes</td></tr>
+      <tr><td><b>eliask/lawvm</b></td><td>Compiler from amending acts to the statute tree, checked against the official consolidation</td><td>Finland (reference); Estonia and others experimental</td><td>Yes (fi-law export)</td><td>Yes (replayed)</td><td>As-of day (runs to 2034 for scheduled expiries)</td><td>CLI with <code>oracle-check</code></td><td class="num">12</td><td>Slowing (July)</td></tr>
+      <tr><td>Legacy attention</td><td>france.code-civil · USA-Constitution · bundestag/gesetze</td><td>One code · one constitution · German federal law to 2022</td><td>Yes</td><td>Yes / yes / partly</td><td>In-force (clamped) · hacked year · commit time</td><td>git only</td><td class="num">2,687 · 2,189 · 1,923</td><td>No (2015 · 2021 · 2022)</td></tr>
+      <tr><td>Catalogues</td><td>N-Lex, ELI register, GlobaLex, LoC Guide, WorldLII, Constitute, FAOLEX, NATLEX, WIPO Lex, World National Law (HF)</td><td>27 to ~200 countries each</td><td>Links, or texts without versions</td><td>Mostly no (EUR-Lex and Peachjam yes)</td><td>n/a</td><td>Web; some APIs and bulk</td><td class="num">n/a</td><td>Mixed</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="two">
+    <div class="chart" id="starsChart">
+      <h3>Attention: GitHub stars</h3>
+      <div class="sub">Stars on each project's main repo, 29 Oct 2026. Ours is the total across all 232 lexifina law repos (global-law has 2 of them). Making a repo private removes its stars, so earlier stars on global-law, if any, aren't counted.</div>
+      <div class="bars" data-chart="stars"></div>
+    </div>
+    <div class="chart">
+      <h3>Hacker News points on each project's top thread</h3>
+      <div class="sub">From the HN Algolia API. Ours is the "Git for the US Code" post that global-law's README links to.</div>
+      <div class="bars" data-chart="hn"></div>
+    </div>
+  </div>
+</section>
+
+<section id="layers">
+  <span class="secno">03</span>
+  <h2>Which layers each project covers</h2>
+  <p class="col">A global law project has up to six layers. Ours is the only one with the first three, but it is the weakest on the fourth, hosted access. Legal Data Hunter is strongest on the catalogue and on hosted access.</p>
+  <div class="scroll"><table class="layers wide">
+    <thead><tr><th>Project</th><th>Source catalogue</th><th>Version history</th><th>Per-provision authorship</th><th>Hosted access (API / MCP)</th><th>Analysis and visuals</th><th>Case law linked</th></tr></thead>
+    <tbody id="layerRows"></tbody>
+  </table></div>
+  <div class="legend"><span><i class="dot f"></i> full</span><span><i class="dot h"></i> partial</span><span><i class="dot e"></i> none</span></div>
+</section>
+
+<section id="wwl">
+  <span class="secno">04</span>
+  <h2>Head to head: worldwidelaw/legal-sources</h2>
+  <div class="col">
+  <p>The repo you named is the public face of <b>Legal Data Hunter, Inc.</b> (Delaware; founder Zacharie Laïk). It holds the scraper code and the catalogue. The law text is in a private Postgres and Pinecone index, sold through a hosted MCP and a REST API. Of its 268 commits, 240 are a bot mirroring a licence file every two hours. Code arrives as 11 "Sync from private repo" commits, the last on 2026-09-12. The repo's own text and some commits suggest an AI agent does most of the work: source notes cite private issue numbers up to about #1,964 (the public maximum is #295), and one commit is by "Engineer 2 &lt;engineer2@paperclip.ing&gt;". I couldn't confirm the agent.</p>
+  </div>
+  <div class="scroll"><table class="vs">
+    <thead><tr><th>Surface</th><th>legal-sources shows</th><th>global-law shows</th></tr></thead>
+    <tbody>
+      <tr><td>README</td><td>"960+ collection scripts across 110+ countries", "16M+ indexed legal documents" (the live index says 79.3M); a coverage-by-region table; <code>runner.py</code> quick start; who can contribute; AGPL + commercial licence offer. No badges or images. Its example source folders don't exist.</td><td>Tagline, HN credit, a walkthrough video, CC0 notice, the tree, MCP setup with five example questions, how it's built, dates, what it does not show, a chart still, git recipes, 48 tests, two more videos.</td></tr>
+      <tr><td>Unit you browse</td><td>One folder per <i>source</i>, <code>sources/CC/Source/</code>: 3,023 folders. 3,006 have a README, so GitHub renders every folder; 681 are README-only placeholders explaining why the source is blocked.</td><td>One folder per <i>country</i>: 211, each with <code>jurisdiction.json</code>, <code>SOURCES.md</code> and, for 101 countries, a linked law repo. <b>No README.md, so GitHub shows a bare file list.</b></td></tr>
+      <tr><td>Per source</td><td>id, country, name, status, priority 1–5, url, data types, auth, notes, blocked reason, licence id/name/url, commercial use (yes/no/unknown), sub-national scope tags (742 sources), sample count, run history.</td><td>A <code>SOURCES.md</code> table row per source: kind, past versions by date, names the amending act, API or bulk, format and licence, notes, checked, <b>robots.txt for AI agents</b>.</td></tr>
+      <tr><td>Per country</td><td>Totals by status, whether consolidated codes exist (21 countries), the preferred legislation source, subdivisions.</td><td>Name, ISO code, level, repo, build verdict (ready 22 · scrape 34 · partial 22 · gazette 120 · none 10 · blocked 1), child levels, linked corpora.</td></tr>
+      <tr><td>Per law / document</td><td>Samples and API: <code>_id, _source, _type, _fetched_at, title, text, date, url</code> plus publisher fields (ELI, consolidation date, <code>etat</code>).</td><td>Per corpus in <code>manifest.json</code>: coverage, language, history type, history_from, record_to, checked_on, future branch, reading tool, citation pattern, default retroactivity rule with its authority, warnings. Per change: a commit authored by the law with In-force, Corpus, Law and Kind trailers.</td></tr>
+      <tr><td>Time</td><td>None. Legislation is overwritten by current text. Open issue #279 from a paying user asks for an "as of date" because search returns repealed article versions. 2,270 of 2,342 source configs declare no versioning.</td><td>Every corpus can be read on any date; laws not yet in force sit on a future branch (62 corpora have one); pre-1970 dates handled by trailer.</td></tr>
+      <tr><td>Counts and freshness</td><td>Rows, date range, last ingest and latest document date per source; progress "2,194 indexed / 3,518 sources"; dashboard refreshes every 60 s. Its own totals disagree: 16M, 18M, 38M, 51M, 59.7M, 77.4M, 79.3M.</td><td><code>record_to</code> and <code>checked_on</code> per corpus (45 have checked_on). <b>No law, provision or commit counts per corpus; 55 corpora have a blank coverage field.</b></td></tr>
+      <tr><td>Quality signals</td><td>A blockers list with 12 categories; needs-maintenance flags. But 948 of 2,342 public scripts import modules missing from the repo, only the licence-sync script is tested, and 83 indexed sources show a latest year after 2027.</td><td>48 tests, REPRODUCE.md with hash-for-hash rebuilds, cross-checks against each corpus's own tool, and per-corpus checks (Spain: 397,165 versions checked, 0 differ).</td></tr>
+      <tr><td>Community</td><td>Issue forms (new source, data quality, bug), source voting, "suggest a country", Discord, a CLA. 202 open issues, mostly source suggestions.</td><td>Issues are open but empty. No issue forms, no "request a country", no contribution guide.</td></tr>
+      <tr><td>Visuals</td><td>Leaflet world map with subdivision drill-down, an "Up Next" panel, blockers, a session log.</td><td>21 chart stills, <code>law-in-motion.html</code>, a legal-system bridges page, the /watch/global-law timeline (noindex).</td></tr>
+      <tr><td>Licence</td><td>Repo AGPL-3.0 with a CLA; data cannot be redistributed below the Institutional tier.</td><td>Repo CC0; law under each country repo's terms. GitHub detects no licence on any of the 232 law repos (121 none, 111 unrecognised).</td></tr>
+    </tbody>
+  </table></div>
+  <div class="two">
+    <div class="panel"><h3>They show, we don't</h3><ol>
+      <li>Why a source is blocked, from a fixed list (no full text, Cloudflare, captcha, scanned PDF, terms…).</li>
+      <li>Document counts and date range per source, and the last time it was read.</li>
+      <li>A single progress number and a world map.</li>
+      <li>A way to request, vote for or report a source.</li>
+      <li>A commercial-use flag per source.</li>
+      <li>Sub-national scope on each source (ISO 3166-2).</li>
+    </ol></div>
+    <div class="panel"><h3>We show, they don't</h3><ol>
+      <li>Any version history: what the law said on a date.</li>
+      <li>Which law wrote each line and word.</li>
+      <li>In-force, enacted and published dates kept apart.</li>
+      <li>Each source's robots.txt terms for AI agents.</li>
+      <li>The default retroactivity rule, with its authority.</li>
+      <li>A build anyone can rerun and check hash for hash.</li>
+      <li>Law text you can clone, free.</li>
+    </ol></div>
+  </div>
+</section>
+
+<section id="legalize">
+  <span class="secno">05</span>
+  <h2>Head to head: legalize.dev</h2>
+  <p class="col">The same idea as ours, run by one person (Enrique López) since March 2026, with a paid API. It wins on reach and access. We win on what a date means, who a change is credited to, file size, and proof.</p>
+  <div class="scroll"><table class="vs">
+    <thead><tr><th>Dimension</th><th>legalize.dev</th><th>global-law</th></tr></thead>
+    <tbody>
+      <tr><td>Coverage shown</td><td>"32 countries, 856,537 laws, 1,055,917 reforms, 6,573,355 articles". France shows 83 laws. Denmark is listed as "45,400 laws, Live" with an empty repo; the changelog claims Ukraine 43,000+, also empty.</td><td>101 countries with linked repos and 211 folders. France alone is 187,163 commits. No law counts are shown anywhere.</td></tr>
+      <tr><td>File unit</td><td>One file per law. Austria has an 80.8 MB file, the EU 46.3 MB, Greece 34.9 MB; the UK's Children and Families Act 2014 is one 843 KB file.</td><td>One file per provision in most corpora (<code>a135.md</code>, <code>title-11/1182.md</code>), so blame works line by line.</td></tr>
+      <tr><td>Date on a commit</td><td>Publication date by spec. Daily batches in about ten countries carry the run date (<code>UK-DAILY-2026-10-27</code>, "Affected articles: N/A"). EU and Ireland fall back to the original publication date. The API says a date "resolves to what was published… not in force".</td><td>In-force date on every law commit; enacted and published dates kept as trailers.</td></tr>
+      <tr><td>Author</td><td>Always <code>Legalize &lt;legalize@legalize.dev&gt;</code>. The spec says authorship belongs in the file, not git.</td><td>The amending law, e.g. <code>BOE-A-2026-20915 (Real Decreto 813/2026…)</code>. About 7% of root commits (23,667 baselines) are authored by the publisher, at an <code>.invalid</code> address.</td></tr>
+      <tr><td>History depth</td><td>Germany is a snapshot: every law is "versión original 2026" dated 2026-04-04, and the Basic Law has 1 commit. The US, Poland, Chile, Norway and others are mostly bootstrap snapshots.</td><td>The Basic Law from 1949 through 69 amendments; Spain from 1835; Czechia from 1918.</td></tr>
+      <tr><td>Freshness shown</td><td>Per-law <code>last_updated</code> and <code>source_updated_at</code>. The homepage reads "Last updated: 9000-01-01"; Spain's page reads "2028-01-01".</td><td><code>record_to</code> and <code>checked_on</code> per corpus, in a JSON file only.</td></tr>
+      <tr><td>Proof</td><td>An AI review of 5 sample laws per country; its own pipeline README marks 31 of 33 countries unreviewed. No REPRODUCE file.</td><td>48 tests, REPRODUCE.md, deterministic hashes, per-corpus byte checks.</td></tr>
+      <tr><td>Access</td><td>Law pages (4 countries), country pages, RSS, REST API with time travel, diff, change feed, signed webhooks, MCP with <code>law_at_date</code>. Free 2,000 requests/month.</td><td>git, <code>law.py</code>, a local MCP. Nothing hosted.</td></tr>
+      <tr><td>Attention</td><td>HN 827 points / 233 comments; legalize-es 1,966 stars; press in Xataka and Gigazine.</td><td>HN 444 points (US Code post); global-law 2 stars since going public again on 29 Oct.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="census">
+  <span class="secno">06</span>
+  <h2>The git-for-law census</h2>
+  <p class="col">About 35 public repositories put a country's law in git. Most stars sit with projects that stopped years ago. Of the live ones, only houritsu (Japan) also makes the amending law the author and dates commits by enforcement. Only three public projects keep a file per provision: nz-acts, the Pakistan constitution repo and D.C.</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Project</th><th class="num">Stars</th><th>Coverage</th><th>Date used</th><th>Author = law?</th><th>Per provision?</th><th>Verification</th><th>Tooling</th><th>Alive?</th></tr></thead>
+    <tbody id="censusRows"></tbody>
+  </table></div>
+  <div class="two">
+    <div class="panel"><h3>What they display that we could borrow</h3><ul>
+      <li><b>Chile:</b> a README status table with a watermark date and counts ("95% · 338,476 / 353,528 buildable · 4,719 excluded"), plus an MCP tool table.</li>
+      <li><b>houritsu:</b> an <code>upcoming</code> branch, <code>Bill</code>/<code>Bill-Url</code> trailers and a candid "Limits" section ("about a third of laws have one commit").</li>
+      <li><b>Norway:</b> says outright "a repository commit date is not a commencement date"; checksummed evidence releases.</li>
+      <li><b>junxit (US):</b> <code>STATUS.md</code> as a liveness date and <code>GAPS.md</code> listing what is missing.</li>
+      <li><b>D.C.:</b> each section shows its full chain of amending laws with effective dates and gazette cites.</li>
+      <li><b>Italy:</b> decree-laws that lapse unless converted live on branches.</li>
+    </ul></div>
+    <div class="panel"><h3>Mistakes we already avoid</h3><ul>
+      <li>Commit authors at official domains (Chile <code>@bcn.cl</code>, Norway <code>@lovdata.no</code>, Lithuania <code>@lrs.lt</code>). Every one of our author addresses ends <code>.invalid</code>.</li>
+      <li>History out of date order (Swiss, Italian repos).</li>
+      <li>Fetch dates presented as legal dates (Mexico, BundesGit).</li>
+      <li>Text read by an LLM from scans (Paraguay's <code>OCR-Engine</code> trailer).</li>
+      <li>A licence that differs between GitHub and the README (Chile).</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="matrix">
+  <span class="secno">07</span>
+  <h2>Field matrix: 17 catalogues</h2>
+  <p class="col">Which fields each catalogue shows per jurisdiction or source. Three fields are ours alone: robots.txt terms for AI agents, the default retroactivity rule, and the history type. We trail on per-source counts and on freshness a machine can check.</p>
+  <div class="scroll"><table class="matrix" id="matrixTable"></table></div>
+  <div class="legend"><span><i class="chip Y">Y</i> shown</span><span><i class="chip P">P</i> partial or prose only</span><span><i class="chip N">N</i> not shown</span><span><i class="chip Q">?</i> unverified (site refused automated reads)</span></div>
+  <p class="foot" style="margin-top:10px">NLX N-Lex · ELI ELI register · EUR EUR-Lex/CELLAR · GLX GlobaLex · LOC Library of Congress guides · FLG Brill Foreign Law Guide · WLII WorldLII family · PJ Peachjam/Laws.Africa · CON Constitute · FAO FAOLEX · NAT NATLEX · WIPO WIPO Lex · LZ legalize.dev · LDH Legal Data Hunter · WNL World National Law (Hugging Face) · TNA legislation.gov.uk · GL global-law. For "Language" I changed our cell from "?" to P: 56 of our 107 corpora leave it blank.</p>
+</section>
+
+<section id="commits">
+  <span class="secno">08</span>
+  <h2>Commit anatomy</h2>
+  <p class="col">The commit is the main thing a git-for-law project shows. Here is one from each, copied from the repos or as the research agents quoted them.</p>
+  <div class="commits">
+    <article class="commit"><header><b>global-law (root)</b><span class="chip Y">in-force · author = law</span></header>
+<pre>Author: BOE-A-2026-20915 (Real Decreto 813/2026,
+        de 7 de octubre) &lt;boe-a-2026-20915@boe.invalid&gt;
+
+Spain: Real Decreto 813/2026, de 7 de octubre:
+11 normas (46)
+
+Corpus: spain/national/acts
+Corpus-commit: 3fb0a613d83e…
+Law: BOE-A-2026-20915 (Real Decreto 813/2026…)
+In-force: 2026-10-28
+Kind: law</pre>
+<footer>The corpus commit underneath lists all 46 provisions in 11 norms, with links, plus Published, Enacted and Source trailers.</footer></article>
+    <article class="commit"><header><b>legalize-es</b><span class="chip P">publication · author "Legalize"</span></header>
+<pre>[reform] Real Decreto 640/2021 … — arts. 18, 19,
+10 and 15 more
+
+Norm: BOE-A-2021-12613 | Disposition:
+BOE-A-2026-22083 | Date: 2026-10-23 |
+Affected articles: Artículo 18, …
+
+Source-Id: BOE-A-2026-22083
+Source-Date: 2026-10-23
+Effective-Date: 2026-10-23</pre>
+<footer>Spain is legalize's best case. The amending act is an ID only. Effective-Date exists in Spain alone.</footer></article>
+    <article class="commit"><header><b>legalize-uk (daily)</b><span class="chip X">run date · no act</span></header>
+<pre>Disposition: UK-DAILY-2026-10-27 |
+Date: 2026-10-27 |
+Affected articles: N/A |
+Source-Id: UK-DAILY-2026-10-27</pre>
+<footer>A batch dated by the day the job ran. The same pattern runs in about ten countries.</footer></article>
+    <article class="commit"><header><b>worldwidelaw/legal-sources</b><span class="chip N">no law events</span></header>
+<pre>Sync from private repo 2026-09-12
+
+Dashboard and licence inventory refresh
+  (github-actions[bot], every 2 hours;
+   218 of 268 commits)</pre>
+<footer>Commits record code exports and dashboard refreshes, never a change in the law.</footer></article>
+    <article class="commit"><header><b>Kohei-Wada/houritsu</b><span class="chip Y">enforcement · author = law</span></header>
+<pre>Author: 令和八年政令第二百八十一号
+Date:   enforcement date, 00:00 JST
+
+Amendment-Law-Id: …
+Enforced: …
+Bill: …   Bill-Url: …</pre>
+<footer>As reported by the census; field values elided. The only other live project with author = the amending law.</footer></article>
+    <article class="commit"><header><b>pisanvs/ley-chile</b><span class="chip P">publication · official domain</span></header>
+<pre>Author: Ley Chile &lt;leychile@bcn.cl&gt;
+
+Ley N°21837 publicada (2026-08-27)
+&lt;title&gt;
+BCN idNorma=1227570</pre>
+<footer>Dated by publication, authored at the publisher's real domain.</footer></article>
+  </div>
+</section>
+
+<section id="self">
+  <span class="secno">09</span>
+  <h2>Our own display gaps</h2>
+  <p class="col">What a visitor to the repo would see, or miss, today. All figures come from the published head and the GitHub API.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="n">339,326</div><div class="l">root commits, one per law taking effect</div></div>
+    <div class="kpi"><div class="n">55%</div><div class="l">of them from France (187,163)</div></div>
+    <div class="kpi"><div class="n">56 of 107</div><div class="l">linked repos with under 100 commits</div></div>
+    <div class="kpi"><div class="n">5</div><div class="l">stars across 232 law repos (2 on global-law)</div></div>
+  </div>
+  <div class="two">
+    <div class="chart">
+      <h3>Root commits per linked law repo</h3>
+      <div class="sub">The twelve largest, then the other 95 together. A visitor who reads "the world's law" meets mostly French decrees.</div>
+      <div class="bars" data-chart="corpora"></div>
+    </div>
+    <div class="chart">
+      <h3>How each linked repo says its past is known</h3>
+      <div class="sub">The <code>history</code> field in manifest.json, across 107 linked repos.</div>
+      <div class="bars" data-chart="history"></div>
+    </div>
+  </div>
+  <ol class="gaps">
+    <li><span class="chip X">High</span><b>Six linked folders 404 for visitors.</b><span class="d">global-law is public, but six linked repos are private (California, D.C., Indiana, New Jersey, Utah, Northwest Territories). A visitor who clicks those folders gets a 404, and <code>git submodule update --init</code> fails on them without access. A full copy also sits outside the org: <code>wordhippo757/global-law</code> (480 MB, created 29 Oct 02:10Z, last pushed 01:16Z) is an import, not a fork, so GitHub doesn't link it back to us and it won't pick up our updates; it is already behind our head.</span></li>
+    <li><span class="chip X">High</span><b>Country folders render blank on GitHub.</b><span class="d">None of the 211 folders has a README.md, and GitHub renders only README files, so SOURCES.md stays hidden. legal-sources renders a README in 3,006 of its 3,023 folders.</span></li>
+    <li><span class="chip X">High</span><b>87 of 107 linked repos still say "(sources so far)".</b><span class="d">France and Spain read "law history, one commit per law taking effect (sources so far)", though they hold 187,163 and 16,737 commits. 230 of 232 law repos have no topics.</span></li>
+    <li><span class="chip P">Medium</span><b>GitHub detects no licence on any law repo.</b><span class="d">121 show none and 111 show "Other" (NOASSERTION). The global repo's LICENSE.md is CC0 but not detected either, because GitHub reads LICENSE files in a standard format.</span></li>
+    <li><span class="chip P">Medium</span><b>No counts per linked repo.</b><span class="d">The manifest gives a coverage string, not laws, provisions or commits. 55 have a blank coverage and 56 a blank language. legalize.dev, Legal Data Hunter and ley-chile all lead with counts.</span></li>
+    <li><span class="chip P">Medium</span><b>The headline promises more than every corpus delivers.</b><span class="d">"Every word traced to the law that wrote it for any country and any date": 101 of 211 countries have a record, 5 repos are current-only, and 73 don't say how their past is known.</span></li>
+    <li><span class="chip P">Medium</span><b>Freshness can't be checked at a glance.</b><span class="d">record_to and checked_on sit in JSON (45 of 107 have checked_on). There is no stale flag and no last-contacted date per source, as Constitute (<code>update_needed</code>), World National Law (<code>possibly_stale</code>) and CourtListener show.</span></li>
+    <li><span class="chip N">Low</span><b>64 linked repos have no citation rule.</b><span class="d">The manifest warns: "citations of this law are not recognised", so <code>resolve_citations</code> can't find them.</span></li>
+    <li><span class="chip N">Low</span><b>No way to contribute or report.</b><span class="d">There are no issue forms, no "request a country" and no "this text is wrong". legal-sources gets 71 open source suggestions this way.</span></li>
+  </ol>
+</section>
+
+<section id="next">
+  <span class="secno">10</span>
+  <h2>What to show next, ranked</h2>
+  <p class="col">Ranked by how much a visitor's first minute improves per hour of work. Each item names the competitor it borrows from.</p>
+  <ol class="recs">
+    <li><b>Make every linked folder open.</b><div class="why">Either open the six private sub-national repos or drop them from the public tree until they are ready, so no folder 404s and a plain <code>git submodule update --init</code> succeeds. Separately, a short "Where to get it" line in the README naming lexifina/global-law as the source keeps copies like wordhippo757/global-law from passing as current.</div><div class="from">Everyone else is fully public; reach is the one thing we lose on everywhere.</div></li>
+    <li><b>Generate a README.md in every country folder.</b><div class="why">Build it from jurisdiction.json, SOURCES.md and the manifest entry: the build verdict, the record's span, its history type, counts, the source table and three example commands. GitHub then renders a page for each of the 211 folders.</div><div class="from">legal-sources: a README in 3,006 source folders.</div></li>
+    <li><b>Fix the GitHub sidebar on all 232 law repos.</b><div class="why">Replace the 87 "sources so far" descriptions with the record's span and size, add topics (<code>law</code>, <code>legislation</code>, <code>git-history</code>, the country), and add a standard LICENSE file so GitHub detects it.</div><div class="from">legalize and houritsu show the licence in the sidebar; united-states-law and germany-law already have topics.</div></li>
+    <li><b>Lead the README with a coverage table.</b><div class="why">One row per linked repo: laws, provisions, commits, from, to, history type, last checked. Fill the 55 blank coverage and 56 blank language fields first.</div><div class="from">ley-chile's progress table; legalize's per-country law counts; Legal Data Hunter's "2,194 / 3,518".</div></li>
+    <li><b>Show freshness a machine can check.</b><div class="why">A <code>STATUS.md</code> with last build and last source check per repo, and a <code>stale</code> flag in the manifest when a check is older than its cadence.</div><div class="from">junxit's STATUS.md, Constitute's update_needed, World National Law's possibly_stale, CourtListener's last-contacted date.</div></li>
+    <li><b>Say why a source is blocked, from a fixed list.</b><div class="why">Add a status column to SOURCES.md: the source is read, or it's blocked by robots.txt, terms, Cloudflare, scanned PDF, login or "site down". Our robots.txt column already does half of this.</div><div class="from">Legal Data Hunter's blocked_reason vocabulary.</div></li>
+    <li><b>Qualify the headline.</b><div class="why">"Every word traced… for any country" becomes "every word traced, in the 101 countries recorded so far", with the coverage table right under it. HN readers punished overclaiming in every thread we read.</div><div class="from">houritsu's Limits section; Norway's statement of what a date does not mean.</div></li>
+    <li><b>Open a contribution path.</b><div class="why">Issue forms for "the text on this date is wrong", "add this country" and "this source changed". They give HN readers who want to help somewhere to go.</div><div class="from">legal-sources' issue forms and voting.</div></li>
+    <li><b>Get listed.</b><div class="why">awesome-legal-data and Legal-Text-Analytics list no git-for-law project; Legal Data Hunter is in the Claude, ChatGPT and Microsoft MCP directories. List the repo and the MCP once public.</div><div class="from">Legal Data Hunter's directory listings.</div></li>
+    <li><b>Larger bet: hosted read-only access.</b><div class="why">A hosted MCP or API over the same tree would close the gap with legalize.dev and Legal Data Hunter, both of which charge for exactly this. Our in-force dates and per-provision authorship would be the difference.</div><div class="from">legalize.dev's law_at_date; Legal Data Hunter's hosted MCP.</div></li>
+  </ol>
+</section>
+
+<section id="method" class="col">
+  <span class="secno">11</span>
+  <h2>Method and sources</h2>
+  <ul class="foot">
+    <li><b>Our side:</b> a shallow clone of lexifina/global-law at <code>0e10db0</code>, refetched at <code>fd5c7a4</code> (the three newer commits only move 87 submodule pointers); a commit-only clone for counts, authors and trailers (339,326 commits); <code>manifest.json</code> (107 linked repos); 211 <code>jurisdiction.json</code> files; GitHub API metadata and root listings for all 239 lexifina repos; the spain-law checkout.</li>
+    <li><b>worldwidelaw:</b> a blobless clone at <code>c6454f2e</code> (2026-10-29 13:08 UTC); <code>manifest.yaml</code>; the live <code>status.json</code> feed; legaldatahunter.com pages and pricing. Star history is unverified.</li>
+    <li><b>legalize.dev:</b> the API metadata of all 38 repos; clones of legalize-uk, -pt, -kr and precedent-kr; <code>openapi.json</code>; <code>/mcp/tools.json</code>; pipeline workflows and issues. Live API responses are unverified (no key).</li>
+    <li><b>Census:</b> about 35 repos via the GitHub API, commit samples (newest, middle, oldest) and HN Algolia. Reddit was blocked, so Reddit attention is unverified for all of them. openlawlibrary.org and legalize-kp.org did not resolve.</li>
+    <li><b>Catalogues:</b> live pages and APIs (Constitute API, CELLAR SPARQL, Hugging Face API, CourtListener v4). WorldLII, FAOLEX, NATLEX, EUR-Lex, Peachjam act pages and Brill refused automated reads today; their cells are marked "?" or come from secondary sources.</li>
+    <li>Key links: <a href="https://github.com/worldwidelaw/legal-sources">worldwidelaw/legal-sources</a> · <a href="https://legaldatahunter.com/pricing">Legal Data Hunter pricing</a> · <a href="https://github.com/legalize-dev">legalize-dev</a> · <a href="https://legalize.dev/openapi.json">legalize API spec</a> · <a href="https://news.ycombinator.com/item?id=47553798">HN: Spanish legislation as a Git repo</a> · <a href="https://github.com/legalize-kr">legalize-kr</a> · <a href="https://github.com/Kohei-Wada/houritsu">houritsu</a> · <a href="https://github.com/pisanvs/ley-chile">ley-chile</a> · <a href="https://github.com/DCCouncil/law-xml">DCCouncil/law-xml</a> · <a href="https://github.com/eliask/lawvm">lawvm</a> · <a href="https://www.constituteproject.org">Constitute</a> · <a href="https://n-lex.europa.eu/n-lex/index">N-Lex</a></li>
+  </ul>
+</section>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+const fmt = n => n.toLocaleString('en-US');
+const charts = {
+  stars: {hi:'lexifina (all 232 law repos)', rows:[
+    ['steeve/france.code-civil',2687],['USA-Constitution',2189],['legalize-es',1966],['bundestag/gesetze',1923],['legalize-kr',1542],
+    ['worldwidelaw/legal-sources',411],['nickvido/us-code',372],['DCCouncil/law-xml',352],['legalize (hub)',297],['ley-chile',43],['lawvm',12],['houritsu',0],['lexifina (all 232 law repos)',5]]},
+  hn: {hi:'Git for the US Code (ours)', rows:[
+    ['USA-Constitution',1198],['legalize-es',827],['D.C. "pull request" post',503],['france.code-civil',453],['Git for the US Code (ours)',444],['bundestag/gesetze',325],['lawvm essay',84],['nickvido/us-code',42],['legal-sources',0]]},
+  corpora: {hi:'france', rows:[
+    ['france',187163],['czechia',33641],['spain',16737],['sweden',15536],['armenia',14423],['georgia',11819],['switzerland',11509],['azerbaijan',10867],['california',8127],['malta',7255],['germany',3305],['turkey',2362],['95 others',16580]]},
+  history: {hi:'not stated', rows:[['in-force (dated official versions)',23],['replayed (amending acts applied)',6],['current-only',5],['not stated',73]]}
+};
+const tip = document.getElementById('tip');
+document.querySelectorAll('[data-chart]').forEach(el => {
+  const c = charts[el.dataset.chart]; const max = Math.max(...c.rows.map(r => r[1]));
+  c.rows.forEach(([label, v]) => {
+    const lab = document.createElement('div'); lab.className = 'lab'; lab.textContent = label; lab.title = label;
+    const tr = document.createElement('div'); tr.className = 'track row';
+    const b = document.createElement('div'); b.className = 'b' + (label === c.hi ? ' hi' : '');
+    b.style.width = `calc((100% - 70px) * ${v / max})`;
+    const val = document.createElement('span'); val.className = 'v'; val.textContent = fmt(v);
+    tr.append(b, val);
+    tr.addEventListener('pointermove', e => { tip.hidden = false; tip.textContent = `${label}: ${fmt(v)}`; tip.style.left = Math.min(e.clientX + 12, innerWidth - 270) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; });
+    tr.addEventListener('pointerleave', () => { tip.hidden = true; });
+    el.append(lab, tr);
+  });
+});
+
+// Layers: f full, h partial, e none; optional notes
+const layers = [
+  ['global-law (ours)', ['f','SOURCES.md, 211 countries'],['f','every linked repo'],['f','line and word'],['h','local MCP only'],['f','21 charts, bridges'],['h','2-provision sample']],
+  ['worldwidelaw / Legal Data Hunter', ['f','3,518 sources'],['e',''],['e',''],['f','MCP + REST, paid'],['h','coverage map'],['h','62M case rows, not tied to versions']],
+  ['legalize.dev', ['h','source + licence per README'],['h','publication-dated; snapshots in DE, US…'],['e','file per law'],['f','API, MCP, webhooks'],['h','stats endpoint'],['e','']],
+  ['legalize-kr + precedent-kr', ['e',''],['f','promulgation-dated'],['e','file per law'],['f','MCP'],['e',''],['h','cited articles as free text']],
+  ['houritsu', ['e',''],['f','enforcement-dated'],['h','author = law, file per law'],['e',''],['e',''],['e','']],
+  ['ley-chile', ['e',''],['f','publication-dated'],['e',''],['f','MCP, site'],['e',''],['e','']],
+  ['DCCouncil/law-xml', ['e',''],['h','credits chain on site'],['h','section files, staff authors'],['h','site'],['e',''],['e','']],
+  ['World National Law (HF)', ['h','source_policy column'],['e','flags only'],['e',''],['h','bulk download'],['e',''],['e','']],
+  ['Constitute', ['e',''],['h','one snapshot per revision'],['e',''],['f','API'],['h','topic tags'],['e','']],
+];
+document.getElementById('layerRows').innerHTML = layers.map(([name,...cells]) =>
+  `<tr${name.includes('ours')?' class="ours"':''}><td><b>${name}</b></td>${cells.map(([k,n]) => `<td><i class="dot ${k}" aria-label="${{f:'full',h:'partial',e:'none'}[k]}"></i>${n?`<span class="cell-note">${n}</span>`:''}</td>`).join('')}</tr>`).join('');
+
+const census = [
+  ['global-law (ours)','2','101 countries, 107 repos','in-force','yes on law commits (7% are publisher baselines)','yes, most','48 tests, REPRODUCE.md','law.py, local MCP','yes'],
+  ['steeve/france.code-civil','2,687','FR Code civil','in-force (pre-1970 → 1970)','no ("République Française")','yes (article)','none','none','no (2015)'],
+  ['JesseKPhillips/USA-Constitution','2,189','US Constitution','hacked year','drafter','per amendment','none','none','no (2021)'],
+  ['bundestag/gesetze','1,923','DE federal to 2022','commit time','no (maintainers)','no','tools CI','scrapers','tools only'],
+  ['nickvido/us-code','372','US Code 2013–25','release point','no','no (chapter)','none','none','no'],
+  ['DCCouncil/law-xml','352','D.C. Code (official)','staff workday','no','yes (section XML)','AppVeyor','site, codifier','yes'],
+  ['Legilibre/Archeo-Lex','106','FR LEGI','consolidation','no','no','dead CI','generator, diff site','no (2019)'],
+  ['39la/gitlaw-jp','100','JP e-Gov','施行日 (in force)','no','no','tests','Python','no'],
+  ['QuantLaw/gesetze-im-internet','47','DE XML since 2019','scrape date','no','no','not_found log','daily releases','yes'],
+  ['pisanvs/ley-chile','43','CL 333k norms','publication','no','no','pytest, 7 workflows','site, MCP','yes'],
+  ['Yiin/lt-teises-aktai','33','LT 14,953 acts','in-force','no ("Seimas")','no','none','git recipes','stale (Jan)'],
+  ['katelynsills/copyright-history','18','17 USC 1790–','enactment','no','partly','450+ tests claimed','pipeline','no (Apr)'],
+  ['se-lex/sfs','17','SE SFS','in-force','no','no','test workflow','processor','Jul'],
+  ['eliask/lawvm','12','FI ref; EE, UK…','as-of day','no','yes (internal)','oracle-check vs Finlex','CLI compiler','slowing'],
+  ['dej611/italian-laws-history','9','IT Normattiva','modification date','no ("GU Bot")','no','tests, CI','Rust TUI, branches','yes'],
+  ['ypsoftware/leyes-paraguayas','9','PY 6,378 laws','source date','no','no','LLM OCR','none','Aug'],
+  ['sondreskarsten/norwegian-laws','7','NO laws + regs','fetch date (stated)','no','no','checksum releases','site, Atom','yes'],
+  ['SFHAJJI/lex-git-lu','3','LU consolidated','valid_from','no','sibling repo','hash-chained sources','site, MCP','Aug'],
+  ['Kohei-Wada/houritsu','0','JP all laws ~2015–','enforcement','yes','no','lint, builder tests','upcoming branch','yes (daily)'],
+  ['tonyandrewmeyer/nz-acts','0','NZ Acts','version date','no (PCO)','yes (section)','legidiff CI','legidiff','Sep'],
+  ['talalashraf/constitution-of-pakistan','0','PK Constitution','effect / gazette','no','yes (article)','byte-for-byte round trip','none','done'],
+  ['benjamin-arfa/swiss-law','0','CH federal + cantons','version date','no','no','tests','CLI','weekly'],
+];
+document.getElementById('censusRows').innerHTML = census.map(r =>
+  `<tr${r[0].includes('ours')?' class="ours"':''}>${r.map((c,i)=>`<td${i===1?' class="num"':''}>${i===0?`<b>${c}</b>`:c}</td>`).join('')}</tr>`).join('');
+
+const cols = ['NLX','ELI','EUR','GLX','LOC','FLG','WLII','PJ','CON','FAO','NAT','WIPO','LZ','LDH','WNL','TNA','GL'];
+const m = [
+  ['Official source URL','YYYPYPPPNYPPYYYYY'],
+  ['Licence / reuse terms','NNYNNNPYNYNNYYPYY'],
+  ['Point-in-time versions','PPYNNNPYPNNPYNPYY'],
+  ['Names the amending act','NNYNNPNYPYYPYNNYY'],
+  ['API or bulk access','PPYNNNNYYYNNYYYYY'],
+  ['Update cadence stated','PNPPNPNNNYYNYNPNP'],
+  ['Last updated / last checked','NYPYY?YPPY?YYNYYY'],
+  ['robots.txt / AI-agent terms','NNNNNNNNNNNNNPPNY'],
+  ['Coverage dates','PPYNNNPPYP?PPYPYY'],
+  ['Document types','YNYPYYYYPYYYYYYYP'],
+  ['Language','YNYPPYPYYYYYYYYNP'],
+  ['ISO country code','NNPNNNPYN??YYYY-Y'],
+  ['ELI support','YYYNNNNPNNNNYNNY?'],
+  ['Build / readiness / blocked status','NYNNNNNYYNNNYYPYY'],
+  ['Counts per country or source','NNPNNNPPYYY?YYYNP'],
+  ['Map','Y?NNNNNN????NNNNY'],
+  ['Citation pattern per jurisdiction','NPYPNPNYNNNNPPNYY'],
+  ['Default retroactivity rule + authority','NNNNNNNNNNNNNNNNY'],
+  ['Machine-readable manifest','NNNNNNNNYYNNYYY-Y'],
+];
+const cls = {Y:'Y',P:'P',N:'N','?':'Q','-':'N'};
+const lbl = {Y:'Y',P:'P',N:'N','?':'?','-':'n/a'};
+document.getElementById('matrixTable').innerHTML =
+  `<thead><tr><th>Field</th>${cols.map(c=>`<th${c==='GL'?' class="gl"':''}>${c}</th>`).join('')}</tr></thead><tbody>` +
+  m.map(([f,s]) => `<tr><td>${f}</td>${[...s].map((v,i)=>`<td${cols[i]==='GL'?' class="gl"':''}><span class="chip ${cls[v]}">${lbl[v]}</span></td>`).join('')}</tr>`).join('') + '</tbody>';
+</script>
