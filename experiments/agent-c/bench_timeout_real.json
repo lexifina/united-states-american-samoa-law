@@ -1,0 +1,60 @@
+{
+ "host": "ia37rg02wpsa01.blob.core.windows.net",
+ "threads": 16,
+ "runs": [
+  {
+   "policy": "proposed",
+   "files": 40,
+   "completed": 40,
+   "MB": 90.3,
+   "wall_s": 34.7,
+   "MBps": 2.601,
+   "files_per_min": 69.1,
+   "curl_tries": 40,
+   "curl_failures_code0": 0,
+   "outcomes": {
+    "ok": 40
+   },
+   "final_rate": 14.0,
+   "throttled": 0,
+   "trace": [
+    [
+     10,
+     13.5,
+     0
+    ],
+    [
+     20,
+     13.5,
+     0
+    ],
+    [
+     30,
+     13.75,
+     0
+    ]
+   ]
+  },
+  {
+   "policy": "current",
+   "files": 40,
+   "completed": 40,
+   "MB": 11.8,
+   "wall_s": 11.2,
+   "MBps": 1.046,
+   "files_per_min": 213.4,
+   "curl_tries": 40,
+   "curl_failures_code0": 0,
+   "outcomes": {},
+   "final_rate": 14.0,
+   "throttled": 0,
+   "trace": [
+    [
+     10,
+     12.5,
+     0
+    ]
+   ]
+  }
+ ]
+}
