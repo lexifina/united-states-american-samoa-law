@@ -1,0 +1,171 @@
+{
+ "date": "2026-10-29T23:27:17Z",
+ "cards_2026": {
+  "norms": 18647,
+  "laws_dlegs_dus": 232,
+  "days": 285,
+  "first": "20260118",
+  "last": "20261029"
+ },
+ "sitemap": {
+  "seconds": 4.3,
+  "urls": 761,
+  "lastmods": [
+   "2026-10-29"
+  ],
+  "kinds": {
+   "dispositivo/NL/": 75,
+   "dispositivo/BO/": 686
+  }
+ },
+ "common_crawl": {
+  "crawls": [
+   "CC-MAIN-2026-43",
+   "CC-MAIN-2026-39",
+   "CC-MAIN-2026-34",
+   "CC-MAIN-2026-30",
+   "CC-MAIN-2026-25",
+   "CC-MAIN-2026-21",
+   "CC-MAIN-2026-17",
+   "CC-MAIN-2026-12"
+  ],
+  "busquedas.elperuano.pe/dispositivo/": {
+   "seconds": 12.2,
+   "captures": 14224,
+   "ok": 11877,
+   "distinct_urls": 10932,
+   "distinct_ops": 10848,
+   "per_crawl": {
+    "CC-MAIN-2026-43": 1365,
+    "CC-MAIN-2026-39": 1960,
+    "CC-MAIN-2026-34": 1446,
+    "CC-MAIN-2026-30": 1678,
+    "CC-MAIN-2026-25": 1707,
+    "CC-MAIN-2026-21": 1782,
+    "CC-MAIN-2026-17": 1771,
+    "CC-MAIN-2026-12": 168
+   }
+  },
+  "busquedas.elperuano.pe/normaslegales/": {
+   "seconds": 5.4,
+   "captures": 864,
+   "ok": 0,
+   "distinct_urls": 0,
+   "distinct_ops": 0,
+   "per_crawl": {}
+  },
+  "busquedas.elperuano.pe/api/archivo/file/": {
+   "seconds": 5.4,
+   "captures": 0,
+   "ok": 0,
+   "distinct_urls": 0,
+   "distinct_ops": 0,
+   "per_crawl": {}
+  },
+  "diariooficial.elperuano.pe/pdf/": {
+   "seconds": 10.4,
+   "captures": 13,
+   "ok": 1,
+   "distinct_urls": 1,
+   "distinct_ops": 0,
+   "per_crawl": {
+    "CC-MAIN-2026-34": 1
+   }
+  },
+  "coverage": {
+   "laws_dlegs_dus_covered": 120,
+   "all_2026_norms_covered": 1602
+  }
+ },
+ "arquivo_pt": {
+  "busquedas.elperuano.pe/dispositivo/": {
+   "seconds": 1.4,
+   "captures": 173,
+   "distinct_urls": 87,
+   "distinct_ops": 87,
+   "years": {
+    "2023": 32,
+    "2024": 41,
+    "2025": 100
+   }
+  },
+  "busquedas.elperuano.pe/normaslegales/": {
+   "seconds": 1.0,
+   "captures": 137,
+   "distinct_urls": 118,
+   "distinct_ops": 116,
+   "years": {
+    "2018": 5,
+    "2019": 9,
+    "2020": 52,
+    "2021": 11,
+    "2022": 27,
+    "2023": 33
+   }
+  },
+  "busquedas.elperuano.pe/api/archivo/file/": {
+   "seconds": 1.7,
+   "captures": 0,
+   "distinct_urls": 0,
+   "distinct_ops": 0,
+   "years": {}
+  },
+  "diariooficial.elperuano.pe/pdf/": {
+   "seconds": 1.7,
+   "captures": 255,
+   "distinct_urls": 114,
+   "distinct_ops": 0,
+   "years": {
+    "2020": 35,
+    "2021": 218,
+    "2023": 2
+   }
+  },
+  "coverage": {
+   "laws_dlegs_dus_covered": 0,
+   "all_2026_norms_covered": 0
+  }
+ },
+ "archive_org": {
+  "busquedas.elperuano.pe/dispositivo/": {
+   "seconds": 110.4,
+   "distinct_urls": 37441,
+   "distinct_ops": 36792,
+   "years": {
+    "2023": 4087,
+    "2024": 14169,
+    "2025": 12959,
+    "2026": 6226
+   }
+  },
+  "busquedas.elperuano.pe/normaslegales/": {
+   "seconds": 112.7,
+   "distinct_urls": 29825,
+   "distinct_ops": 28688,
+   "years": {
+    "2017": 2104,
+    "2018": 10657,
+    "2019": 1339,
+    "2020": 3000,
+    "2021": 4722,
+    "2022": 5808,
+    "2023": 2195
+   }
+  },
+  "coverage": {
+   "laws_dlegs_dus_covered": 109,
+   "all_2026_norms_covered": 2151
+  }
+ },
+ "union_coverage": {
+  "laws_dlegs_dus_covered": 156,
+  "all_2026_norms_covered": 2820
+ },
+ "cc_page_fetch": {
+  "requests": 24,
+  "seconds": 4.2,
+  "ok": 24,
+  "with_pdf_link": 24,
+  "median_bytes": 92254
+ }
+}
