@@ -53,6 +53,15 @@ FOREIGN = {'estonia', 'liechtenstein', 'luxembourg', 'malta', 'swiss', 'germany'
            'uk', 'global', 'world', 'south-america', 'africa'}
 # Out of scope for now (user: no right-to-left or CJK scripts): held off every branch until the user decides.
 FOREIGN |= {'oman', 'qatar', 'yemen', 'syria', 'sudan', 'united-arab-emirates', 'palestine', 'south-korea'}
+# Built and published by gitlaw-scraper-dell from alan-dell (2026-10-29): the folders here are stale copies.
+FOREIGN |= {'australia', 'australia-northern-territory', 'australia-tasmania', 'australia-south-australia',
+            'australia-australian-capital-territory', 'australia-western-australia', 'hong-kong', 'ireland', 'denmark',
+            'finland', 'canada-newfoundland-and-labrador', 'canada-northwest-territories', 'kosovo', 'pakistan',
+            'faroe-islands', 'belize', 'united-states-guam', 'united-states-northern-mariana-islands', 'san-marino',
+            'trinidad-and-tobago', 'andorra', 'bangladesh'}
+# Other sessions' own builders (global-law-main-composer and earlier): never touched from here.
+FOREIGN |= {'costa-rica', 'spain', 'czechia', 'france', 'russia', 'austria', 'italy', 'portugal', 'poland',
+            'cook-islands'}
 SKIP_DIRS = {'.cache', '__pycache__', '.tmp-build', '.tmp', 'tmp'}
 MAX_FILE = 50 * 1024 * 1024
 WIP_AUTHOR = {'GIT_AUTHOR_NAME': 'Lexifina', 'GIT_AUTHOR_EMAIL': 'world-law@lexifina.com',

@@ -647,7 +647,8 @@ def version(cmd: list[str]) -> str:
 _SCRIPT = r'(?:[\w.*-]+/)*[\w.*-]+\.(?:py|sh)\b'
 _ATTR = (r'\b[a-z_][a-z0-9_]*\.(?:[A-Z][A-Z0-9_]{2,}\b|[a-z][a-z0-9]*_[a-z0-9_]+\b|[a-z_][a-z0-9_]*\(\))|'
          r'\b(?:fetch|wayback|lii|peachjam|parse)\w*\.[a-z_]\w*\b(?<!\.py)(?<!\.sh)(?<!\.json)(?<!\.md)')
-_WORKFILE = r'\bcorpus\.d/[\w.-]+|(?<!\w)[\w-]*\.PUBLISH\b'  # the builder's own input files and gates
+# The builder's own input files and gates, and the names of the sessions that ran the work.
+_WORKFILE = r'\bcorpus\.d/[\w.-]+|(?<!\w)[\w-]*\.PUBLISH\b|\bgitla[w]-[\w-]+'
 CODE_REF = re.compile(f'{_SCRIPT}|{_ATTR}|{_WORKFILE}')
 _DOMAIN_PY = re.compile(r'\.(?:gov|gob|com|org|edu|net|mil|coop)\.py$')  # Paraguay's own domains end in .py
 _CUT = '\x00'
@@ -669,7 +670,7 @@ _ACCESS = re.compile(r'(?i)cloud[f]lare|capt[c]ha|bot chal[l]enge|fire[w]all|rob
                      r'\b(?:401|403|429) (?:from|error|Forbidden|Too)\b|\bblocked\b|not reachable|unreachable|timed? out|'
                      r'throttl|\bpolite|\bdownloads? (?:every|each|all|the sources)|\bdownloaded (?:once|through|with|by)|'
                      r'scrap|signed link|\bendpoints?\b|encoded with a key|responseCrypto|'
-                     r'\bAPI key\b|\bsession cookie|\buser[- ]agent')
+                     r'\bAPI key\b|\bsession cookie|\buser[- ]agent|adaptive[ ]rate')
 _SENTENCE = re.compile(r'(?<=[.;!?])\s+(?=[A-Z`(\[*"¿¡])')
 BUILT = ("Lexifina reads the sources listed here and records each act's dated versions, and the laws that made each "
          "change, in one corpus file. `tools/build.py` writes this repository from that file, and the same corpus "
@@ -694,6 +695,25 @@ def _drop_access(text: str) -> str:
         if not _ACCESS.search(bare) and not _STALE.search(x.strip()):
             kept.append(x)
     return ' '.join(kept)
+
+
+def _access_in(s: str) -> bool:
+    return bool(_ACCESS.search(re.sub(r'"[^"]*"|“[^”]*”|«[^»]*»', '""', s)))
+
+
+def _trim_access(sentence: str) -> str:
+    """One sentence of a note without its access detail: parentheses that mention access go, then ;/:-separated
+    clauses that do (keeping the sentence's end), and the sentence only if access is still mentioned."""
+    if not _access_in(sentence):
+        return sentence
+    s = re.sub(r'\s*\([^()]*\)', lambda m: '' if _access_in(m.group(0)) else m.group(0), sentence)
+    if _access_in(s):
+        parts = re.split(r'(?<=[;:])\s+', s)
+        kept = [p for p in parts if not _access_in(p)]
+        s = ' '.join(kept).rstrip(';:, ')
+        if s and not s.endswith(('.', '!', '?')) and sentence.rstrip().endswith('.'):
+            s += '.'
+    return '' if not s or _access_in(s) or _STALE.search(s.strip()) or len(s) < 12 else s
 
 
 def public_readme(text: str, keep: frozenset[str]) -> str:
@@ -767,7 +787,11 @@ def public_note(s: str, keep: frozenset[str] = frozenset()) -> str:
     s = run.sub(sub, s)
     s = re.sub(r"Lexifina's code(?:,? and Lexifina's code)+", "Lexifina's code", s)
     s = re.sub(rf'\s*{_CUT}+(?=[,.;:)])', '', s)
-    return re.sub(rf'\s*{_CUT}+\s*', ' ', s).strip()
+    s = re.sub(rf'\s*{_CUT}+\s*', ' ', s).strip()
+    # How a site was reached (rates, robots.txt, defences) is not part of the record. A note is legal reasoning, so cut
+    # as little as possible: first the parenthesis or the ;/: clause that says it, and the whole sentence only if
+    # that is not enough.
+    return ' '.join(x for x in (_trim_access(x) for x in _SENTENCE.split(s)) if x).strip()
 
 
 def reproduce(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, docs_date: str) -> str:
@@ -809,8 +833,8 @@ def reproduce(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, do
         'FUTURE_BRANCH': co.get('future_branch', 'futuro'),
         'BUILD_BLOB': blob(HERE / 'build.py'), 'CHECK_BLOB': blob(HERE / 'check.py'), 'ON_BLOB': blob(HERE / 'on.py'),
         'PYTHON': version([sys.executable, '--version']), 'GIT': version(['git', '--version']),
-        'DECISIONS': '\n'.join(f'- {public_note(d)}' for d in c.get('decisions', [])) or '- None.',
-        'AI_USE': '\n'.join(f'- {public_note(d)}' for d in c.get('ai_use', [])) or '- None at data-build time.',
+        'DECISIONS': '\n'.join(f'- {n}' for n in map(public_note, c.get('decisions', [])) if n) or '- None.',
+        'AI_USE': '\n'.join(f'- {n}' for n in map(public_note, c.get('ai_use', [])) if n) or '- None at data-build time.',
         'CHECK': check_line, 'REBUILD': rebuild_line,
     }
     return re.sub(r'\{\{([A-Z_]+)\}\}', lambda m: fill[m.group(1)], tpl)
