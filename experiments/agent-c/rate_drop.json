@@ -1,0 +1,1492 @@
+{
+ "generated_utc": "2026-10-29T23:13:16Z",
+ "requests_total": 24560,
+ "per_30min_machine": [
+  [
+   "12:00",
+   30,
+   1.0
+  ],
+  [
+   "12:30",
+   170,
+   5.7
+  ],
+  [
+   "13:00",
+   161,
+   5.4
+  ],
+  [
+   "13:30",
+   164,
+   5.5
+  ],
+  [
+   "14:00",
+   127,
+   4.2
+  ],
+  [
+   "14:30",
+   149,
+   5.0
+  ],
+  [
+   "15:00",
+   45,
+   1.5
+  ],
+  [
+   "16:00",
+   154,
+   5.1
+  ],
+  [
+   "16:30",
+   97,
+   3.2
+  ],
+  [
+   "17:00",
+   112,
+   3.7
+  ],
+  [
+   "17:30",
+   167,
+   5.6
+  ],
+  [
+   "18:00",
+   80,
+   2.7
+  ],
+  [
+   "20:00",
+   2903,
+   96.8
+  ],
+  [
+   "20:30",
+   930,
+   31.0
+  ],
+  [
+   "21:00",
+   947,
+   31.6
+  ],
+  [
+   "21:30",
+   12359,
+   412.0
+  ],
+  [
+   "22:00",
+   2169,
+   72.3
+  ],
+  [
+   "22:30",
+   2479,
+   82.6
+  ],
+  [
+   "23:00",
+   793,
+   26.4
+  ]
+ ],
+ "peak_window": [
+  "21:30",
+  "22:00"
+ ],
+ "peak_per_host": [
+  [
+   "busquedas.elperuano.pe",
+   1896,
+   63.2
+  ],
+  [
+   "data.commoncrawl.org",
+   1835,
+   61.2
+  ],
+  [
+   "raw.githubusercontent.com",
+   1412,
+   47.1
+  ],
+  [
+   "servicios.infoleg.gob.ar",
+   1256,
+   41.9
+  ],
+  [
+   "nuevo.leychile.cl",
+   1171,
+   39.0
+  ],
+  [
+   "zoek.officielebekendmakingen.nl",
+   893,
+   29.8
+  ],
+  [
+   "www.bacn.gov.py",
+   733,
+   24.4
+  ],
+  [
+   "repository.officiele-overheidspublicaties.nl",
+   727,
+   24.2
+  ],
+  [
+   "www.secretariasenado.gov.co",
+   696,
+   23.2
+  ],
+  [
+   "web.archive.org",
+   410,
+   13.7
+  ],
+  [
+   "journal-officiel.sgg.gov.gn",
+   255,
+   8.5
+  ],
+  [
+   "parliament.gov.gy",
+   185,
+   6.2
+  ],
+  [
+   "www.legislation.act.gov.au",
+   159,
+   5.3
+  ],
+  [
+   "www.gacetaoficial.gob.ve",
+   155,
+   5.2
+  ],
+  [
+   "www.impo.com.uy",
+   154,
+   5.1
+  ],
+  [
+   "sgg-mali.ml",
+   98,
+   3.3
+  ],
+  [
+   "www.asambleanacional.gob.ec",
+   97,
+   3.2
+  ],
+  [
+   "www.mola.gov.gy",
+   63,
+   2.1
+  ],
+  [
+   "arquivo.pt",
+   25,
+   0.8
+  ],
+  [
+   "www.justice.gov.za",
+   15,
+   0.5
+  ],
+  [
+   "fccpc.gov.ng",
+   12,
+   0.4
+  ],
+  [
+   "nerc.gov.ng",
+   9,
+   0.3
+  ],
+  [
+   "www.lexml.gov.br",
+   9,
+   0.3
+  ],
+  [
+   "www.nrs.gov.ng",
+   7,
+   0.2
+  ],
+  [
+   "ndpc.gov.ng",
+   7,
+   0.2
+  ]
+ ],
+ "peak_per_agent": [
+  [
+   "peru-law",
+   1897,
+   63.2
+  ],
+  [
+   "netherlands-law",
+   1620,
+   54.0
+  ],
+  [
+   "tanzania-law",
+   1569,
+   52.3
+  ],
+  [
+   "belgium-law",
+   1413,
+   47.1
+  ],
+  [
+   "argentina-law",
+   1258,
+   41.9
+  ],
+  [
+   "chile-law",
+   1171,
+   39.0
+  ],
+  [
+   "paraguay-law",
+   733,
+   24.4
+  ],
+  [
+   "colombia-law",
+   696,
+   23.2
+  ],
+  [
+   "australia-australian-capital-territory-law",
+   321,
+   10.7
+  ],
+  [
+   "guinea-law",
+   255,
+   8.5
+  ],
+  [
+   "guyana-law",
+   248,
+   8.3
+  ],
+  [
+   "romania-law",
+   162,
+   5.4
+  ],
+  [
+   "venezuela-law",
+   155,
+   5.2
+  ],
+  [
+   "uruguay-law",
+   154,
+   5.1
+  ],
+  [
+   "brazil-law",
+   143,
+   4.8
+  ],
+  [
+   "mali-law",
+   98,
+   3.3
+  ],
+  [
+   "ecuador-law",
+   98,
+   3.3
+  ],
+  [
+   "bolivia-law",
+   89,
+   3.0
+  ],
+  [
+   "mexico-law",
+   78,
+   2.6
+  ],
+  [
+   "nigeria-law",
+   77,
+   2.6
+  ],
+  [
+   "australia-law",
+   42,
+   1.4
+  ],
+  [
+   "ghana-law",
+   35,
+   1.2
+  ],
+  [
+   "australia-western-australia-law",
+   24,
+   0.8
+  ],
+  [
+   "south-africa-law",
+   15,
+   0.5
+  ],
+  [
+   "lithuania-law",
+   7,
+   0.2
+  ]
+ ],
+ "last30_per_host": [
+  [
+   "qbz.gov.al",
+   698,
+   23.3
+  ],
+  [
+   "data.commoncrawl.org",
+   471,
+   15.7
+  ],
+  [
+   "web.archive.org",
+   390,
+   13.0
+  ],
+  [
+   "busquedas.elperuano.pe",
+   356,
+   11.9
+  ],
+  [
+   "www.impo.com.uy",
+   148,
+   4.9
+  ],
+  [
+   "www.legislation.act.gov.au",
+   139,
+   4.6
+  ],
+  [
+   "www.vestnesis.lv",
+   27,
+   0.9
+  ],
+  [
+   "www.lexml.gov.br",
+   12,
+   0.4
+  ],
+  [
+   "searchetv99.azurewebsites.net",
+   3,
+   0.1
+  ],
+  [
+   "index.commoncrawl.org",
+   2,
+   0.1
+  ]
+ ],
+ "last30_per_agent": [
+  [
+   "albania-law",
+   698,
+   23.3
+  ],
+  [
+   "peru-law",
+   643,
+   21.4
+  ],
+  [
+   "australia-australian-capital-territory-law",
+   276,
+   9.2
+  ],
+  [
+   "mexico-law",
+   268,
+   8.9
+  ],
+  [
+   "uruguay-law",
+   148,
+   4.9
+  ],
+  [
+   "cyprus-law",
+   115,
+   3.8
+  ],
+  [
+   "latvia-law",
+   35,
+   1.2
+  ],
+  [
+   "tanzania-law",
+   27,
+   0.9
+  ],
+  [
+   "bolivia-law",
+   18,
+   0.6
+  ],
+  [
+   "brazil-law",
+   13,
+   0.4
+  ],
+  [
+   "greece-law",
+   3,
+   0.1
+  ],
+  [
+   "kenya-law",
+   1,
+   0.0
+  ],
+  [
+   "namibia-law",
+   1,
+   0.0
+  ]
+ ],
+ "last60_idle_per_agent": {
+  "australia-australian-capital-territory-law": {
+   "requests": 584,
+   "active_minutes": 59,
+   "first": "22:13",
+   "last": "23:13",
+   "gaps_over_60s": 5,
+   "idle_s": 377,
+   "longest_gap_s": 104
+  },
+  "romania-law": {
+   "requests": 118,
+   "active_minutes": 19,
+   "first": "22:13",
+   "last": "22:42",
+   "gaps_over_60s": 7,
+   "idle_s": 1136,
+   "longest_gap_s": 643
+  },
+  "uruguay-law": {
+   "requests": 305,
+   "active_minutes": 59,
+   "first": "22:13",
+   "last": "23:13",
+   "gaps_over_60s": 1,
+   "idle_s": 200,
+   "longest_gap_s": 200
+  },
+  "tanzania-law": {
+   "requests": 67,
+   "active_minutes": 37,
+   "first": "22:13",
+   "last": "23:04",
+   "gaps_over_60s": 22,
+   "idle_s": 2150,
+   "longest_gap_s": 273
+  },
+  "sierra-leone-law": {
+   "requests": 14,
+   "active_minutes": 9,
+   "first": "22:13",
+   "last": "22:30",
+   "gaps_over_60s": 7,
+   "idle_s": 939,
+   "longest_gap_s": 414
+  },
+  "mexico-law": {
+   "requests": 396,
+   "active_minutes": 59,
+   "first": "22:13",
+   "last": "23:12",
+   "gaps_over_60s": 5,
+   "idle_s": 383,
+   "longest_gap_s": 82
+  },
+  "latvia-law": {
+   "requests": 50,
+   "active_minutes": 25,
+   "first": "22:13",
+   "last": "23:07",
+   "gaps_over_60s": 19,
+   "idle_s": 2978,
+   "longest_gap_s": 812
+  },
+  "netherlands-law": {
+   "requests": 11,
+   "active_minutes": 2,
+   "first": "22:13",
+   "last": "22:14",
+   "gaps_over_60s": 0,
+   "idle_s": 0,
+   "longest_gap_s": 5
+  },
+  "peru-law": {
+   "requests": 1944,
+   "active_minutes": 49,
+   "first": "22:14",
+   "last": "23:02",
+   "gaps_over_60s": 1,
+   "idle_s": 72,
+   "longest_gap_s": 72
+  },
+  "australia-law": {
+   "requests": 3,
+   "active_minutes": 2,
+   "first": "22:15",
+   "last": "22:18",
+   "gaps_over_60s": 1,
+   "idle_s": 146,
+   "longest_gap_s": 146
+  },
+  "belgium-law": {
+   "requests": 111,
+   "active_minutes": 26,
+   "first": "22:15",
+   "last": "22:40",
+   "gaps_over_60s": 5,
+   "idle_s": 349,
+   "longest_gap_s": 75
+  },
+  "dr-congo-law": {
+   "requests": 4,
+   "active_minutes": 1,
+   "first": "22:16",
+   "last": "22:16",
+   "gaps_over_60s": 0,
+   "idle_s": 0,
+   "longest_gap_s": 1
+  },
+  "cyprus-law": {
+   "requests": 116,
+   "active_minutes": 9,
+   "first": "22:16",
+   "last": "23:13",
+   "gaps_over_60s": 4,
+   "idle_s": 3116,
+   "longest_gap_s": 1600
+  },
+  "brazil-law": {
+   "requests": 51,
+   "active_minutes": 9,
+   "first": "22:16",
+   "last": "22:52",
+   "gaps_over_60s": 8,
+   "idle_s": 2088,
+   "longest_gap_s": 758
+  },
+  "ecuador-law": {
+   "requests": 8,
+   "active_minutes": 1,
+   "first": "22:23",
+   "last": "22:23",
+   "gaps_over_60s": 0,
+   "idle_s": 0,
+   "longest_gap_s": 1
+  },
+  "bolivia-law": {
+   "requests": 34,
+   "active_minutes": 10,
+   "first": "22:23",
+   "last": "23:13",
+   "gaps_over_60s": 3,
+   "idle_s": 2618,
+   "longest_gap_s": 1967
+  },
+  "argentina-law": {
+   "requests": 364,
+   "active_minutes": 3,
+   "first": "22:27",
+   "last": "22:29",
+   "gaps_over_60s": 0,
+   "idle_s": 0,
+   "longest_gap_s": 35
+  },
+  "paraguay-law": {
+   "requests": 51,
+   "active_minutes": 2,
+   "first": "22:29",
+   "last": "22:30",
+   "gaps_over_60s": 0,
+   "idle_s": 0,
+   "longest_gap_s": 9
+  },
+  "greece-law": {
+   "requests": 3,
+   "active_minutes": 1,
+   "first": "22:50",
+   "last": "22:50",
+   "gaps_over_60s": 0,
+   "idle_s": 0,
+   "longest_gap_s": 18
+  },
+  "albania-law": {
+   "requests": 698,
+   "active_minutes": 11,
+   "first": "22:55",
+   "last": "23:05",
+   "gaps_over_60s": 0,
+   "idle_s": 0,
+   "longest_gap_s": 22
+  },
+  "kenya-law": {
+   "requests": 1,
+   "active_minutes": 1,
+   "first": "23:11",
+   "last": "23:11",
+   "gaps_over_60s": 0,
+   "idle_s": 0,
+   "longest_gap_s": 0
+  },
+  "namibia-law": {
+   "requests": 1,
+   "active_minutes": 1,
+   "first": "23:12",
+   "last": "23:12",
+   "gaps_over_60s": 0,
+   "idle_s": 0,
+   "longest_gap_s": 0
+  }
+ },
+ "host_state_now": {
+  "arquivo.pt": {
+   "rate": 0.5,
+   "ok": 25,
+   "throttled": 10,
+   "paused_s": 0,
+   "updated_s_ago": 579
+  },
+  "audit.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4914
+  },
+  "bog.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 5136
+  },
+  "bsl.gov.sl": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3836
+  },
+  "busquedas.elperuano.pe": {
+   "rate": 20.98,
+   "ok": 3560,
+   "throttled": 251,
+   "paused_s": 0,
+   "updated_s_ago": 762
+  },
+  "cac.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6135
+  },
+  "cac.gov.sl": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 3820
+  },
+  "cbn.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6079
+  },
+  "cert.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6050
+  },
+  "csa.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5081
+  },
+  "data.commoncrawl.org": {
+   "rate": 4.0,
+   "ok": 0,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 63
+  },
+  "dataprotection.org.gh": {
+   "rate": 5.5,
+   "ok": 6,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 81
+  },
+  "datos.jus.gob.ar": {
+   "rate": 4.5,
+   "ok": 2,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5954
+  },
+  "ec.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4909
+  },
+  "efcc.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6052
+  },
+  "epa.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4907
+  },
+  "esacc.corteconstitucional.gob.ec": {
+   "rate": 19.5,
+   "ok": 62,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4424
+  },
+  "fccpc.gov.ng": {
+   "rate": 7.0,
+   "ok": 12,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5620
+  },
+  "firs.gov.ng": {
+   "rate": 0.5,
+   "ok": 0,
+   "throttled": 6,
+   "paused_s": 0,
+   "updated_s_ago": 5786
+  },
+  "gra.gov.gh": {
+   "rate": 6.75,
+   "ok": 11,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 75
+  },
+  "journal-officiel.sgg.gov.gn": {
+   "rate": 25.0,
+   "ok": 256,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3936
+  },
+  "judicial.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 5043
+  },
+  "justice.gov.ng": {
+   "rate": 5.75,
+   "ok": 7,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 36
+  },
+  "lands.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 4905
+  },
+  "lawnigeria.gov.ng": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 6042
+  },
+  "lawofficers.gov.sl": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 3812
+  },
+  "leyes.congreso.gob.pe": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6511
+  },
+  "melr.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 4995
+  },
+  "mof.gov.sl": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3833
+  },
+  "mofep.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5067
+  },
+  "mojagd.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 4944
+  },
+  "nass.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6143
+  },
+  "nca.org.gh": {
+   "rate": 2.5,
+   "ok": 2,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 70
+  },
+  "ncc.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6138
+  },
+  "ncra.gov.sl": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3826
+  },
+  "ndpc.gov.ng": {
+   "rate": 5.75,
+   "ok": 7,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5669
+  },
+  "nerc.gov.ng": {
+   "rate": 7.75,
+   "ok": 15,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 21
+  },
+  "nfiu.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6053
+  },
+  "nigeriarights.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6040
+  },
+  "nlcghana.org": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4911
+  },
+  "nmdpra.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6061
+  },
+  "nra.gov.sl": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3838
+  },
+  "nrs.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6083
+  },
+  "nuevo.leychile.cl": {
+   "rate": 25.0,
+   "ok": 1186,
+   "throttled": 4,
+   "paused_s": 0,
+   "updated_s_ago": 5443
+  },
+  "nuprc.gov.ng": {
+   "rate": 5.25,
+   "ok": 5,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5620
+  },
+  "oarg.gov.sl": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3817
+  },
+  "orc.gov.gh": {
+   "rate": 4.5,
+   "ok": 2,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4868
+  },
+  "osp.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4918
+  },
+  "parliament.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5165
+  },
+  "parliament.gov.gy": {
+   "rate": 25.0,
+   "ok": 185,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5977
+  },
+  "parliament.gov.sl": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 3843
+  },
+  "raw.githubusercontent.com": {
+   "rate": 25.0,
+   "ok": 1412,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4980
+  },
+  "repository.officiele-overheidspublicaties.nl": {
+   "rate": 25.0,
+   "ok": 846,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 5981
+  },
+  "sec.gov.gh": {
+   "rate": 4.5,
+   "ok": 2,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4872
+  },
+  "sec.gov.ng": {
+   "rate": 5.25,
+   "ok": 5,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5605
+  },
+  "servicios.infoleg.gob.ar": {
+   "rate": 25.0,
+   "ok": 1620,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 2750
+  },
+  "sgg-mali.ml": {
+   "rate": 25.0,
+   "ok": 98,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6030
+  },
+  "statehouse.gov.ng": {
+   "rate": 4.75,
+   "ok": 3,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 34
+  },
+  "statehouse.gov.sl": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3829
+  },
+  "wetten.overheid.nl": {
+   "rate": 7.0,
+   "ok": 12,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3626
+  },
+  "www.asambleanacional.gob.ec": {
+   "rate": 25.0,
+   "ok": 97,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5161
+  },
+  "www.audit.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 4913
+  },
+  "www.bacn.gov.py": {
+   "rate": 25.0,
+   "ok": 784,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 2656
+  },
+  "www.bog.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5133
+  },
+  "www.bsl.gov.sl": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 3835
+  },
+  "www.cac.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6133
+  },
+  "www.cac.gov.sl": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 3819
+  },
+  "www.cbn.gov.ng": {
+   "rate": 5.0,
+   "ok": 4,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 24
+  },
+  "www.cert.gov.ng": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 6049
+  },
+  "www.csa.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5079
+  },
+  "www.dataprotection.org.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5072
+  },
+  "www.ec.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 4908
+  },
+  "www.efcc.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6051
+  },
+  "www.epa.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4905
+  },
+  "www.fccpc.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6074
+  },
+  "www.firs.gov.ng": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 6089
+  },
+  "www.gacetaoficial.gob.ve": {
+   "rate": 0.78,
+   "ok": 378,
+   "throttled": 13,
+   "paused_s": 0,
+   "updated_s_ago": 4475
+  },
+  "www.gra.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5158
+  },
+  "www.judicial.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 5021
+  },
+  "www.justice.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6144
+  },
+  "www.justice.gov.za": {
+   "rate": 8.0,
+   "ok": 16,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4293
+  },
+  "www.lands.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 4904
+  },
+  "www.lawnigeria.gov.ng": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 6041
+  },
+  "www.lawofficers.gov.sl": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 3811
+  },
+  "www.leganet.be": {
+   "rate": 5.0,
+   "ok": 4,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3530
+  },
+  "www.lexml.gov.br": {
+   "rate": 1.0,
+   "ok": 43,
+   "throttled": 14,
+   "paused_s": 0,
+   "updated_s_ago": 1342
+  },
+  "www.melr.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 4970
+  },
+  "www.mof.gov.sl": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3830
+  },
+  "www.mofep.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5065
+  },
+  "www.mojagd.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 4919
+  },
+  "www.mola.gov.gy": {
+   "rate": 19.75,
+   "ok": 63,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5869
+  },
+  "www.nass.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6139
+  },
+  "www.nca.org.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 5083
+  },
+  "www.ncc.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6137
+  },
+  "www.ncra.gov.sl": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3821
+  },
+  "www.ndpc.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6055
+  },
+  "www.nerc.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6065
+  },
+  "www.nfiu.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6052
+  },
+  "www.nigeriarights.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6038
+  },
+  "www.nlcghana.org": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4910
+  },
+  "www.nmdpra.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6059
+  },
+  "www.nra.gov.sl": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3837
+  },
+  "www.nrs.gov.ng": {
+   "rate": 5.75,
+   "ok": 7,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5705
+  },
+  "www.nuprc.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6063
+  },
+  "www.oarg.gov.sl": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 3814
+  },
+  "www.orc.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 5068
+  },
+  "www.osp.gov.gh": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4916
+  },
+  "www.parliament.gh": {
+   "rate": 4.5,
+   "ok": 2,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 4866
+  },
+  "www.parliament.gov.sl": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 3842
+  },
+  "www.sec.gov.gh": {
+   "rate": 2.0,
+   "ok": 0,
+   "throttled": 1,
+   "paused_s": 0,
+   "updated_s_ago": 5128
+  },
+  "www.sec.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6080
+  },
+  "www.secretariasenado.gov.co": {
+   "rate": 25.0,
+   "ok": 696,
+   "throttled": 4,
+   "paused_s": 0,
+   "updated_s_ago": 4773
+  },
+  "www.statehouse.gov.ng": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 6044
+  },
+  "www.statehouse.gov.sl": {
+   "rate": 4.25,
+   "ok": 1,
+   "throttled": 0,
+   "paused_s": 0,
+   "updated_s_ago": 3829
+  },
+  "zoek.officielebekendmakingen.nl": {
+   "rate": 15.75,
+   "ok": 904,
+   "throttled": 5,
+   "paused_s": 0,
+   "updated_s_ago": 4824
+  },
+  "web.archive.org (shared wayback limiter)": {
+   "rate": 0.3,
+   "ok": 2402,
+   "throttled": 900,
+   "paused_s": 11,
+   "updated_s_ago": 9
+  }
+ }
+}
