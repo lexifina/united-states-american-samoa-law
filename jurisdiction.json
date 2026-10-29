@@ -1,0 +1,9 @@
+{
+  "path": "us-as",
+  "code": "AS",
+  "name": "American Samoa",
+  "level": "territory",
+  "repo": "https://github.com/lexifina/united-states-american-samoa-law",
+  "build": "built: Revised Constitution of American Samoa, in-force text only (one version, source dated 2022-09-06)",
+  "register_date": "2026-10-30"
+}

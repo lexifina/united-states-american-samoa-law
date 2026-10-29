@@ -1,0 +1,19 @@
+{
+ "country": "AS",
+ "acts": [
+  {
+   "slug": "constitution",
+   "short": "ASCONST",
+   "title": "Revised Constitution of American Samoa",
+   "url": "https://www.americansamoa.gov/_files/ugd/4bfff9_637c7079564f4812ae2c848e48753e7d.pdf",
+   "versions": [
+    {
+     "from": "2022-09-06",
+     "units": 74,
+     "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_637c7079564f4812ae2c848e48753e7d.pdf",
+     "sha256": "3a44c417f9af6ae32acc3e934d6b5518838d17ba19406924a6e8701485683b94"
+    }
+   ]
+  }
+ ]
+}
