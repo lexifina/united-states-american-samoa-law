@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: bf2c37ff-5368-4758-a217-51eee3902b94
-  modified: 2026-10-29T19:20:00.925Z
+  modified: 2026-10-29T19:26:23.408Z
 ---
 
 On 2026-10-29 the git-for-law privacy purge rewrote and force-pushed about 120 lexifina/*-law repos, and global-law was disabled while being moved. The user said: "we lost all our git stars etc doing that >>>> write a memory ... not to fucking do that again without warning and explicit confirmation > especially for ABSOLUTELY CRITICAL REPOS."
@@ -38,4 +38,6 @@ On 2026-10-29 the git-for-law privacy purge rewrote and force-pushed about 120 l
 - **Prefer non-destructive routes:** a new commit instead of a rewrite, a new branch instead of a force-push, archive first.
 - **Never change a repo's visibility yourself.** Tell the user what it would cost and let them do it.
 - **Standing exception (user, 2026-10-29: "thats fine continue with standing approval"):** a rebuild may replace only the final documentation commit of a country repo's `main` without asking, but only when every law commit is byte-identical and every tag is unchanged. Push it with `--force-with-lease`. Nothing else is covered by this exception.
+- **Second standing exception (user, 2026-10-29):** a fully checked build may replace a placeholder/scaffold `main` or an old thin corpus, with `--force-with-lease`. It applies only after the full checks and the private-content audit pass.
+- **Licence-flagged repos stay public by the user's decision (2026-10-29):** Belize, Bangladesh, Pakistan, Newfoundland and Labrador, and NWT. Don't change their visibility.
 - Related: [[world-law-max-speed-repo]], [[git-for-law]], [[global-law-repo]], [[commits-by-hand]].
