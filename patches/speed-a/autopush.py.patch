@@ -1,0 +1,12 @@
+--- a/scripts/south-america-law/autopush.py
++++ b/scripts/south-america-law/autopush.py
+@@ -394,7 +394,8 @@
+     published = (folder / 'PUBLISH').exists()
+ 
+     def build_check(verified_only: bool) -> tuple[bool, dict]:
+-        env = {**os.environ, 'GITLAW_VERIFIED_PARTS_ONLY': '1' if verified_only else '0'}
++        env = {**os.environ, 'GITLAW_VERIFIED_PARTS_ONLY': '1' if verified_only else '0',
++               'GITLAW_NO_CHECKOUT': '1'}  # pushed from objects; no working tree to write or delete
+         py = [sys.executable, '-X', 'utf8']
+         ver_path = folder / 'verification.json'
+         # REPRODUCE.md quotes the check recorded for this exact corpus. When this pass's check is new (first build of

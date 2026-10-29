@@ -1,0 +1,36 @@
+--- a/scripts/gitlaw_common/build.py
++++ b/scripts/gitlaw_common/build.py
+@@ -854,10 +854,15 @@
+         files[f'tools/{"check_repo.py" if name == "check.py" else name}'] = text
+     # Every script and data file the country's fetch and parse use, so the repository alone can rebuild itself.
+     # Subfolders (a helper agent's codes/ scripts) keep their relative path under tools/.
+-    for p in sorted(folder.rglob('*')):
++    # Skipped folders are pruned while walking, not listed and then dropped: an agent's scratch builds (.tmp-build*,
++    # each a whole repository) and .cache can hold tens of thousands of files.
++    found = []
++    for top, dirs, names in os.walk(folder):
++        dirs[:] = [d for d in dirs if not (d.startswith('.') or d in ('repo', 'corpus.d', '__pycache__', 'logs'))]
++        found += [Path(top, n) for n in names
++                  if n.endswith(('.py', '.sh')) or (n.endswith('.json') and n.startswith(('sources', 'acts')))]
++    for p in sorted(found):
+         rel = p.relative_to(folder)
+-        if any(x.startswith('.') or x in ('repo', 'corpus.d', '__pycache__', 'logs') for x in rel.parts[:-1]):
+-            continue
+         if p.is_file() and (p.suffix in ('.py', '.sh') or (p.suffix == '.json' and p.name.startswith(('sources', 'acts')))):
+             if private and private.is_private(p):  # Lexifina's fetch tooling and notes stay private
+                 continue
+@@ -905,7 +910,13 @@
+     for name, mark in sorted(tags.items()):
+         w.tag(name, mark)
+     w.finish()
+-    git(repo, 'checkout', '-q', '-f', 'main')
++    if os.environ.get('GITLAW_NO_CHECKOUT') == '1':
++        # A build only to check and push (autopush): the commits are complete without writing thousands of files
++        # out, and the next build has none to delete. `git checkout -f main` gives the working tree back.
++        pass
++    else:
++        # Parallel checkout (git 2.32+): one worker per core, same files.
++        git(repo, '-c', 'checkout.workers=0', 'checkout', '-q', '-f', 'main')
+     return {'commits': len(log), 'tags': len(tags), 'laws': sum(1 for e in log if e['kind'] == 'law'),
+             'unexplained': sum(1 for e in log if e['kind'] == 'unexplained'),
+             'future': sum(1 for e in log if e['branch'] != 'main'), 'main': git(repo, 'rev-parse', 'HEAD').strip()}
