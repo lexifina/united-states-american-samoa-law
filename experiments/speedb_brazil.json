@@ -1,0 +1,385 @@
+{
+ "date": "2026-10-29T23:20:37Z",
+ "listings": {
+  "www.planalto.gov.br/ccivil_03/leis/": {
+   "seconds": 23.93,
+   "captures": 21991,
+   "distinct_urls": 10767,
+   "first": "2009",
+   "last": "2026",
+   "per_year": {
+    "2009": 481,
+    "2010": 1,
+    "2015": 3,
+    "2016": 26,
+    "2017": 5,
+    "2018": 306,
+    "2019": 2369,
+    "2020": 2077,
+    "2021": 273,
+    "2022": 632,
+    "2023": 4526,
+    "2024": 5408,
+    "2025": 5796,
+    "2026": 88
+   },
+   "capped_at_100k": false
+  },
+  "planalto.gov.br/ccivil_03/leis/": {
+   "seconds": 19.44,
+   "captures": 21991,
+   "distinct_urls": 10767,
+   "first": "2009",
+   "last": "2026",
+   "per_year": {
+    "2009": 481,
+    "2010": 1,
+    "2015": 3,
+    "2016": 26,
+    "2017": 5,
+    "2018": 306,
+    "2019": 2369,
+    "2020": 2077,
+    "2021": 273,
+    "2022": 632,
+    "2023": 4526,
+    "2024": 5408,
+    "2025": 5796,
+    "2026": 88
+   },
+   "capped_at_100k": false
+  },
+  "www.planalto.gov.br/ccivil_03/constituicao/": {
+   "seconds": 1.94,
+   "captures": 3600,
+   "distinct_urls": 1293,
+   "first": "2008",
+   "last": "2026",
+   "per_year": {
+    "2008": 5,
+    "2009": 172,
+    "2010": 9,
+    "2011": 2,
+    "2012": 1,
+    "2013": 1,
+    "2014": 2,
+    "2015": 4,
+    "2016": 12,
+    "2017": 4,
+    "2018": 27,
+    "2019": 294,
+    "2020": 730,
+    "2021": 92,
+    "2022": 152,
+    "2023": 746,
+    "2024": 647,
+    "2025": 680,
+    "2026": 20
+   },
+   "capped_at_100k": false
+  },
+  "www.planalto.gov.br/ccivil_03/emendas/": {
+   "seconds": 0.62,
+   "captures": 0,
+   "distinct_urls": 0,
+   "first": null,
+   "last": null,
+   "per_year": {},
+   "capped_at_100k": false
+  },
+  "www.planalto.gov.br/ccivil_03/decreto-lei/": {
+   "seconds": 1.59,
+   "captures": 4482,
+   "distinct_urls": 2093,
+   "first": "2009",
+   "last": "2026",
+   "per_year": {
+    "2009": 62,
+    "2016": 3,
+    "2018": 38,
+    "2019": 659,
+    "2020": 354,
+    "2021": 75,
+    "2022": 92,
+    "2023": 1002,
+    "2024": 1260,
+    "2025": 924,
+    "2026": 13
+   },
+   "capped_at_100k": false
+  },
+  "www.planalto.gov.br/ccivil_03/_ato2019-2022/": {
+   "seconds": 1.61,
+   "captures": 6330,
+   "distinct_urls": 3257,
+   "first": "2019",
+   "last": "2026",
+   "per_year": {
+    "2019": 505,
+    "2020": 413,
+    "2021": 166,
+    "2022": 302,
+    "2023": 1256,
+    "2024": 2041,
+    "2025": 1638,
+    "2026": 9
+   },
+   "capped_at_100k": false
+  },
+  "www.planalto.gov.br/ccivil_03/_ato2023-2026/": {
+   "seconds": 1.57,
+   "captures": 1682,
+   "distinct_urls": 1083,
+   "first": "2023",
+   "last": "2026",
+   "per_year": {
+    "2023": 151,
+    "2024": 724,
+    "2025": 799,
+    "2026": 8
+   },
+   "capped_at_100k": false
+  },
+  "www2.camara.leg.br/legin/fed/": {
+   "seconds": 15.5,
+   "captures": 14325,
+   "distinct_urls": 8819,
+   "first": "2016",
+   "last": "2026",
+   "per_year": {
+    "2016": 1,
+    "2018": 36,
+    "2019": 977,
+    "2020": 3442,
+    "2021": 335,
+    "2022": 1021,
+    "2023": 1693,
+    "2024": 5055,
+    "2025": 1753,
+    "2026": 12
+   },
+   "capped_at_100k": false
+  },
+  "www2.camara.gov.br/legin/fed/": {
+   "seconds": 1.5,
+   "captures": 0,
+   "distinct_urls": 0,
+   "first": null,
+   "last": null,
+   "per_year": {},
+   "capped_at_100k": false
+  }
+ },
+ "cf_compilado": {
+  "seconds": 0.67,
+  "captures": 224,
+  "distinct_digests": 224,
+  "years_with_a_capture": [
+   "2016",
+   "2018",
+   "2019",
+   "2020",
+   "2021",
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ "raw_fetch": {
+  "requests": 49,
+  "seconds": 10.2,
+  "per_second": 4.82,
+  "ok_real_pages": 28,
+  "bot_or_error_or_empty": 21,
+  "megabytes": 6.23,
+  "threads": 12,
+  "host_state": {
+   "rate": 15.25,
+   "next": 1793316115.8111262,
+   "pause_until": 1793315148.977179,
+   "ok": 84,
+   "throttled": 10
+  }
+ },
+ "cf_per_year_fetch": [
+  {
+   "ts": "20160522011018",
+   "bytes": 820400,
+   "real": true
+  },
+  {
+   "ts": "20180513020045",
+   "bytes": 3486,
+   "real": false
+  },
+  {
+   "ts": "20190327085122",
+   "bytes": 6501,
+   "real": false
+  },
+  {
+   "ts": "20200112005807",
+   "bytes": 5686,
+   "real": false
+  },
+  {
+   "ts": "20210112011540",
+   "bytes": 5124,
+   "real": false
+  },
+  {
+   "ts": "20220422053257",
+   "bytes": 4745,
+   "real": false
+  },
+  {
+   "ts": "20230217105810",
+   "bytes": 6298,
+   "real": false
+  },
+  {
+   "ts": "20240127041036",
+   "bytes": 1456440,
+   "real": true
+  },
+  {
+   "ts": "20250101022055",
+   "bytes": 1468814,
+   "real": true
+  }
+ ],
+ "archive_org_cf": {
+  "seconds": 53.6,
+  "captures_collapsed_by_digest": 1798,
+  "years": [
+   "2010",
+   "2011",
+   "2012",
+   "2013",
+   "2014",
+   "2015",
+   "2016",
+   "2017",
+   "2018",
+   "2019",
+   "2020",
+   "2021",
+   "2022",
+   "2023",
+   "2024",
+   "2025",
+   "2026"
+  ]
+ },
+ "length_filter": {
+  "www.planalto.gov.br/ccivil_03/leis/": {
+   "captures": 21991,
+   "real_by_length": 12744,
+   "urls_with_real": 3289,
+   "urls_2plus_versions": 1580,
+   "real_per_year": {
+    "2009": 356,
+    "2010": 1,
+    "2015": 3,
+    "2016": 21,
+    "2017": 4,
+    "2018": 148,
+    "2019": 49,
+    "2020": 99,
+    "2021": 2,
+    "2022": 19,
+    "2023": 3455,
+    "2024": 4336,
+    "2025": 4172,
+    "2026": 79
+   }
+  },
+  "www.planalto.gov.br/ccivil_03/constituicao/": {
+   "captures": 3600,
+   "real_by_length": 1586,
+   "urls_with_real": 222,
+   "urls_2plus_versions": 143,
+   "real_per_year": {
+    "2008": 2,
+    "2009": 55,
+    "2010": 3,
+    "2011": 1,
+    "2013": 1,
+    "2015": 3,
+    "2016": 6,
+    "2017": 3,
+    "2018": 7,
+    "2019": 3,
+    "2020": 31,
+    "2023": 455,
+    "2024": 509,
+    "2025": 496,
+    "2026": 11
+   }
+  },
+  "www.planalto.gov.br/ccivil_03/decreto-lei/": {
+   "captures": 4482,
+   "real_by_length": 2681,
+   "urls_with_real": 822,
+   "urls_2plus_versions": 394,
+   "real_per_year": {
+    "2009": 39,
+    "2016": 2,
+    "2018": 5,
+    "2019": 36,
+    "2020": 18,
+    "2021": 3,
+    "2022": 2,
+    "2023": 811,
+    "2024": 999,
+    "2025": 754,
+    "2026": 12
+   }
+  },
+  "www.planalto.gov.br/ccivil_03/_ato2019-2022/": {
+   "captures": 6330,
+   "real_by_length": 4634,
+   "urls_with_real": 1707,
+   "urls_2plus_versions": 944,
+   "real_per_year": {
+    "2019": 18,
+    "2020": 27,
+    "2023": 1099,
+    "2024": 1958,
+    "2025": 1523,
+    "2026": 9
+   }
+  },
+  "www.planalto.gov.br/ccivil_03/_ato2023-2026/": {
+   "captures": 1682,
+   "real_by_length": 1627,
+   "urls_with_real": 730,
+   "urls_2plus_versions": 356,
+   "real_per_year": {
+    "2023": 139,
+    "2024": 701,
+    "2025": 779,
+    "2026": 8
+   }
+  },
+  "www2.camara.leg.br/legin/fed/": {
+   "captures": 14325,
+   "real_by_length": 14314,
+   "urls_with_real": 8785,
+   "urls_2plus_versions": 1926,
+   "real_per_year": {
+    "2016": 1,
+    "2018": 36,
+    "2019": 975,
+    "2020": 3441,
+    "2021": 335,
+    "2022": 1020,
+    "2023": 1690,
+    "2024": 5053,
+    "2025": 1751,
+    "2026": 12
+   }
+  }
+ }
+}

@@ -36,3 +36,51 @@ Recipe:
    pick up norms published after the table's newest `fecha_boletin`.
 4. Texts: `texto_original` / `texto_actualizado` URLs (switch http to https) through `wayback.host_get` from a 12-thread
    pool.
+
+## B2. Brazil: Arquivo.pt and LexML for dated federal texts
+
+Before: Planalto refuses this machine, so brazil-law reads `web.archive.org/web/<ts>id_/` captures, under archive.org's
+one rate for the whole machine (about 2 a second, 19% answered 429). One exact-URL CDX listing of the Constitution's
+compiled page took **53.6 s** (1,798 digest-distinct captures, 2010 to 2026).
+
+Measured (`speedb_brazil.py`, Arquivo.pt through `pt_captures` / `pt_get`):
+
+| Prefix (Arquivo.pt CDX, one request each) | Seconds | Captures | Distinct URLs | Real copies (length >= 3200) | URLs with a real copy | URLs with 2+ real versions |
+|---|---|---|---|---|---|---|
+| planalto `ccivil_03/leis/` | 23.9 | 21,991 | 10,767 | 12,744 | 3,289 | 1,580 |
+| planalto `ccivil_03/constituicao/` | 1.9 | 3,600 | 1,293 | 1,586 | 222 | 143 |
+| planalto `ccivil_03/decreto-lei/` | 1.6 | 4,482 | 2,093 | 2,681 | 822 | 394 |
+| planalto `ccivil_03/_ato2019-2022/` | 1.6 | 6,330 | 3,257 | 4,634 | 1,707 | 944 |
+| planalto `ccivil_03/_ato2023-2026/` | 1.6 | 1,682 | 1,083 | 1,627 | 730 | 356 |
+| Chamber `www2.camara.leg.br/legin/fed/` | 15.5 | 14,325 | 8,819 | 14,314 | 8,785 | 1,926 |
+
+- `planalto.gov.br` and `www.planalto.gov.br` give the same records (Arquivo.pt normalises the host).
+  `ccivil_03/emendas/` gives 0 (the amendments live under `constituicao/Emendas/`).
+- **Most Planalto captures from 2010 to 2022 are bot pages** ("enable JavaScript", ~5 KB). The CDX `length` field
+  tells them apart without fetching: bot copies are 1.9-3.1 KB compressed, real pages from 2.9 KB up (40-capture
+  sample, one overlap each way). Real copies cluster in 2009 and 2023-2025. The Constitution's compiled page has 224
+  captures but only 54 real ones (2016, 2018, 2023-2025); archive.org is deeper for that page (2010-2026).
+- **Raw fetch: 49 captures in 10.2 s from 12 threads (4.8 a second, 6.2 MB)**, host rate up to 15/s with 10 backoffs
+  (other agents share the host). 21 of the 49 were bot copies, which the length filter would have skipped.
+- **The Chamber's legin pages are a clean second source of original texts:** 2,544 `publicacaooriginal` pages (the
+  text as published in the D.O.U., including 1,686 laws, 2,121 decrees, 99 constitutional amendments) and 7,000+
+  `norma` pages, none of them bot copies. www.camara.leg.br's robots.txt has an AI-bot block group, so read these from
+  archives only, never live.
+- **LexML (www.lexml.gov.br): a catalogue, not a text source.** robots.txt: Crawl-delay 5, `/busca/`, `/doc/`,
+  `/linker/` Disallowed (the SRU API is `/busca/SRU`, so it is off limits; `/sru` answers 404/503). A `/urn/` page
+  (4.0 s, 1.15 MB, most of it citing articles) gives the signing date and links to Planalto, the Senate record and the
+  Chamber's `publicacaooriginal` and `norma` pages. Useful only to map a law number to its URN and to the Chamber URL;
+  at one request per 5 s it suits a few hundred lookups, not a crawl. legis.senado.leg.br answers 403 to this machine.
+
+Verdict: **Arquivo.pt with a length filter beats archive.org for Planalto pages from 2023 on and for Chamber original
+texts** (listing 0.6-24 s vs 54 s; fetch ~5/s per agent vs a 2/s machine-wide share). For older Planalto states
+(2010-2022), archive.org remains the only deep source. LexML: lookups only.
+
+Recipe (Brazil):
+1. List: `wayback.pt_captures('www.planalto.gov.br/ccivil_03/<dir>/', match='prefix')` once per directory; drop records
+   with `int(length) < 3200`; keep one record per (urlkey, digest).
+2. Original texts of amending laws: `wayback.pt_captures('www2.camara.leg.br/legin/fed/', match='prefix')`, filter
+   `publicacaooriginal` (archive copies only).
+3. Fetch with `wayback.pt_get(rec)` from 12 threads; still reject bodies under 6 KB or containing "enable javascript".
+4. Only for a state Arquivo.pt lacks (most of 2010-2022), fall back to `wayback.captures(..., collapse='timestamp:6')`
+   and `wayback.get`. Pin every capture timestamp in sources.
