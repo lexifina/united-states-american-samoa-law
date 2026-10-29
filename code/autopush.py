@@ -30,6 +30,7 @@ DOCS = ROOT.parent
 COMMON = ROOT / 'scripts' / 'gitlaw_common'
 sys.path.insert(0, str(COMMON))
 from build import load  # noqa: E402
+import private  # noqa: E402  (what stays off shared repos)
 SOUTH_AMERICA = ['chile', 'uruguay', 'brazil', 'colombia', 'argentina', 'peru', 'paraguay', 'ecuador', 'bolivia',
                  'venezuela', 'guyana', 'suriname']
 # Africa, English-language first (Laws.Africa Peachjam LIIs and South Africa). A country is picked up as soon as its
@@ -120,13 +121,18 @@ def wip(slug: str, folder: Path, repo: Path) -> str:
         rel = p.relative_to(folder)
         if (not p.is_file() or set(rel.parts) & SKIP_DIRS or any(x.startswith('.tmp') or x == '.git' for x in rel.parts[:-1])
                 or p.name.startswith('.autopush')
-                or p.name == 'BUILD_STATUS.json' or p.stat().st_size > MAX_FILE):
+                or p.name == 'BUILD_STATUS.json' or p.stat().st_size > MAX_FILE
+                or private.is_private(p)):  # handoffs, notes and fetch tooling stay private (gitlaw_common/private.py)
             continue
         files.append((rel.as_posix(), p))
     with tempfile.TemporaryDirectory() as tmp:
         env = {'GIT_INDEX_FILE': str(Path(tmp) / 'index')}
         for rel, p in files:
-            sha = git(repo, 'hash-object', '-w', '--', str(p))
+            data = p.read_bytes()
+            if p.suffix in ('.py', '.sh', '.md', '.json', '.txt', '.csv') and private.HOME.search(data.decode('utf-8', 'replace')):
+                sha = git(repo, 'hash-object', '-w', '--stdin', data=private.scrub(data.decode('utf-8', 'replace')).encode('utf-8'))
+            else:
+                sha = git(repo, 'hash-object', '-w', '--', str(p))
             git(repo, 'update-index', '--add', '--cacheinfo', f'100644,{sha},wip/{rel}', env=env)
         tree = git(repo, 'write-tree', env=env)
     git(repo, 'fetch', '-q', 'origin', '+refs/heads/wip:refs/remotes/origin/wip', check=False)
