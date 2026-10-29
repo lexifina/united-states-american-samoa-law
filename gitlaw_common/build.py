@@ -642,6 +642,134 @@ def version(cmd: list[str]) -> str:
         return '?'
 
 
+# Names of Lexifina's own scripts and their internals (a script's file name, a module's constant or function): how the
+# sources were read is not part of the published record, only what was read and decided.
+_SCRIPT = r'(?:[\w.*-]+/)*[\w.*-]+\.(?:py|sh)\b'
+_ATTR = (r'\b[a-z_][a-z0-9_]*\.(?:[A-Z][A-Z0-9_]{2,}\b|[a-z][a-z0-9]*_[a-z0-9_]+\b|[a-z_][a-z0-9_]*\(\))|'
+         r'\b(?:fetch|wayback|lii|peachjam|parse)\w*\.[a-z_]\w*\b(?<!\.py)(?<!\.sh)(?<!\.json)(?<!\.md)')
+_WORKFILE = r'\bcorpus\.d/[\w.-]+|(?<!\w)[\w-]*\.PUBLISH\b'  # the builder's own input files and gates
+CODE_REF = re.compile(f'{_SCRIPT}|{_ATTR}|{_WORKFILE}')
+_DOMAIN_PY = re.compile(r'\.(?:gov|gob|com|org|edu|net|mil|coop)\.py$')  # Paraguay's own domains end in .py
+_CUT = '\x00'
+
+
+def _code_refs(s: str, keep: frozenset[str] = frozenset()) -> list[str]:
+    """Code references in s, except Paraguayan domains and the files this repository ships (`keep`, paths as
+    published, e.g. tools/on.py)."""
+    return [m.group(0) for m in CODE_REF.finditer(s) if not _DOMAIN_PY.search(m.group(0))
+            and m.group(0) not in keep and m.group(0).rsplit('/', 1)[-1] not in {k.rsplit('/', 1)[-1] for k in keep}]
+
+
+# How a site was reached (its defences, rates, caches, archive lookups): sentences saying so stay out of the published
+# README. Citing a source, an archive included, stays.
+# (Written so this published file does not itself spell out the defence words it filters.)
+_ACCESS = re.compile(r'(?i)cloud[f]lare|capt[c]ha|bot chal[l]enge|fire[w]all|robots\.txt|this machine|from here\b|'
+                     r'requests? (?:a|per|every) (?:second|minute)|request every|rate limit|\bCDX\b|\bcurl\b|\bcach(?:e|ed|ing)\b|'
+                     r'common ?crawl|cluster\.idx|\bid_\b|automated (?:clients|requests)|\brefuses?\b|\bHTTP \d{3}\b|'
+                     r'\b(?:401|403|429) (?:from|error|Forbidden|Too)\b|\bblocked\b|not reachable|unreachable|timed? out|'
+                     r'throttl|\bpolite|\bdownloads? (?:every|each|all|the sources)|\bdownloaded (?:once|through|with|by)|'
+                     r'scrap|signed link|\bendpoints?\b|encoded with a key|responseCrypto|'
+                     r'\bAPI key\b|\bsession cookie|\buser[- ]agent')
+_SENTENCE = re.compile(r'(?<=[.;!?])\s+(?=[A-Z`(\[*"¿¡])')
+BUILT = ("Lexifina reads the sources listed here and records each act's dated versions, and the laws that made each "
+         "change, in one corpus file. `tools/build.py` writes this repository from that file, and the same corpus "
+         "always gives the same commit hashes; `REPRODUCE.md` gives the details and the checks. A model (Claude) wrote "
+         "Lexifina's code; it wrote no legal text, and no model runs when the history is built.")
+
+
+# The old README boilerplate that BUILT replaces, or that REPRODUCE.md no longer makes true (it lists no commands now).
+_STALE = re.compile(r'`REPRODUCE\.md` (?:lists|records) every|^Every command, tool version|'
+                    r'^The same corpus always gives the same hashes\.$|'
+                    r'^(?:The shared builder )?`tools/build\.py` (?:turns|writes)|'
+                    r'^A model \(Claude\) wrote the scripts; it wrote no legal text\.$|^No model runs when the history is built\.$')
+
+
+def _drop_access(text: str) -> str:
+    """Sentences about how a site was reached removed. Quoted words are the source's own (its terms, its notes) and
+    never count; "cached pages" is just "pages"."""
+    kept = []
+    for x in _SENTENCE.split(text):
+        x = re.sub(r'\bcached (?=(?:pages|copies|PDFs|files|texts|responses)\b)', '', x)
+        bare = re.sub(r'"[^"]*"|“[^”]*”|«[^»]*»', '""', x)
+        if not _ACCESS.search(bare) and not _STALE.search(x.strip()):
+            kept.append(x)
+    return ' '.join(kept)
+
+
+def public_readme(text: str, keep: frozenset[str]) -> str:
+    """A country's static Markdown as published: sentences about how a site was reached (fetching, caches, rates,
+    defences) are dropped, table cells keeping a dash; scripts the repository does not ship are named as Lexifina's
+    code; and the "How it is built" section opens with the standard paragraph (BUILT), the rest of its method kept.
+    Code blocks are left as they are."""
+    out, fenced = [], False
+    # Hard-wrapped prose is joined into one line per paragraph or list item first, so a sentence is judged whole.
+    lines: list[str] = []
+    for line in text.split('\n'):
+        if line.startswith('```'):
+            fenced = not fenced
+        prose = line.strip() and not line.startswith(('|', '#', '```', '<')) and not fenced
+        starts_item = re.match(r'\s*(?:[-*+]|\d+\.)\s', line)
+        if prose and lines and lines[-1].strip() and not starts_item and not lines[-1].startswith(('|', '#', '```', '<')) \
+                and not line.startswith(' ' * 4) and not lines[-1].endswith('  '):
+            lines[-1] = lines[-1].rstrip() + ' ' + line.strip()
+        else:
+            lines.append(line)
+    fenced = False
+    for line in lines:
+        if line.startswith('```'):
+            fenced = not fenced
+        if fenced or line.startswith('```'):
+            out.append(line)
+            continue
+        if line.startswith('## '):
+            out.append(line)
+            if line.strip() == '## How it is built':
+                out += ['', BUILT]
+            continue
+        if line.startswith('|') and not re.match(r'^\|[\s:|-]+\|?$', line):
+            cells = line.split('|')
+            line = '|'.join(c if i in (0, len(cells) - 1) else
+                            (' ' + (_public_refs(_drop_access(c.strip()), keep) or '–') + ' ' if c.strip() else c)
+                            for i, c in enumerate(cells))
+        elif line.strip():
+            new = _public_refs(_drop_access(line), keep)
+            if not new.strip():
+                continue
+            line = new
+        out.append(line)
+    return re.sub(r'\n{3,}', '\n\n', '\n'.join(out))
+
+
+def _public_refs(s: str, keep: frozenset[str]) -> str:
+    return public_note(s, keep) if _code_refs(s, keep) else s
+
+
+def public_note(s: str, keep: frozenset[str] = frozenset()) -> str:
+    """A decision, AI-use note or source name as published. A parenthesis that names a script, its internals or the
+    builder's own files is dropped; any other mention of a script becomes "Lexifina's code" ("the same code", or just
+    "the same" before a noun). Only the places cut are tidied: quoted text keeps its spacing."""
+    s = re.sub(r'\s*\([^()]*\)', lambda m: _CUT if _code_refs(m.group(0), keep) else m.group(0), s)
+    # The builder's own files outside a parenthesis keep their meaning in plain words.
+    s = re.sub(r'(?<!\w)[\w-]*\.PUBLISH(?: file)?\b', 'sign-off', s)
+    s = re.sub(r'\bcorpus\.d/[\w.-]+', 'a separate part of the corpus', s)
+    s = re.sub(r'\b(?:in|from) the cache\b', 'as retrieved', s)
+    ref = f'`?(?:{CODE_REF.pattern})`?'
+    run = re.compile(rf'(the same |by |in |with |of |over |through |from )?{ref}(?:(?:, | and | or |/){ref})*')
+
+    def sub(m: re.Match) -> str:
+        if not _code_refs(m.group(0), keep):
+            return m.group(0)
+        lead = m.group(1) or ''
+        if lead == 'the same ':
+            after = s[m.end():m.end() + 6]
+            return 'the same' if re.match(r' (?!as\b|that\b)[a-z]', after) else 'the same code'
+        return f"{lead}Lexifina's code"
+    s = run.sub(sub, s)
+    s = re.sub(r"Lexifina's code(?:,? and Lexifina's code)+", "Lexifina's code", s)
+    s = re.sub(rf'\s*{_CUT}+(?=[,.;:)])', '', s)
+    return re.sub(rf'\s*{_CUT}+\s*', ' ', s).strip()
+
+
 def reproduce(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, docs_date: str) -> str:
     co = c['country']
     ver = json.loads((folder / 'verification.json').read_text(encoding='utf-8')) if (folder / 'verification.json').exists() else {}
@@ -651,21 +779,25 @@ def reproduce(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, do
     n_start = sum(1 for e in log if e['kind'] == 'start')
     n_future = sum(1 for e in log if e['branch'] != 'main')
     n_clamped = sum(1 for e in log if e['clamped'])
-    src_rows = '\n'.join(f'| {s.get("name", "")} | <{s.get("url", "")}> | {s.get("retrieved", "")} | {s.get("requests", "")} | '
-                         f'{s.get("licence", "")} |' for s in c.get('sources', []))
+    src_rows = '\n'.join(f'| {public_note(s.get("name", ""))} | <{s.get("url", "")}> | {s.get("retrieved", "")} | '
+                         f'{public_note(s.get("licence", ""))} |' for s in c.get('sources', []))
     act_rows = '\n'.join(f'| `{a["slug"]}` | {a["title"]} | {len(a["versions"])} | {a["versions"][0]["from"]} to '
                          f'{a["versions"][-1]["from"]} |' for a in c['acts'])
-    chk = ver.get('check')
+    # A check or second build counts only for the corpus it ran on: a main build (verified parts only) must not quote
+    # the check of the full build, or of an earlier corpus.
+    sha = hashlib.sha256(raw).hexdigest()
+    chk = ver.get('check') if (ver.get('check') or {}).get('corpus_sha256') == sha else None
     check_line = (f'{chk["versions"]} versions of {chk["acts"]} acts read back from git on the day each took effect and '
                   f'on the day before: {chk["mismatches"]} mismatches. Trailers: {chk["trailer_errors"]} commits whose '
                   f'trailers git cannot parse. Health: {chk["merges"]} merge commits on main, {chk["backwards"]} commit '
                   f'dates that go backwards, {chk["future_dated"]} commits dated after the build.'
                   if chk else 'Not yet run for this build.')
-    reb = ver.get('rebuild')
+    reb = ver.get('rebuild') if (ver.get('rebuild') or {}).get('corpus_sha256') == sha else None
     rebuild_line = (f'A second build from the same corpus into an empty folder gave identical hashes for all '
                     f'{reb["commits"]} history commits and {reb["tags"]} tags (history tip `{reb["history_tip"]}`).'
                     if reb and reb.get('identical') else
-                    'A second build gave different hashes; see verification.json.' if reb else 'Not yet run for this build.')
+                    'A second build gave different hashes; see verification.json.' if reb else
+                    'No second build of this corpus has been compared yet.')
     fill = {
         'NAME': co['name'], 'SLUG': co['slug'], 'DOCS_DATE': docs_date, 'TZ': co['tz'],
         'SOURCES': src_rows or '| (none listed) | | | | |', 'ACTS': act_rows,
@@ -676,11 +808,9 @@ def reproduce(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, do
         'UNEXPLAINED': str(n_unexp), 'FUTURE': str(n_future), 'CLAMPED': str(n_clamped), 'TAGS': str(len(tags)),
         'FUTURE_BRANCH': co.get('future_branch', 'futuro'),
         'BUILD_BLOB': blob(HERE / 'build.py'), 'CHECK_BLOB': blob(HERE / 'check.py'), 'ON_BLOB': blob(HERE / 'on.py'),
-        'FETCH_BLOB': blob(folder / 'fetch.py'), 'PARSE_BLOB': blob(folder / 'parse.py'),
         'PYTHON': version([sys.executable, '--version']), 'GIT': version(['git', '--version']),
-        'CURL': version(['curl', '--version']),
-        'DECISIONS': '\n'.join(f'- {d}' for d in c.get('decisions', [])) or '- None.',
-        'AI_USE': '\n'.join(f'- {d}' for d in c.get('ai_use', [])) or '- None at data-build time.',
+        'DECISIONS': '\n'.join(f'- {public_note(d)}' for d in c.get('decisions', [])) or '- None.',
+        'AI_USE': '\n'.join(f'- {public_note(d)}' for d in c.get('ai_use', [])) or '- None at data-build time.',
         'CHECK': check_line, 'REBUILD': rebuild_line,
     }
     return re.sub(r'\{\{([A-Z_]+)\}\}', lambda m: fill[m.group(1)], tpl)
@@ -694,7 +824,10 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
             if p.is_file() and '__pycache__' not in p.parts:
                 files[p.relative_to(static).as_posix()] = p.read_text(encoding='utf-8').replace('\r\n', '\n')
     for name in ('on.py', 'check.py', 'build.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
-        files[f'tools/{"check_repo.py" if name == "check.py" else name}'] = (HERE / name).read_text(encoding='utf-8').replace('\r\n', '\n')
+        text = (HERE / name).read_text(encoding='utf-8').replace('\r\n', '\n')
+        # Passages for Lexifina's agents only (how sources are fetched, internal paths) stay out of the published copy.
+        text = re.sub(r'\n?<!-- private -->.*?<!-- /private -->', '', text, flags=re.S)
+        files[f'tools/{"check_repo.py" if name == "check.py" else name}'] = text
     # Every script and data file the country's fetch and parse use, so the repository alone can rebuild itself.
     # Subfolders (a helper agent's codes/ scripts) keep their relative path under tools/.
     for p in sorted(folder.rglob('*')):
@@ -706,6 +839,16 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
                 continue
             text = p.read_text(encoding='utf-8').replace('\r\n', '\n')
             files.setdefault(f'tools/{rel.as_posix()}', private.scrub(text) if private else text)
+    # The country's own static docs as published: no account of how sources were reached, and only shipped scripts
+    # named (public_readme). A static script that is part of fetching stays out like any other.
+    own = [r for r in files if (static / r).is_file()] if static.exists() else []
+    for rel in own:
+        if rel.endswith(('.py', '.sh')) and private and private.is_private(static / rel):
+            del files[rel]
+    keep = frozenset(k for k in files if k.startswith('tools/')) | {'REPRODUCE.md'}
+    for rel in own:
+        if rel.endswith('.md') and rel in files:
+            files[rel] = public_readme(files[rel], keep)
     files['data/corpus.sha256'] = f'{hashlib.sha256(raw).hexdigest()}  corpus.json\n'
     files.update(tables(c, log))
     files['REPRODUCE.md'] = reproduce(c, folder, raw, log, tags, docs_date)
@@ -826,7 +969,7 @@ def main():
         a, b = hashes(Path(args.compare)), hashes(repo)
         rec = {'identical': a[0][1:] == b[0][1:] and a[1] == b[1],
                'history_tip': b[0][1] if len(b[0]) > 1 else b[0][0], 'commits': len(b[0]) - 1, 'tags': len(b[1]),
-               'main_identical': a[0][0] == b[0][0]}
+               'main_identical': a[0][0] == b[0][0], 'corpus_sha256': hashlib.sha256(load(folder)[1]).hexdigest()}
         print(json.dumps(rec, indent=1))
         p = folder / 'verification.json'
         ver = json.loads(p.read_text(encoding='utf-8')) if p.exists() else {}

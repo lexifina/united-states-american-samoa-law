@@ -1,10 +1,15 @@
 # gitlaw_common: the corpus.json contract
 
-The goal is one builder for every country. A country folder (`scripts/<slug>-law/`) writes only:
+The goal is one builder for every country. Each country's law is recorded as one corpus, `corpus.json` (optionally split into `corpus.d/` parts), beside the country's static docs in `repo/` (`README.md` with the standard sections, `LICENSE`, and optionally `tools/<local-name>.py` as a thin wrapper around `tools/on.py`).
+<!-- private -->
+(Lines between these markers are for Lexifina's agents only; build.py strips them from the published copy.)
+
+A country folder (`scripts/<slug>-law/`) writes only:
 
 - `fetch.py`: downloads into `.cache/`. The cache is named by the sha256 of the URL, goes through curl, is polite and resumable, and records every request in `.cache/requests.jsonl`.
 - `parse.py`: reads only the cache and writes `corpus.json`. It is deterministic: the same cache gives the same bytes.
-- `repo/`: the country's static docs (`README.md` with the standard sections, `LICENSE`, and optionally `tools/<local-name>.py` as a thin wrapper around `tools/on.py`).
+- `repo/`: the static docs above.
+<!-- /private -->
 
 The shared builder turns `corpus.json` into the git repository. It produces:
 
@@ -17,9 +22,12 @@ The shared builder turns `corpus.json` into the git repository. It produces:
 
 The commands are:
 
-    python -X utf8 scripts/gitlaw_common/build.py scripts/<slug>-law --repo ~/Documents/<slug>-law --docs-date YYYY-MM-DD
-    python -X utf8 scripts/gitlaw_common/check.py ~/Documents/<slug>-law --corpus scripts/<slug>-law/corpus.json
-    python -X utf8 scripts/gitlaw_common/build.py scripts/<slug>-law --repo <tmp> --docs-date D --compare ~/Documents/<slug>-law
+    python -X utf8 build.py <country folder> --repo <repository> --docs-date YYYY-MM-DD
+    python -X utf8 check.py <repository> --corpus <country folder>/corpus.json
+    python -X utf8 build.py <country folder> --repo <empty folder> --docs-date D --compare <repository>
+<!-- private -->
+Here: build.py and check.py are in `scripts/gitlaw_common/`, the country folder is `scripts/<slug>-law/` and the repository `~/Documents/<slug>-law`.
+<!-- /private -->
 
 `--docs-date` is required: use the day the data was retrieved, never the run day. The builder empties the target and keeps `origin`. It refuses to run if the target holds anything other than an earlier build.
 
@@ -39,7 +47,7 @@ All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys a
     "licence_note": "exact attribution line the source requires"
   },
   "sources": [
-    {"name": "LeyChile (BCN)", "url": "https://www.bcn.cl/leychile", "retrieved": "2026-10-28", "requests": 412,
+    {"name": "LeyChile (BCN)", "url": "https://www.bcn.cl/leychile", "retrieved": "2026-10-28", <!-- private -->"requests": 412, <!-- /private -->
      "licence": "…", "notes": "…"}
   ],
   "laws": {
@@ -67,7 +75,7 @@ All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys a
         {
           "from": "1981-03-11",
           "source_url": "https://…version…",
-          "sha256": "sha256 of the cached source bytes this version was parsed from",
+          "sha256": "sha256 of the source bytes this version was parsed from",
           "units": {
             "art-019": {"label": "Art. 19", "kind": "art", "text": "one paragraph per line\nnext paragraph\n"},
             "disp-transitoria-01": {"label": "Disposición transitoria primera", "kind": "transitional", "text": "…"}
@@ -94,11 +102,11 @@ All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys a
 - Keys must be lowercase ASCII `[a-z0-9-]` and sort naturally. Zero-pad numbers: `art-005`, `art-005-bis`.
 - A unit's text is one paragraph or item per line, so blame works line by line, and it ends with `\n`.
 - The first line may be a heading (`# Art. 19`). Keep volatile metadata (version numbers, source URLs) out of the text.
-- Normalise publisher typesetting once in parse.py: NBSP becomes a space, collapse runs of spaces, use one form of quotes and dashes, and drop footnote markers.
+- Normalise publisher typesetting once, when the corpus is written: NBSP becomes a space, collapse runs of spaces, use one form of quotes and dashes, and drop footnote markers.
 
 **Versions and dates**
 - `versions` is ordered by `from`.
-- `from` is the day the version took effect: the in-force date, not the publication date. When the source gives only the publication date, apply the country's `default_in_force_rule`, or the law's own vigencia clause, in parse.py. Write that down in `decisions`.
+- `from` is the day the version took effect: the in-force date, not the publication date. When the source gives only the publication date, apply the country's `default_in_force_rule`, or the law's own vigencia clause, when the corpus is written. Write that down in `decisions`.
 - Versions with `from` after the build's `--docs-date` go on `future_branch`.
 
 **Credits**
@@ -117,11 +125,11 @@ All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys a
 **Applicability and data quality**
 - A law may carry a `note`: one or two plain sentences that the commit message prints instead of the standard line for its kind. Use it for events that change no words, such as a referendum that was rejected or a ruling that only interprets. Credit such an event to the provisions it concerns in that version's `credits`, so it gets a commit with `Words-changed: no`; it needs a version (a `from` day) of its own only if the source has one.
 - A version may omit `units`: it then reads as the version before it. Use this for an event that changed no words, with `credits` naming the provisions it concerns. Its commit names them in `Affecting:` and in the subject ("…, wording unchanged").
-- **Large acts:** instead of `units`, a version may give `changes`: `{unit key: unit, or null to remove it}`, applied to the version before it. Use this for any act with many versions. It keeps part files small: GitHub rejects files over 100 MB, and wip snapshots skip files over 50 MB.
+- **Large acts:** instead of `units`, a version may give `changes`: `{unit key: unit, or null to remove it}`, applied to the version before it. Use this for any act with many versions. It keeps part files small: GitHub rejects files over 100 MB<!-- private -->, and wip snapshots skip files over 50 MB<!-- /private -->.
 - **Two versions on one day:** a version may share its `from` day with the one before it if it is marked `"same_day": true`. Example: a law that repeals provisions on the very day the act first applies. Its commits come after the earlier version's on that day. check.py compares the day's state with the last version of the day, and the day before with the last version before it.
-- `applies` is only for typed applicability from transitional provisions, in the group schema in memory/git_for_law.md.
+- `applies` is only for typed applicability from transitional provisions<!-- private -->, in the group schema in memory/git_for_law.md<!-- /private -->.
 - Leave `applies` empty rather than invent.
-- Everything must be reproducible from the cache: no network in parse.py, and no model output treated as legal text.
+- <!-- private -->Everything must be reproducible from the cache: no network in parse.py, and <!-- /private -->No model output is treated as legal text.
 
 ## Splitting one country across several agents: corpus.d/
 
@@ -130,13 +138,15 @@ A country may also have `corpus.d/*.json` parts beside (or instead of) `corpus.j
 How parts are read:
 - In file-name order (`20-codigo-civil.json`).
 - Laws are merged by key. The same key in two files must have the same label, or the build stops.
-- The build, check.py and autopush all read the merged corpus.
+- The build<!-- private -->, autopush<!-- /private --> and check.py all read the merged corpus.
 
 How to work with them:
 - Each agent owns only its own part file and writes it atomically: write `.tmp`, then rename.
 - Act slugs must not collide across parts.
 
+<!-- private -->
 Verification of parts: `main` holds corpus.json once the country's `PUBLISH` exists, and each part only once its owner writes `corpus.d/<part>.PUBLISH` (for example `50-codes.PUBLISH`). That file gives one line saying what was verified against the official text. Unverified parts still stream to the `preview` branch, together with everything else. Builds reading only verified parts set `GITLAW_VERIFIED_PARTS_ONLY=1`.
+<!-- /private -->
 
 ## Per-act publisher (optional, 2026-10-29)
 An act may carry `"publisher": {"name": ..., "email": "...@<domain>.invalid"}` when its text comes from a different source than the country's publisher (for example a ministry's revised edition, SILEP, Veritas). That act's "oldest version available" commit and its unexplained changes are then authored by it. A commit spanning acts with different publishers uses the country's. Corpora without the field build byte-identically to before.

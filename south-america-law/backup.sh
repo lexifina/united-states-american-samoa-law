@@ -23,5 +23,7 @@ cp $L/memory/south_america_git_law.md $L/memory/git_for_law.md $S/memory/
 git -C $S fetch -q origin coordinator 2>/dev/null && git -C $S reset -q --soft FETCH_HEAD
 git -C $S add -A
 git -C $S -c user.name=Lexifina -c user.email=world-law@lexifina.com commit -q -m "Git for law: coordinator files, all regions ($(date -u +%FT%TZ))" || true
-git -C $S push -q -f origin HEAD:refs/heads/coordinator
+# Never forced (no rewrite without the user's yes): the commit sits on the remote tip fetched above, so this
+# fast-forwards; if the remote moved meanwhile the push fails and the next run builds on the new tip.
+git -C $S push -q origin HEAD:refs/heads/coordinator
 git -C $S log --oneline -1

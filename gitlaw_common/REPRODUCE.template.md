@@ -1,14 +1,14 @@
 # How this repository was made ({{NAME}})
 
-This file is written by the build on {{DOCS_DATE}}, the day the source data was retrieved. Everything below is enough to rebuild this repository hash for hash.
+This file is written by the build on {{DOCS_DATE}}, the day the source data was retrieved.
 
 ## Sources
 
-| Source | Address | Retrieved | Requests | Licence |
-| --- | --- | --- | ---: | --- |
+| Source | Address | Retrieved | Licence |
+| --- | --- | --- | --- |
 {{SOURCES}}
 
-Every response is cached by the sha256 of its URL, and the table above lists every source with its retrieval date. Lexifina keeps its fetch scripts privately; `tools/parse.py` reads only the cache and writes `corpus.json`, so the same cache always gives the same corpus.
+Every word of law in this repository comes from these sources. Lexifina reads them and records each act's dated versions, and the laws that made each change, in one corpus file. This repository is built from that file.
 
 ## What is in it
 
@@ -36,37 +36,13 @@ Each commit is dated at noon ({{TZ}}) on the day the change took effect. The oth
 
 When a law gives no date of its own, the default rule applies: {{RULE}} {{RULE_SOURCE}}
 
-## Commands, in order
+## How the history is built
 
-```sh
-# fill the cache from the sources listed above (network; Lexifina's fetch scripts are kept privately)
-python -X utf8 tools/parse.py                  # cache -> corpus.json (no network)
-python -X utf8 tools/build.py <folder> --repo <empty folder> --docs-date {{DOCS_DATE}}
-python -X utf8 tools/check_repo.py <repo> --corpus <folder>/corpus.json --write
-python -X utf8 tools/build.py <folder> --repo <another empty folder> --docs-date {{DOCS_DATE}} --compare <repo>
-```
+`tools/build.py` turns the corpus into this history in one pass: one commit per law, on the day it took effect. The same corpus always gives the same commit hashes. `tools/check_repo.py` reads every version back from git and compares it with the corpus. `tools/on.py` shows the law as it stood on any date. The corpus format is described in `tools/SCHEMA.md`.
 
-In the main Lexifina repository these files live as follows:
-- `fetch.py`, `parse.py` and `repo/`: in `scripts/{{SLUG}}-law/`.
-- `build.py`, `check_repo.py` (`check.py` there) and `on.py`: in `scripts/gitlaw_common/`, with the corpus format in `SCHEMA.md`.
-
-## Exact inputs
-
-- `corpus.json` sha256 `{{CORPUS_SHA}}` ({{CORPUS_BYTES}} bytes)
-- Script blob hashes (`git hash-object`):
-
-| Script | Blob |
-| --- | --- |
-| build.py | `{{BUILD_BLOB}}` |
-| check.py | `{{CHECK_BLOB}}` |
-| on.py | `{{ON_BLOB}}` |
-| fetch.py | `{{FETCH_BLOB}}` |
-| parse.py | `{{PARSE_BLOB}}` |
-
-- Tools:
-  - {{PYTHON}}
-  - {{GIT}}
-  - {{CURL}}
+- Corpus: sha256 `{{CORPUS_SHA}}` ({{CORPUS_BYTES}} bytes).
+- Builder blob hashes (`git hash-object`): `build.py` `{{BUILD_BLOB}}`, `check.py` `{{CHECK_BLOB}}`, `on.py` `{{ON_BLOB}}`.
+- {{PYTHON}}; {{GIT}}.
 
 ## Checks
 
@@ -74,17 +50,15 @@ In the main Lexifina repository these files live as follows:
 
 {{REBUILD}}
 
-These results are from the check run on the build before this one, from the same corpus.
-
 ## Decisions made by hand
 
 {{DECISIONS}}
 
 ## What AI did and did not do
 
-The fetch, parse and check scripts were written by Claude Code running Claude Opus 5.5 (`claude-opus-5-5`) under Lexifina's direction.
+The scripts that read the sources and build this repository were written by Claude Code running Claude Opus 5.5 (`claude-opus-5-5`) under Lexifina's direction.
 
-No model wrote, translated or corrected legal text. No model runs at build time. Every word of law in this repository comes from the official sources above, through code that anyone can rerun.
+No model wrote, translated or corrected legal text. No model runs at build time. Every word of law in this repository comes from the official sources above.
 
 The commit messages are written by `build.py` from the source data.
 

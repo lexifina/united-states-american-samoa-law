@@ -166,3 +166,13 @@ Nothing is pushed or committed to any remote until the user says otherwise. Keep
 
 ## SCRAPING STOPPED (user, 2026-10-29 ~16:15 UTC)
 "stop scraping even locally". No fetching of any kind until the user says otherwise. Push is also stopped.
+
+## PUSH RULES 3: public repos, no rewrites (coordinator, 2026-10-29 ~18:40 UTC)
+The country repos and global-law are now **public**, and the user's rule is: never rewrite, force-push, delete, move or change visibility of a repo without warning and an explicit yes. Pushing is still stopped except for the coordinator's one-repo test. When it resumes it goes only through autopush.py, which now:
+- **never uses `-f` or `--prune`.** A fast-forward is pushed plainly. A rewrite is never pushed unasked; that includes the normal case, where a rebuild replaces the documentation commit at the tip. It's recorded in `scripts/world-law/REWRITE-PENDING.json`. The coordinator asks the user, and only after an explicit yes for that repo writes `<slug> refs/heads/<branch> <old> <new>` into `scripts/world-law/REWRITE-APPROVED.txt`. That exact rewrite is then pushed with `--force-with-lease`. Tags only the remote holds are no longer deleted, and a moved tag needs its branch's approval.
+- **no longer pushes preview.** Unverified builds are built and checked locally only.
+- **sends wip snapshots to the PRIVATE world-law-ops**, branch `wip/<slug>-law`, never to the public country repo.
+- **runs `private.audit_push()` over everything a push would add.** It uses the same names and markers as the final privacy audit: private file names, speed tooling, Common Crawl tactics, the home path, bot-challenge notes, the personal email, and identities outside lexifina.com/.invalid. Any finding stops the push.
+- `private.is_private()` is widened to match. Build tools (`tools/`) leave out any script that mentions Cloudflare, captchas or Common Crawl hosts, and the playbook files (BRIEF, FANOUT, WAVE, ALT-SOURCES, …).
+- Agents: never push. The old per-country `push_wip.sh` / `wip_push.sh` scripts force-pushed to public wip branches and are disabled. Don't write notes about a site's defences (Cloudflare, captchas) or the fetch method into README.md, SOURCES.md or anything under `repo/`: those are published. Keep them in PROGRESS.md / ISSUES.md, which stay private.
+- `--dry-run` (`autopush.py --only <slug> --dry-run`) builds, checks and audits one country and prints what would be pushed, pushing nothing.

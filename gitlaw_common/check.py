@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import json
 import subprocess
 import sys
@@ -66,7 +67,7 @@ def tree_files(repo: Path, commit: str, act: str) -> list[str]:
 def check(repo: Path, corpus: Path) -> dict:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from build import load  # the same corpus.json + corpus.d/ merge the build used
-    c, _ = load(corpus.parent)
+    c, raw = load(corpus.parent)
     future = c['country'].get('future_branch', 'futuro')
     has_future = bool(git(repo, 'branch', '--list', future).strip())
     cat = Cat(repo)
@@ -128,7 +129,10 @@ def check(repo: Path, corpus: Path) -> dict:
     future_dated = sum(1 for x in cts[:-1] if x > now) + (1 if cts and cts[-1] > now + 2 * 86400 else 0)
     return {'acts': len(c['acts']), 'versions': versions, 'mismatches': mismatches, 'trailer_errors': trailer_errors,
             'missing_in_force': missing_in_force, 'merges': merges, 'backwards': backwards,
-            'future_dated': future_dated, 'details': details}
+            'future_dated': future_dated, 'details': details,
+            # Which corpus this check read (a main build reads only the verified parts), so REPRODUCE.md quotes a check
+            # only in the build it describes.
+            'corpus_sha256': hashlib.sha256(raw).hexdigest()}
 
 
 def main():
