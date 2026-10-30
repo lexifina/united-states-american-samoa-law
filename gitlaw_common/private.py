@@ -44,10 +44,12 @@ def is_private(path: Path) -> bool:
     name, the playbook or the push tooling, or a script that uses the fast-fetch tooling or notes a site's defences."""
     if PRIVATE_NAME.match(path.name):
         return True
-    if path.suffix in ('.py', '.sh'):
+    if path.suffix in ('.py', '.sh', '.json'):
         try:
             data = path.read_bytes()
-            return bool(SPEED_MARK.search(data) or FETCH_USE.search(data))
+            # Any shipped script or config that the push audit would refuse stays private instead of blocking the push.
+            return bool(SPEED_MARK.search(data) or FETCH_USE.search(data)
+                        or any(rx.search(data) for rx in AUDIT_MARKS.values()))
         except OSError:
             return True
     return False
@@ -91,6 +93,9 @@ def audit_push(repo: Path, new: str, old: str | None = None) -> list[str]:
             # Law files (<act>/<unit>.md) can use these words as law ("subagents" in money-transfer regulations): the
             # workflow marker only applies to repository docs, data and tools.
             docs = '/' not in path or path.startswith(('tools/', 'data/'))
+            # Shipped tools (the builder included) must not carry the fast-fetch markers either.
+            if path.startswith('tools/') and SPEED_MARK.search(body):
+                found.append(f'speed marker in shipped tool: {path}')
             found += [f'{k}: {path}' for k, rx in AUDIT_MARKS.items()
                       if (docs or k != 'agent workflow') and rx.search(body)]
             found += [f'personal email: {path}' for rx in mails if rx.search(body)]
