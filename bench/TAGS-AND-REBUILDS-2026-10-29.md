@@ -1,5 +1,7 @@
 # Tag pushes and rebuild hot spots (2026-10-29)
 
+Status: complete (runs finished 2026-10-30 02:07).
+
 Scripts and raw results are in `bench/tags-and-rebuilds/`. Nothing was pushed to any lexifina country repo. Tag tests
 used a throwaway private repo, lexifina/tagpush-bench, left for Alan to delete. Rebuilds wrote only into the scratchpad
 or a temporary folder, deleted afterwards.
@@ -69,9 +71,14 @@ one batch (the `glob19682` row).
 | glob1000_hs_p2_n6000 | glob | 1,000 | header+schannel | 2 | 6,000 | 157.8 | 83 | 6,000 | 0 | 0 |
 | glob1000_hs_p4_n6000 | glob | 1,000 | header+schannel | 4 | 6,000 | 175.7 | 63 | 6,000 | 0 | 0 |
 | **bare1000_hs_p4_n6000** | **bare** | **1,000** | header+schannel | **4** | 6,000 | 124.0 | **42** | 6,000 | 0 | 0 |
-| glob19682_hs_n19682 (`refs/tags/*` in one push) | glob | 19,682 | header+schannel | 1 | 19,682 | (running) | | | | |
+| glob19682_hs_n19682 (`refs/tags/*` in one push) | glob | 19,682 | header+schannel | 1 | 19,682 | >2,766 (stopped) | – | **0** | 0 | 0 |
 
 The remote held these many refs before each wave-3 row: p2 25,263, p4 31,263, bare p4 37,263 and the full set 43,263.
+
+**The whole set in one push does not work.** `refs/tags/*` (19,682 refs, 43,263 already on the remote) was still
+uploading or validating after 46 minutes, with nothing landed, and was stopped. Extrapolating from the 3,000-ref
+rejections, it would have ended in the same rule-validation timeout. `git push origin 'refs/tags/*:refs/tags/*'` from
+a build folder is only safe for small tag sets: a few hundred tags on a fresh repo.
 
 **Parallel pushes scale.** At 1,000 refs a push, each push took about as long with 2 or 4 running (158 s and 176 s,
 against 152 s alone at a similar remote size), so throughput went up 2× with 2 pushes and about 2.6× with 4. Six
