@@ -1,0 +1,63 @@
+00:14:44.881471 common-main.c:57             | d0 | main                     | version      |     |           |           |              | 2.46.0.windows.1
+00:14:44.881471 common-main.c:58             | d0 | main                     | start        |     |  0.029418 |           |              | 'C:\Program Files\Git\mingw64\bin\git.exe' -C trb push -q https://github.com/lexifina/tagpush-bench.git 'refs/tags/*:refs/tags/trace1000/*'
+00:14:44.984249 ..._win32_process_info.c:122 | d0 | main                     | data_json    | r0  |  0.130275 |  0.130275 | process      | windows/ancestry:["bash.exe","bash.exe","bash.exe","claude.exe","powershell.exe","WindowsTerminal.exe","svchost.exe","services.exe","wininit.exe"]
+00:14:44.984249 setup.c:1502                 | d0 | main                     | data         |     |  0.132182 |  0.132182 | setup        | implicit-bare-repository:C:/Users/alany/AppData/Local/Temp/claude/C--Users-alany-Documents-lexifina/c7cfefff-156b-430e-86d2-540aa7a64ccf/scratchpad/tagbench/trb
+00:14:44.988799 git.c:473                    | d0 | main                     | cmd_name     |     |           |           |              | push (push)
+00:14:44.990357 run-command.c:734            | d0 | main                     | child_start  |     |  0.136470 |           |              | [ch0] class:remote-https argv:[git remote-https https://github.com/lexifina/tagpush-bench.git https://github.com/lexifina/tagpush-bench.git]
+00:14:45.099314 common-main.c:57             | d1 | main                     | version      |     |           |           |              | 2.46.0.windows.1
+00:14:45.100804 common-main.c:58             | d1 | main                     | start        |     |  0.026813 |           |              | git remote-https https://github.com/lexifina/tagpush-bench.git https://github.com/lexifina/tagpush-bench.git
+00:14:45.173067 ..._win32_process_info.c:122 | d1 | main                     | data_json    | r0  |  0.100181 |  0.100181 | process      | windows/ancestry:["git.exe","bash.exe","bash.exe","bash.exe","claude.exe","powershell.exe","WindowsTerminal.exe","svchost.exe","services.exe","wininit.exe","(truncated)"]
+00:14:45.175090 git.c:752                    | d1 | main                     | cmd_name     |     |           |           |              | _run_dashed_ (push/_run_dashed_)
+00:14:45.175090 run-command.c:734            | d1 | main                     | child_start  |     |  0.101989 |           |              | [ch0] class:dashed argv:[git-remote-https https://github.com/lexifina/tagpush-bench.git https://github.com/lexifina/tagpush-bench.git]
+00:14:45.342856 common-main.c:57             | d2 | main                     | version      |     |           |           |              | 2.46.0.windows.1
+00:14:45.342856 common-main.c:58             | d2 | main                     | start        |     |  0.020164 |           |              | git-remote-https https://github.com/lexifina/tagpush-bench.git https://github.com/lexifina/tagpush-bench.git
+00:14:45.426668 ..._win32_process_info.c:122 | d2 | main                     | data_json    | r0  |  0.103384 |  0.103384 | process      | windows/ancestry:["git.exe","git.exe","bash.exe","bash.exe","bash.exe","claude.exe","powershell.exe","WindowsTerminal.exe","svchost.exe","services.exe","(truncated)"]
+00:14:45.428693 remote-curl.c:1572           | d2 | main                     | cmd_name     |     |           |           |              | remote-curl (push/_run_dashed_/remote-curl)
+00:14:45.466209 builtin/push.c:382           | d0 | main                     | region_enter | r0  |  0.612437 |           | push         | label:transport_push
+00:14:45.668850 transport.c:1362             | d0 | main                     | region_enter | r0  |  0.815364 |           | transport_pu | ..label:get_refs_list
+00:14:46.387414 connect.c:175                | d2 | main                     | data         |     |  1.065754 |  1.065754 | transfer     | negotiated-version:0
+00:14:46.443720 transport.c:1365             | d0 | main                     | region_leave | r0  |  1.590272 |  0.774908 | transport_pu | ..label:get_refs_list
+00:14:46.450291 transport.c:1449             | d0 | main                     | region_enter | r0  |  1.596608 |           | transport_pu | ..label:push_refs
+00:14:46.452582 run-command.c:734            | d2 | main                     | child_start  |     |  1.130851 |           |              | [ch0] class:? argv:[git send-pack --stateless-rpc --helper-status --thin --quiet --no-progress https://github.com/lexifina/tagpush-bench.git/ --stdin]
+00:14:46.558698 common-main.c:57             | d3 | main                     | version      |     |           |           |              | 2.46.0.windows.1
+00:14:46.559872 common-main.c:58             | d3 | main                     | start        |     |  0.022237 |           |              | git send-pack --stateless-rpc --helper-status --thin --quiet --no-progress https://github.com/lexifina/tagpush-bench.git/ --stdin
+00:14:46.664060 ..._win32_process_info.c:122 | d3 | main                     | data_json    | r0  |  0.126724 |  0.126724 | process      | windows/ancestry:["git-remote-https.exe","git.exe","git.exe","bash.exe","bash.exe","bash.exe","claude.exe","powershell.exe","WindowsTerminal.exe","svchost.exe","(truncated)"]
+00:14:46.705570 git.c:473                    | d3 | main                     | cmd_name     |     |           |           |              | send-pack (push/_run_dashed_/remote-curl/send-pack)
+00:14:46.717475 connect.c:175                | d3 | main                     | data         |     |  0.179578 |  0.179578 | transfer     | negotiated-version:0
+00:15:20.547266 run-command.c:734            | d3 | main                     | child_start  |     | 34.009313 |           |              | [ch0] class:? argv:[git pack-objects --all-progress-implied --revs --stdout --thin --delta-base-offset -q]
+00:15:20.612838 common-main.c:57             | d4 | main                     | version      |     |           |           |              | 2.46.0.windows.1
+00:15:20.621628 common-main.c:58             | d4 | main                     | start        |     |  0.055677 |           |              | git pack-objects --all-progress-implied --revs --stdout --thin --delta-base-offset -q
+00:15:20.704189 ..._win32_process_info.c:122 | d4 | main                     | data_json    | r0  |  0.138352 |  0.138352 | process      | windows/ancestry:["git.exe","git-remote-https.exe","git.exe","git.exe","bash.exe","bash.exe","bash.exe","claude.exe","powershell.exe","WindowsTerminal.exe","(truncated)"]
+00:15:20.706335 git.c:473                    | d4 | main                     | cmd_name     |     |           |           |              | pack-objects (push/_run_dashed_/remote-curl/send-pack/pack-objects)
+00:15:20.706335 builtin/pack-objects.c:4577  | d4 | main                     | region_enter | r0  |  0.141247 |           | pack-objects | label:enumerate-objects
+00:15:20.952255 builtin/pack-objects.c:4606  | d4 | main                     | region_leave | r0  |  0.386101 |  0.244854 | pack-objects | label:enumerate-objects
+00:15:20.952255 builtin/pack-objects.c:4619  | d4 | main                     | region_enter | r0  |  0.386171 |           | pack-objects | label:write-pack-file
+00:15:21.299192 builtin/pack-objects.c:1401  | d4 | main                     | data         | r0  |  0.732542 |  0.346371 | pack-objects | ..write_pack_file/wrote:0
+00:15:21.299192 builtin/pack-objects.c:4622  | d4 | main                     | region_leave | r0  |  0.732593 |  0.346422 | pack-objects | label:write-pack-file
+00:15:21.299192 builtin/pack-objects.c:4633  | d4 | main                     | data         | r0  |  0.732693 |  0.732693 | pack-objects | written:0
+00:15:21.299192 builtin/pack-objects.c:4634  | d4 | main                     | data         | r0  |  0.732711 |  0.732711 | pack-objects | written/delta:0
+00:15:21.299715 builtin/pack-objects.c:4635  | d4 | main                     | data         | r0  |  0.732726 |  0.732726 | pack-objects | reused:0
+00:15:21.299715 builtin/pack-objects.c:4636  | d4 | main                     | data         | r0  |  0.732745 |  0.732745 | pack-objects | reused/delta:0
+00:15:21.299715 builtin/pack-objects.c:4637  | d4 | main                     | data         | r0  |  0.732867 |  0.732867 | pack-objects | pack-reused:0
+00:15:21.299715 builtin/pack-objects.c:4638  | d4 | main                     | data         | r0  |  0.732889 |  0.732889 | pack-objects | packs-reused:0
+00:15:21.299715 ..._win32_process_info.c:170 | d4 | main                     | data_json    | r0  |  0.733199 |  0.733199 | process      | windows/memory:{"PageFaultCount":23096,"PeakWorkingSetSize":40878080,"PeakPagefileUsage":36864000}
+00:15:21.299715 git.c:732                    | d4 | main                     | exit         |     |  0.733236 |           |              | code:0
+00:15:21.299715 trace2/tr2_tgt_perf.c:217    | d4 | main                     | atexit       |     |  0.733253 |           |              | code:0
+00:15:21.340385 run-command.c:990            | d3 | main                     | child_exit   |     | 34.802931 |  0.793618 |              | [ch0] pid:52956 code:0
+00:15:55.576509 ..._win32_process_info.c:170 | d3 | main                     | data_json    | r0  | 69.039123 | 69.039123 | process      | windows/memory:{"PageFaultCount":17869,"PeakWorkingSetSize":20107264,"PeakPagefileUsage":36917248}
+00:15:55.577234 git.c:732                    | d3 | main                     | exit         |     | 69.039196 |           |              | code:0
+00:15:55.577234 trace2/tr2_tgt_perf.c:217    | d3 | main                     | atexit       |     | 69.039216 |           |              | code:0
+00:15:55.651977 run-command.c:990            | d2 | main                     | child_exit   |     | 70.328999 | 69.198148 |              | [ch0] pid:14416 code:0
+00:15:55.690997 transport.c:1451             | d0 | main                     | region_leave | r0  | 70.836962 | 69.240354 | transport_pu | ..label:push_refs
+00:15:55.692084 builtin/push.c:385           | d0 | main                     | region_leave | r0  | 70.838339 | 70.225902 | push         | label:transport_push
+00:15:55.693721 ..._win32_process_info.c:170 | d2 | main                     | data_json    | r0  | 70.370977 | 70.370977 | process      | windows/memory:{"PageFaultCount":16422,"PeakWorkingSetSize":20803584,"PeakPagefileUsage":36786176}
+00:15:55.693721 common-main.c:67             | d2 | main                     | exit         |     | 70.371033 |           |              | code:0
+00:15:55.694506 trace2/tr2_tgt_perf.c:217    | d2 | main                     | atexit       |     | 70.371052 |           |              | code:0
+00:15:55.783985 run-command.c:990            | d1 | main                     | child_exit   |     | 70.710608 | 70.608619 |              | [ch0] pid:38512 code:0
+00:15:55.783985 ..._win32_process_info.c:170 | d1 | main                     | data_json    | r0  | 70.710951 | 70.710951 | process      | windows/memory:{"PageFaultCount":12352,"PeakWorkingSetSize":12423168,"PeakPagefileUsage":36917248}
+00:15:55.783985 git.c:774                    | d1 | main                     | exit         |     | 70.710990 |           |              | code:0
+00:15:55.783985 trace2/tr2_tgt_perf.c:217    | d1 | main                     | atexit       |     | 70.711008 |           |              | code:0
+00:15:55.890312 run-command.c:990            | d0 | main                     | child_exit   |     | 71.037140 | 70.900670 |              | [ch0] pid:26604 code:0
+00:15:55.890312 ..._win32_process_info.c:170 | d0 | main                     | data_json    | r0  | 71.037537 | 71.037537 | process      | windows/memory:{"PageFaultCount":14380,"PeakWorkingSetSize":17960960,"PeakPagefileUsage":36999168}
+00:15:55.890312 git.c:732                    | d0 | main                     | exit         |     | 71.037576 |           |              | code:0
+00:15:55.890312 trace2/tr2_tgt_perf.c:217    | d0 | main                     | atexit       |     | 71.037594 |           |              | code:0

@@ -12,24 +12,26 @@ settings were changed.
 
 ## Headline
 
-1. **Tag pushes cost 100–250 s per 1,000 tags here, and the cost is per ref, not per push.** A 1,000-tag push costs
-   about 34 s client-side and 34 s on GitHub's side, against about 13–25 s for an empty push. Bigger batches only
-   amortise the fixed part. The 80-tag batches in push_clean.py cost 490–680 s per 1,000 tags. A 1,000-tag glob batch
-   costs about 100 s.
-2. **Command-line refspecs scale badly.** git matches each explicit refspec against every local ref, so a 300-refspec
-   push from a repo with 19,682 tags spends 10–25 s in matching on the client alone. A glob refspec over a staging
-   namespace, or a push from a bare repo holding only that batch's refs, avoids the matching and the 32,767-character
-   limit.
-3. **Big pushes fail with "Timed out validating the rule", not GH013.** With 25k refs on the remote, a 3,000-ref push
+1. **push_clean.py's 80-tag command-line batches cost 530–680 s per 1,000 tags,** which is about 3–3.7 hours for Hong
+   Kong's 19,682 tags. **Batches of 1,000 from a tag-only bare repo, 4 pushes at a time, cost 42 s per 1,000,**
+   about 14 minutes for Hong Kong: a 13–16× gain. That was measured with 37k refs already on the remote and the
+   machine's CPU at 100%.
+2. **The cost is per ref, on both ends,** and it grows with the refs already on the remote: about 3.6 s more per
+   1,000-tag push for every 1,000 refs there. An empty push costs 13–25 s. Big batches only amortise that fixed part.
+3. **Command-line refspecs scale badly.** git matches each explicit refspec against every local ref, so a
+   300-refspec push from a 19,682-tag repo spends 10–25 s matching on the client alone. A glob refspec avoids the
+   matching and the 32,767-character limit. Pushing from a bare repo that holds only the batch's refs also avoids
+   making the client walk 19,682 local refs.
+4. **Big pushes fail with "Timed out validating the rule", not GH013.** With 25k refs on the remote, a 3,000-ref push
    ran about 7.5 minutes and was rejected whole, and so was its retry. No push printed GH013 or a bare "(failed)".
-4. **Rebuilds are CPU-bound in Python parsing, then single-threaded git.** Denmark took 634 s: parse and diff 396 s
-   (4 workers), fast-import 149 s, checkout 65 s. Ireland took 495 s, with its PDF readings already cached: build_act
-   348 s (serial), write_repo 123 s.
-5. **Two memo caches cut Denmark's worker CPU by 45%,** with identical results. A regex anchor plus a skip cuts
-   Ireland's hyphen pass by 4×. Running Ireland's acts in a pool of 4 is the other big gain.
-6. **Defender costs nothing measurable right now.** MsMpEng averaged 0.3–0.4% of one core during the builds, and the
-   Denmark build was no slower in a Documents folder (615 s) than in the scratchpad (634 s). If real-time protection
-   is switched back on, re-measure: the checkout stage (38k small files) is where it would bite.
+   Keep pushes to ≤1,000 refs.
+5. **Parallel pushes to one repo scale:** 2× throughput with 2, about 2.6× with 4, with no rejections.
+6. **Rebuilds are CPU-bound in Python parsing, then in single-threaded git.** Denmark took 634 s: parse and diff
+   396 s (4 workers), fast-import 149 s, checkout 65 s. Ireland took 495 s with its PDF readings cached: build_act
+   348 s (serial), write_repo 123 s. Two memo caches cut Denmark's worker CPU by 45% with identical output. Ireland's
+   hyphen regex is 4× faster with a skip and an anchor, and its acts can run in a pool of 4.
+7. **Defender costs nothing measurable now, because real-time protection is off.** MsMpEng averaged 0.3–0.4% of
+   one core during the builds. Denmark was no slower in a Documents folder (615 s) than in the scratchpad (634 s).
 
 ## A. Tag pushes
 
@@ -64,7 +66,22 @@ one batch (the `glob19682` row).
 | bare3000_n6000 | bare | 3,000 | GCM | 1 | 6,000 | 168.2 | 57 | 6,000 | 0 | 0 |
 | glob1000_hs_n3000 | glob | 1,000 | header+schannel | 1 | 3,000 | 151.5 | 164 | 3,000 | 0 | 0 |
 | glob3000_hs_n6000 | glob | 3,000 | header+schannel | 1 | 6,000 | 460.7 | (313) | **0** | 0 | 0 |
-| (parallel and full-set rows still running) | | | | | | | | | | |
+| glob1000_hs_p2_n6000 | glob | 1,000 | header+schannel | 2 | 6,000 | 157.8 | 83 | 6,000 | 0 | 0 |
+| glob1000_hs_p4_n6000 | glob | 1,000 | header+schannel | 4 | 6,000 | 175.7 | 63 | 6,000 | 0 | 0 |
+| **bare1000_hs_p4_n6000** | **bare** | **1,000** | header+schannel | **4** | 6,000 | 124.0 | **42** | 6,000 | 0 | 0 |
+| glob19682_hs_n19682 (`refs/tags/*` in one push) | glob | 19,682 | header+schannel | 1 | 19,682 | (running) | | | | |
+
+The remote held these many refs before each wave-3 row: p2 25,263, p4 31,263, bare p4 37,263 and the full set 43,263.
+
+**Parallel pushes scale.** At 1,000 refs a push, each push took about as long with 2 or 4 running (158 s and 176 s,
+against 152 s alone at a similar remote size), so throughput went up 2× with 2 pushes and about 2.6× with 4. Six
+batches over 4 workers leaves the last round half empty. GitHub did not serialise the concurrent pushes to one repo,
+and none of them was rejected.
+
+**The bare tag-only repo beats staging in the build repo.** At 3,000 a push and 1 at a time, bare took 168 s a push
+where glob took 274 s. At 1,000 a push and 4 at a time, bare took 124 s where glob took 176 s, on a bigger remote.
+Every ref in the pushing repo costs client time, and a bare repo holding only the batch (objects borrowed through
+`alternates`) has 1,000 refs instead of 19,682.
 
 **The remote's ref count matters as much as the method.** The rows ran in table order, and each one added its tags
 to the remote. The remote held 163 refs before the first row and 25,263 before glob3000_hs. A 1,000-tag glob push
@@ -189,3 +206,37 @@ Denmark comes to about 634 → ~400 s, and Ireland to about 495 → ~200 s, befo
 
 With real-time protection off, Defender's share of wall time is nil here. The 3% gap between the two Denmark runs is
 noise, and it goes the other way: the Documents run was faster.
+
+## Recommended settings
+
+**Tag pushes** (for push_clean.py; nothing was changed):
+1. **Push batches from a temporary bare repo.** Give it `objects/info/alternates` pointing at the build's objects,
+   write the batch's tags into it with `git update-ref --stdin` (as bytes with LF line ends; a text-mode pipe on
+   Windows breaks it), and push `refs/tags/*:refs/tags/*`. Keep explicit refspecs with `--force-with-lease` only for
+   the few tags that move.
+2. **Batch 1,000.** Drop to 500 once the remote holds about 30k refs, and never 3,000 or more: those hit the
+   rule-validation timeout.
+3. **Run 4 pushes at once** to the same repo, keeping push_clean's halving retry for rejections.
+4. **Auth through environment config, not the credential manager.** Set `GIT_CONFIG_COUNT`/`KEY`/`VALUE` to
+   `credential.helper=` and `http.https://github.com/.extraheader=Authorization: Basic <x-access-token:token>`, plus
+   `http.sslBackend=schannel`. That makes ls-remote 2–3 s instead of 8–16 s and keeps the token off command lines. It
+   matters for small batches, and barely at 1,000.
+5. **Expect:** Hong Kong's 19,682 tags in about 14–21 minutes instead of about 3–3.7 hours. Tasmania's 9,628 should
+   take about 7–10 minutes.
+
+**Rebuilds:**
+1. **Denmark:** memoise `dkparse.lines_of` (on the HTML) and `commencement` (on its arguments, per amending act).
+   That was measured at −45% of worker CPU with identical results.
+2. **Both:** write the documentation files as a last commit in the fast-import stream, and drop
+   `reset --hard` / `add -A` / `commit`. That saves 65–80 s for Denmark and 50–55 s for Ireland, and makes builds
+   work without a working tree (check out only when a check needs files).
+3. **Ireland:** run `build_act` over a pool of 4 processes (offline, pure CPU, about 348 → ~100 s). Fix the hyphen
+   pass: skip units without the mark and anchor at word start (4× on that pass). Cache `canon_text` and the word set
+   with the parsed reading. Read `history` once per act, and keep a url→sha index so preparse need not re-hash every
+   PDF.
+4. **Keep build folders at short paths:** Ireland fails past about 90 characters of folder path
+   (`LongPathsEnabled` = 0).
+5. **Defender:** nothing to do while real-time protection is off. If it comes back on, re-measure the checkout stage
+   first, since that is the 38k-small-file step. Exclusions need admin and were not touched.
+6. **Workers:** Denmark at 4 workers on a fully loaded machine spends 396 s in the pool. The memo fix gains about as
+   much as 4 → 8 workers would, without taking more of the shared CPU.
