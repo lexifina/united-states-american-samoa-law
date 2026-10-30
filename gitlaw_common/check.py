@@ -64,6 +64,40 @@ def tree_files(repo: Path, commit: str, act: str) -> list[str]:
             if f.endswith('.md') and f != f'{act}/README.md']
 
 
+def blob_oid(text: str) -> str:
+    """The id git gives a file with this text, so a file is compared by id without reading it back."""
+    b = text.encode('utf-8')
+    return hashlib.sha1(b'blob %d\0' % len(b) + b).hexdigest()
+
+
+def tree_oids(cat: 'Cat', commit: str, act: str, cache: dict) -> dict[str, str]:
+    """{path: blob id} of every .md under act/ (README.md excepted) at commit, read through the cat-file process
+    already open (no `git ls-tree` per version) and cached per (commit, act): the day before a version is usually the
+    commit of the version before it."""
+    key = (commit, act)
+    if key not in cache:
+        out: dict[str, str] = {}
+
+        def walk(spec: str, prefix: str):
+            data = cat.read(spec)
+            if data is None:
+                return
+            i = 0
+            while i < len(data):
+                sp = data.index(b' ', i)
+                nul = data.index(b'\0', sp)
+                mode, name, oid = data[i:sp], data[sp + 1:nul].decode('utf-8'), data[nul + 1:nul + 21].hex()
+                i = nul + 21
+                path = f'{prefix}/{name}'
+                if mode == b'40000':
+                    walk(oid, path)
+                elif mode != b'160000':
+                    out[path] = oid
+        walk(f'{commit}:{act}', act)
+        cache[key] = {f: o for f, o in out.items() if f.endswith('.md') and f != f'{act}/README.md'}
+    return cache[key]
+
+
 def check(repo: Path, corpus: Path) -> dict:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from build import load  # the same corpus.json + corpus.d/ merge the build used
@@ -71,6 +105,7 @@ def check(repo: Path, corpus: Path) -> dict:
     future = c['country'].get('future_branch', 'futuro')
     has_future = bool(git(repo, 'branch', '--list', future).strip())
     cat = Cat(repo)
+    trees: dict = {}
     mismatches, versions, details = 0, 0, []
     for act in c['acts']:
         slug = act['slug']
@@ -95,11 +130,10 @@ def check(repo: Path, corpus: Path) -> dict:
                     mismatches += 1
                     details.append(f'{slug}: nothing in force on {day}')
                     continue
-                files = set(tree_files(repo, h, slug))
-                expect = {f'{slug}/{k}.md': u['text'] for k, u in want['units'].items()}
-                for f in sorted(files | set(expect)):
-                    got = cat.read(f'{h}:{f}') if f in files else None
-                    if (got.decode('utf-8') if got is not None else None) != expect.get(f):
+                files = tree_oids(cat, h, slug, trees)
+                expect = {f'{slug}/{k}.md': blob_oid(u['text']) for k, u in want['units'].items()}
+                for f in sorted(set(files) | set(expect)):
+                    if files.get(f) != expect.get(f):
                         mismatches += 1
                         if len(details) < 50:
                             details.append(f'{slug} on {day}: {f} differs from version {want["from"]}')

@@ -59,6 +59,16 @@ FOREIGN |= {'australia', 'australia-northern-territory', 'australia-tasmania', '
             'finland', 'canada-newfoundland-and-labrador', 'canada-northwest-territories', 'kosovo', 'pakistan',
             'faroe-islands', 'belize', 'united-states-guam', 'united-states-northern-mariana-islands', 'san-marino',
             'trinidad-and-tobago', 'andorra', 'bangladesh'}
+# First builds of the empty repos by global-law-main-composer's agents (2026-10-29/30, push_clean.py), plus the five
+# scaffolds of ours with no corpus that it took over.
+FOREIGN |= set('''afghanistan aland algeria antigua-and-barbuda australia-new-south-wales bahrain barbados belarus benin
+    bhutan bosnia-and-herzegovina british-virgin-islands brunei burundi cambodia canada-nova-scotia canada-quebec
+    canada-saskatchewan cayman-islands central-african-republic chad comoros cuba djibouti dominica egypt el-salvador
+    eritrea ethiopia gabon gambia grenada guatemala guernsey guinea-bissau haiti honduras hungary iceland india indonesia
+    iran iraq isle-of-man israel jamaica jersey jordan kazakhstan kiribati kuwait laos lebanon libya macau maldives
+    marshall-islands mauritania morocco myanmar nepal niger north-korea panama papua-new-guinea puerto-rico
+    saint-kitts-and-nevis saint-vincent-and-the-grenadines samoa singapore somalia south-sudan tunisia ukraine
+    united-states-american-samoa uzbekistan'''.split())
 # Other sessions' own builders (global-law-main-composer and earlier): never touched from here.
 FOREIGN |= {'costa-rica', 'spain', 'czechia', 'france', 'russia', 'austria', 'italy', 'portugal', 'poland',
             'cook-islands'}
@@ -322,7 +332,12 @@ def wip(slug: str, folder: Path, repo: Path, dry_run: bool = False) -> str:
     """Snapshots scripts/<slug>-law onto branch wip/<slug>-law of the PRIVATE lexifina/world-law-ops (never the public
     country repo), so unfinished work leaves this machine. Each snapshot extends the branch: never forced."""
     files = []
-    for p in sorted(folder.rglob('*')):
+    found = []
+    # Skipped folders are pruned while walking (.cache and .tmp* builds can hold tens of thousands of files).
+    for top, dirs, names in os.walk(folder):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith('.tmp') and d != '.git']
+        found += [Path(top, n) for n in names]
+    for p in sorted(found):
         rel = p.relative_to(folder)
         if (not p.is_file() or set(rel.parts) & SKIP_DIRS or any(x.startswith('.tmp') or x == '.git' for x in rel.parts[:-1])
                 or p.name.startswith('.autopush')
@@ -333,16 +348,24 @@ def wip(slug: str, folder: Path, repo: Path, dry_run: bool = False) -> str:
         git(repo, 'remote', 'add', 'ops', OPS_URL)
     with tempfile.TemporaryDirectory() as tmp:
         env = {'GIT_INDEX_FILE': str(Path(tmp) / 'index')}
+        shas: dict[str, str] = {}
+        plain = []
         for rel, p in files:
             data = p.read_bytes()
             text = data.decode('utf-8', 'replace') if p.suffix in ('.py', '.sh', '.md', '.json', '.txt', '.csv') else ''
             if text and (private.HOME.search(text) or CREDENTIAL.search(text)):
                 # Even in the private repo: no machine path, and no credential an agent noted down.
                 clean = CREDENTIAL.sub(lambda m: f'{m.group(1)}=<redacted>', private.scrub(text))
-                sha = git(repo, 'hash-object', '-w', '--stdin', data=clean.encode('utf-8'))
+                shas[rel] = git(repo, 'hash-object', '-w', '--stdin', data=clean.encode('utf-8'))
             else:
-                sha = git(repo, 'hash-object', '-w', '--', str(p))
-            git(repo, 'update-index', '--add', '--cacheinfo', f'100644,{sha},wip/{rel}', env=env)
+                plain.append((rel, p))
+        # Two git processes for all the plain files, not two per file.
+        if plain:
+            out = git(repo, 'hash-object', '-w', '--stdin-paths', data=''.join(f'{p}\n' for _, p in plain).encode('utf-8'))
+            shas.update(zip((rel for rel, _ in plain), out.split()))
+        if files:
+            git(repo, 'update-index', '--add', '--index-info', env=env,
+                data=''.join(f'100644 {shas[rel]}\twip/{rel}\n' for rel, _ in files).encode('utf-8'))
         tree = git(repo, 'write-tree', env=env)
     branch = f'wip/{slug}-law'
     git(repo, 'fetch', '-q', '--no-tags', 'ops', f'+refs/heads/{branch}:refs/remotes/ops/wip', check=False)
@@ -394,7 +417,8 @@ def main_build(slug: str, folder: Path, repo: Path, state: dict, dry_run: bool =
     published = (folder / 'PUBLISH').exists()
 
     def build_check(verified_only: bool) -> tuple[bool, dict]:
-        env = {**os.environ, 'GITLAW_VERIFIED_PARTS_ONLY': '1' if verified_only else '0'}
+        env = {**os.environ, 'GITLAW_VERIFIED_PARTS_ONLY': '1' if verified_only else '0',
+               'GITLAW_NO_CHECKOUT': '1'}  # pushed from objects; no working tree to write or delete
         py = [sys.executable, '-X', 'utf8']
         ver_path = folder / 'verification.json'
         # REPRODUCE.md quotes the check recorded for this exact corpus. When this pass's check is new (first build of
