@@ -20,7 +20,8 @@ settings were changed.
    push from a repo with 19,682 tags spends 10–25 s in matching on the client alone. A glob refspec over a staging
    namespace, or a push from a bare repo holding only that batch's refs, avoids the matching and the 32,767-character
    limit.
-3. **There were no GH013 or "(failed)" rejections** in any of the pushes so far (see the tables).
+3. **Big pushes fail with "Timed out validating the rule", not GH013.** With 25k refs on the remote, a 3,000-ref push
+   ran about 7.5 minutes and was rejected whole, and so was its retry. No push printed GH013 or a bare "(failed)".
 4. **Rebuilds are CPU-bound in Python parsing, then single-threaded git.** Denmark took 634 s: parse and diff 396 s
    (4 workers), fast-import 149 s, checkout 65 s. Ireland took 495 s, with its PDF readings already cached: build_act
    348 s (serial), write_repo 123 s.
@@ -60,7 +61,24 @@ one batch (the `glob19682` row).
 | glob300_n1500 | glob | 300 | GCM | 1 | 1,500 | 46.7 | 156 | 1,500 | 0 | 0 |
 | glob1000_n3000 | glob | 1,000 | GCM | 1 | 3,000 | 93.6 | 102 | 3,000 | 0 | 0 |
 | glob3000_n6000 | glob | 3,000 | GCM | 1 | 6,000 | 274.5 | 98 | 6,000 | 0 | 0 |
-| (wave 2 rows still running) | | | | | | | | | | |
+| bare3000_n6000 | bare | 3,000 | GCM | 1 | 6,000 | 168.2 | 57 | 6,000 | 0 | 0 |
+| glob1000_hs_n3000 | glob | 1,000 | header+schannel | 1 | 3,000 | 151.5 | 164 | 3,000 | 0 | 0 |
+| glob3000_hs_n6000 | glob | 3,000 | header+schannel | 1 | 6,000 | 460.7 | (313) | **0** | 0 | 0 |
+| (parallel and full-set rows still running) | | | | | | | | | | |
+
+**The remote's ref count matters as much as the method.** The rows ran in table order, and each one added its tags
+to the remote. The remote held 163 refs before the first row and 25,263 before glob3000_hs. A 1,000-tag glob push
+took 93.6 s with 6,263 refs on the remote and 151.5 s with 22,263, so a push gets roughly 3.6 s slower for every 1,000
+refs already there, and the auth mode makes no visible difference at that size. Read rows against their
+`remote_refs_before` in `tags.jsonl`, not against each other alone.
+
+**"Timed out validating the rule": the real failure mode.** With 25k refs on the remote, both 3,000-ref pushes of
+glob3000_hs were rejected whole after about 7.5 minutes (460.7 s and 441.8 s), and each one-time retry was rejected
+again (431.7 s and 428.7 s): `! [remote rejected] ... (Timed out validating the rule.)` on every ref, so nothing
+landed. Earlier 3,000-ref pushes, with 9–15k refs on the remote, went through in 148–274 s. The repo has no rulesets
+(a private repo on the free plan cannot have any), so this is GitHub's own per-push rule check running out of time.
+No push printed GH013 or a bare "(failed)". push_clean.py's halving retry would cope, but only after about 15 minutes
+lost per batch. Keep each push well under about 5 minutes: ≤1,000 refs once a repo holds about 10k tags.
 
 Notes:
 - A first attempt at the glob configs pushed nothing: a text-mode pipe on Windows turned `\n` into `\r\n`, and
