@@ -46,3 +46,15 @@ pages is pending and will be appended.
 
 Two acceptance runs that each rewrote one provenance JSON from memory lost the other's entries; re-read before
 every write (and the provenance was recoverable by matching page bytes to the archive responses).
+
+## Update 12:00 UTC
+
+- Live cross-check of the Constitution: 20 pages held both live and from an eligible archive copy, 20 identical
+  (whitespace-normalised text, markup and the `<!...>` header stripped). 4 of the 22 held pages had no eligible copy.
+- Each A.R.S. title is regenerated on its own day (2026: Title 13 09/08/26, Title 33 09/09/26; 2025: 09/19/25,
+  09/20/25), and pages the regeneration leaves unchanged keep their older creation date. Rule now: current if
+  created Aug-Dec 2026, or captured on a day after the title's 2026 regeneration.
+- Archive yield with the corrected rule: Title 13 127/985, Title 33 47/544, Title 10 119/595 (post-update only);
+  2025-generation copies (526 / 166 / 521) still wait on the 2026 session-law list (184 of 263 chapters read from
+  archives with CC at 12 req/s; 85 live).
+- Coordinator gave this corpus 12 Common Crawl req/s once ACT and WA finished (federal 8; machine 20).
