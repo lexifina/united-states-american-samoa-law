@@ -24,19 +24,22 @@ import os
 ENV = None   # set by the _h flag: auth header via environment config, no credential helper, no 401 round trip
 
 
-def header_env():
+def header_env(schannel=False):
     tok = subprocess.run(['gh', 'auth', 'token'], capture_output=True, text=True).stdout.strip()
     b = base64.b64encode(f'x-access-token:{tok}'.encode()).decode()
-    return {**os.environ, 'GIT_CONFIG_COUNT': '2', 'GIT_CONFIG_KEY_0': 'credential.helper', 'GIT_CONFIG_VALUE_0': '',
-            'GIT_CONFIG_KEY_1': 'http.https://github.com/.extraheader', 'GIT_CONFIG_VALUE_1': f'Authorization: Basic {b}'}
+    kv = [('credential.helper', ''), ('http.https://github.com/.extraheader', f'Authorization: Basic {b}')]
+    if schannel:
+        kv.append(('http.sslBackend', 'schannel'))
+    env = {**os.environ, 'GIT_CONFIG_COUNT': str(len(kv))}
+    for i, (k, v) in enumerate(kv):
+        env[f'GIT_CONFIG_KEY_{i}'], env[f'GIT_CONFIG_VALUE_{i}'] = k, v
+    return env
 
 
 def run(args, cwd=SRC, inp=None):
     t = time.perf_counter()
     env = ENV if args[:2] == ['git', 'push'] or args[:2] == ['git', 'ls-remote'] else None
-    if inp is not None:   # bytes: a text-mode pipe on Windows turns 
- into 
-, which update-ref --stdin refuses
+    if inp is not None:   # bytes: a text-mode pipe on Windows turns LF into CRLF, which update-ref --stdin refuses
         r = subprocess.run(args, cwd=cwd, capture_output=True, input=inp.encode('utf-8'), env=env)
         if r.returncode:
             raise SystemExit(f'{args[:3]} failed: {r.stderr.decode(errors="replace")[-300:]}')
@@ -79,9 +82,21 @@ def push_glob(prefix, part, i=0):
     return r, dt, len(URL) + 60
 
 
+def push_bare(prefix, part, i=0):
+    d = HERE / 'bare' / f'{prefix}-{i}'
+    if d.exists():
+        import shutil
+        shutil.rmtree(d)
+    subprocess.run(['git', 'init', '-q', '--bare', str(d)], check=True)
+    (d / 'objects' / 'info' / 'alternates').write_text((SRC / 'objects').as_posix() + '\n', newline='\n')
+    run(['git', 'update-ref', '--stdin'], cwd=d, inp=''.join(f'create {t} {SHA[t]}\n' for t in part))
+    r, dt = run(['git', 'push', '-q', URL, f'refs/tags/*:refs/tags/{prefix}/*'], cwd=d)
+    return r, dt, len(URL) + 60
+
+
 def batches(prefix, tags, size, mode, parallel=1):
     parts = [tags[i:i + size] for i in range(0, len(tags), size)]
-    fn = push_cli if mode == 'cli' else push_glob
+    fn = {'cli': push_cli, 'glob': push_glob, 'bare': push_bare}[mode]
     res = []
     lock = threading.Lock()
     queue = list(enumerate(parts))
@@ -132,8 +147,8 @@ def main():
             continue
         # cfg forms: cli80 / cli300 / glob300 / glob1000 / glob3000 [ _pN ] [ _nCOUNT ] [ _oOFFSET ]
         bits = cfg.split('_')
-        ENV = header_env() if 'h' in bits[1:] else None
-        mode = 'cli' if bits[0].startswith('cli') else 'glob'
+        ENV = header_env('hs' in bits[1:]) if ('h' in bits[1:] or 'hs' in bits[1:]) else None
+        mode = next(m for m in ('cli', 'glob', 'bare') if bits[0].startswith(m))
         size = int(bits[0][len(mode):])
         par = next((int(b[1:]) for b in bits[1:] if b.startswith('p')), 1)
         n = next((int(b[1:]) for b in bits[1:] if b.startswith('n')), 3000)

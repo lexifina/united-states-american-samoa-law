@@ -1,0 +1,75 @@
+acts 60 secs 33.6
+         15762982 function calls (15761659 primitive calls) in 33.537 seconds
+
+   Ordered by: internal time
+   List reduced from 188 to 28 due to restriction <28>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   912492   15.141    0.000   15.169    0.000 {method 'sub' of 're.Pattern' objects}
+    15261    2.358    0.000    2.358    0.000 {method 'findall' of 're.Pattern' objects}
+  4471474    2.026    0.000    3.281    0.000 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:757(<genexpr>)
+     3344    1.635    0.000    1.635    0.000 {method 'translate' of 'str' objects}
+    14975    1.456    0.000    4.737    0.000 {method 'update' of 'set' objects}
+  4462265    1.265    0.000    1.265    0.000 {method 'lower' of 'str' objects}
+  1135993    0.958    0.000    1.482    0.000 C:\Users\alany\AppData\Local\Programs\Python\Python312\Lib\re\__init__.py:280(_compile)
+   169003    0.925    0.000    0.925    0.000 {method 'split' of 're.Pattern' objects}
+    14975    0.915    0.000    6.239    0.000 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:657(canon_lines)
+   911336    0.913    0.000   17.216    0.000 C:\Users\alany\AppData\Local\Programs\Python\Python312\Lib\re\__init__.py:179(sub)
+     2803    0.718    0.000    0.807    0.000 {built-in method builtins.sorted}
+      285    0.481    0.002    0.481    0.002 {method 'read' of '_io.BufferedReader' objects}
+  1150736    0.465    0.000    0.465    0.000 {built-in method builtins.isinstance}
+       60    0.366    0.006    0.366    0.006 {method 'decode' of 'bytes' objects}
+       60    0.354    0.006   33.537    0.559 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:936(build_act)
+      510    0.316    0.001    0.316    0.001 {built-in method _hashlib.openssl_sha256}
+      225    0.283    0.001    0.283    0.001 C:\Users\alany\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py:344(raw_decode)
+   576574    0.260    0.000    0.260    0.000 {method 'startswith' of 'str' objects}
+   177912    0.256    0.000    5.849    0.000 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:876(clean_note)
+       60    0.231    0.004   23.043    0.384 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:731(load_versions)
+   169089    0.177    0.000    0.514    0.000 C:\Users\alany\AppData\Local\Programs\Python\Python312\Lib\re\__init__.py:164(match)
+   169539    0.144    0.000    0.144    0.000 {method 'match' of 're.Pattern' objects}
+      510    0.132    0.000    0.161    0.000 {built-in method _io.open}
+    20341    0.121    0.000    0.121    0.000 {method 'split' of 'str' objects}
+   311229    0.118    0.000    0.118    0.000 {method 'strip' of 'str' objects}
+    16413    0.099    0.000    0.665    0.000 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:914(read_note)
+    14975    0.098    0.000    6.510    0.000 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:727(canon_text)
+     3284    0.094    0.000    2.879    0.001 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:789(norm)
+
+
+
+         15762982 function calls (15761659 primitive calls) in 33.537 seconds
+
+   Ordered by: cumulative time
+   List reduced from 188 to 28 due to restriction <28>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       60    0.354    0.006   33.537    0.559 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:936(build_act)
+       60    0.231    0.004   23.043    0.384 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:731(load_versions)
+   911336    0.913    0.000   17.216    0.000 C:\Users\alany\AppData\Local\Programs\Python\Python312\Lib\re\__init__.py:179(sub)
+   912492   15.141    0.000   15.169    0.000 {method 'sub' of 're.Pattern' objects}
+    14975    0.098    0.000    6.510    0.000 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:727(canon_text)
+    14975    0.915    0.000    6.239    0.000 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:657(canon_lines)
+   177912    0.256    0.000    5.849    0.000 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:876(clean_note)
+    14975    1.456    0.000    4.737    0.000 {method 'update' of 'set' objects}
+  4471474    2.026    0.000    3.281    0.000 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:757(<genexpr>)
+     3284    0.094    0.000    2.879    0.001 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:789(norm)
+    15261    0.049    0.000    2.505    0.000 C:\Users\alany\AppData\Local\Programs\Python\Python312\Lib\re\__init__.py:209(findall)
+    15261    2.358    0.000    2.358    0.000 {method 'findall' of 're.Pattern' objects}
+     3344    1.635    0.000    1.635    0.000 {method 'translate' of 'str' objects}
+  1135993    0.958    0.000    1.482    0.000 C:\Users\alany\AppData\Local\Programs\Python\Python312\Lib\re\__init__.py:280(_compile)
+  4462265    1.265    0.000    1.265    0.000 {method 'lower' of 'str' objects}
+       60    0.003    0.000    0.951    0.016 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:79(history)
+   169003    0.925    0.000    0.925    0.000 {method 'split' of 're.Pattern' objects}
+      578    0.008    0.000    0.860    0.001 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:813(same_letters)
+     1156    0.004    0.000    0.852    0.001 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:816(<lambda>)
+     2803    0.718    0.000    0.807    0.000 {built-in method builtins.sorted}
+    16413    0.099    0.000    0.665    0.000 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:914(read_note)
+      285    0.004    0.000    0.637    0.002 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:45(fetch)
+      285    0.002    0.000    0.576    0.002 C:\Users\alany\AppData\Local\Programs\Python\Python312\Lib\pathlib.py:1015(read_bytes)
+   169089    0.177    0.000    0.514    0.000 C:\Users\alany\AppData\Local\Programs\Python\Python312\Lib\re\__init__.py:164(match)
+      285    0.481    0.002    0.481    0.002 {method 'read' of '_io.BufferedReader' objects}
+  1150736    0.465    0.000    0.465    0.000 {built-in method builtins.isinstance}
+       60    0.001    0.000    0.414    0.007 C:\Users/alany/Documents/lexifina/scripts/ireland-law\build.py:61(fetch_all)
+       60    0.366    0.006    0.366    0.006 {method 'decode' of 'bytes' objects}
+
+
+
