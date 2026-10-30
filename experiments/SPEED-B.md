@@ -84,3 +84,75 @@ Recipe (Brazil):
 3. Fetch with `wayback.pt_get(rec)` from 12 threads; still reject bodies under 6 KB or containing "enable javascript".
 4. Only for a state Arquivo.pt lacks (most of 2010-2022), fall back to `wayback.captures(..., collapse='timestamp:6')`
    and `wayback.get`. Pin every capture timestamp in sources.
+
+## B3. Peru: El Peruano from archives, the sitemap, or fewer live listings
+
+Before: peru-law found its laws by paging busquedas.elperuano.pe's search **one day at a time**, 2,088 of its 4,158
+requests, because long ranges dropped and repeated cards. The server is slow (10-35 s for some pages, 293 backoffs
+on the shared host rate so far today).
+
+Measured (`speedb_peru.py`, `speedb_peru_paging.py`, `speedb_peru_paging_old.py`; the yardstick is peru-law's own day
+cards for 2026: 18,647 norms on 285 days, 232 of them laws, legislative decrees and emergency decrees):
+
+| Route | Requests | Seconds | What it gives | 2026 laws/D.Legs/DUs covered |
+|---|---|---|---|---|
+| Common Crawl, 8 newest crawls, `busquedas.elperuano.pe/dispositivo/` | ~40 index blocks | 12.2 | 11,877 OK captures, 10,848 distinct norms | 120 of 232 (52%) |
+| Common Crawl `/normaslegales/` (pre-2023 URL form) | | 5.4 | 864 captures, none with status 200 | 0 |
+| Common Crawl `/api/archivo/file/` (the PDFs) | | 5.4 | 0 | – |
+| Arquivo.pt, same four prefixes | 4 | 5.8 | 87 norm pages, 116 old-form pages, 114 issue PDFs (2020-2021) | 0 |
+| archive.org CDX `collapse=urlkey`, `/dispositivo/` | 1 | 110 | 36,792 distinct norms, 2023-2026 | 109 of 232 (47%) |
+| archive.org CDX, `/normaslegales/` | 1 | 113 | 28,688 distinct norms, 2017-2023 | – |
+| All three archives together | | | | 156 of 232 (67%) |
+| **Live search, one type, long range, paged 20 at a time** | **10** | ~200 | every card | **142 of 142 sampled (100%)** |
+| Live sitemap `busquedas.elperuano.pe/sitemap.xml` | 3 | 4.3 | today's 761 norms (75 NL, 686 BO), lastmod today only | new issues only |
+
+- An archived norm page holds the PDF link (24 of 24 Common Crawl captures, 4.2 s from 16 threads), but no archive
+  holds the PDFs (token URLs), so the text still comes from the live site. Archives would replace only discovery, and
+  they miss a third of the laws.
+- **The cheap fix is live and needs no archive: filter the search by type and page a long range.** 2026, against the
+  day cards: LEY March (1 request, 5 of 5), LEY April-June (5 requests, 95 of 95), D.Leg January-October (3 requests,
+  45 of 45), DU March-May (1 request, 2 of 2): 10 requests, 0 missed, 0 repeated, where day-by-day listing takes
+  ~500. Older ranges can still break: LEY 2019 reported 130 hits but its 7 pages gave 99 rows and 91 distinct; D.Leg
+  June 2016-December 2018 was clean (12 requests, 209 of 209).
+- Open data: diariooficial.elperuano.pe has a `/DatosAbiertos/` path but its robots.txt Disallows it;
+  datosabiertos.gob.pe did not answer in the earlier sweep.
+
+Verdict: **archives don't help Peru** (no PDFs, 67% coverage of norm pages). **Filtered long-range paging with a
+self-check cuts discovery about 20 to 50 times**, and the daily sitemap covers new issues in 1-3 requests.
+
+Recipe (Peru):
+1. For each type you need (`tipoDispositivo=LEY`, `DECRETO LEGISLATIVO`, `DECRETO DE URGENCIA`, ...) and for
+   `tipoPublicacion=NL` and `EX`, page `?fechaIni=A&fechaFin=B&...&start=0,20,40...` over a quarter or a year.
+2. Read `totalHits` from the page data and the ops from both `\"op\",\"<op>\"` and `/dispositivo/NL/<op>` (the page
+   data serialises repeated strings as references, so one pattern alone misses most cards).
+3. Accept the range only if rows == distinct ops == totalHits; otherwise halve it and retry. Single days only as the
+   last resort.
+4. New issues: `wayback.sitemap_urls('https://busquedas.elperuano.pe/sitemap.xml')` daily (today's norms only).
+5. PDFs: the `urlPDF` (`/api/archivo/file/<token>/*/<op>.pdf`) from the card, live through `host_get`.
+
+## B4. Albania: a bulk or sitemap route for QBZ (qbz.gov.al)?
+
+Before: albania-law made 734 QBZ API requests over 26 minutes (22:55-23:21 UTC, fixed 3 a second in fetch.py, with
+parsing in between): 40 listing pages, then `/acts/{id}/versions` and `/acts/{id}/relations` for each law with
+versions.
+
+Probes (`speedb_albania.py`, one request each, 0.4-0.9 s):
+- No robots.txt and no sitemap.xml: both paths serve the app's HTML, and so do ELI paths (`/eli/ligj/...`). No
+  OpenAPI description at any of five usual paths.
+- The list caps the page size at 100 (`size=200` and up answer 400 "size duhet të jetë ndërmjet 1 dhe 100"), and
+  ignores `sort=versions,desc`, `hasVersions` and `minVersions`. The `versions` count is already in every list item,
+  so acts with none can be skipped without a request.
+- One act's record doesn't embed versions or relations (`expand`/`include` ignored), and there is no all-versions or
+  all-relations endpoint (`/versions`, `/relations`: 404). `rdf` is null.
+- Archives: Common Crawl (4 newest crawls) and Arquivo.pt hold 0 captures of `qbz.gov.al/api/`.
+
+**So there is no bulk route: the speed-up is the thread pool.** `speedb_albania_parallel.py` ran the whole crawl
+through `host_get`: 40 listing pages in 5.6 s (8 threads, 3,907 laws, 383 with versions), then 766 versions and
+relations requests in 47.3 s (12 threads, 16.2 a second, rate up to 25/s, 0 throttled). **806 requests in 53 s**,
+against 269 s at the old fixed 3 a second and 26 minutes as actually run.
+
+Recipe (Albania):
+1. `host_get(f'{API}/acts?type=Ligj&size=100&page={n}')` for n in 0-39 from 8 threads (size can't exceed 100).
+2. Keep items with `versions > 0`; fetch `/acts/{id}/versions` and `/acts/{id}/relations` for them from 12 threads.
+3. Then the version `.docx` files (`word.url`) the same way. Write the URL list first and run one fetch in the
+   background; never fetch inside the parse loop.
