@@ -58,3 +58,15 @@ every write (and the provenance was recoverable by matching page bytes to the ar
   2025-generation copies (526 / 166 / 521) still wait on the 2026 session-law list (184 of 263 chapters read from
   archives with CC at 12 req/s; 85 live).
 - Coordinator gave this corpus 12 Common Crawl req/s once ACT and WA finished (federal 8; machine 20).
+
+## Update 2026-10-31 00:50 UTC: session-law gate
+
+- 2026 session laws complete: chapters 1-264 (179 archived, 85 live; 265-268 404). 2,177 A.R.S. section numbers
+  named anywhere in their text (168 in Titles 13/33/10).
+- Gate test (Title 13, live vs archive): 2025-generation copies of sections no 2026 law names: 90 identical,
+  0 different. Copies of named sections: 18 identical, 4 different, all 4 named. The gate admits no stale copy in
+  this sample and costs ~22% of the older copies.
+- Archive share after the gate: Constitution 209/323, Title 13 536/985, Title 33 130/544, Title 10 401/595.
+- Projected live time: before (live only) Constitution 10.9 h + Title 13 33.1 h + Title 33 18.3 h + Title 10 20.0 h
+  = 82 h; after: 3.8 h + 15.1 h + 13.9 h + 6.5 h + 3.4 h of session laws = 43 h (1.9x). Constitution and Title 13
+  chapters 1-26 already published.
