@@ -42,6 +42,17 @@ def published_state(repo: Path, c: dict) -> dict[str, str]:
     """{act slug: newest In-force day on main} for every act main holds; checks that day's text equals the corpus."""
     slugs = [a['slug'] for a in c['acts']]
     rows = K.all_commits_by_act(repo, 'main', slugs)
+    # A law credited for a version that changed no words gets a commit that touches no file, which the per-path walk
+    # above cannot see. data/commits.csv names the acts of every commit, so those days count too; otherwise each such
+    # commit would be appended again on every run.
+    listed: dict[str, str] = {}
+    try:
+        for e in published_log(repo):
+            if e['branch'] == 'main':
+                for s in e['acts']:
+                    listed[s] = max(listed.get(s, ''), e['day'])
+    except B.CorpusError:  # no data/commits.csv on main
+        pass
     cat = K.Cat(repo)
     trees: dict = {}
     state = {}
@@ -51,7 +62,7 @@ def published_state(repo: Path, c: dict) -> dict[str, str]:
             r = rows[act['slug']]
             if not r:
                 continue
-            last = max(d for _, d in r)
+            last = max([d for _, d in r] + [listed.get(act['slug'], '')])
             state[act['slug']] = last
             # Every corpus version on or before `last` must read back from main exactly (else: correction or back-fill).
             for i, v in enumerate(act['versions']):

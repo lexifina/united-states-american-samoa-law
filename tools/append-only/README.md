@@ -54,6 +54,8 @@ appends the rest (1 new act, 31 more versions). It then checks:
 - a second append adds nothing;
 - two independent runs give the same head.
 
+`test_credit_only.py` covers a law credited for a version that changes no words (a referendum, a ruling): its commit touches no file. Appending the corpus to a build that already holds that commit adds 0 commits, and so does a second append after it is appended. f5e9d64 re-appended it on every run; append.py now also reads the act days in data/commits.csv.
+
 It also ran against lexifina/romania-law `f22df37` (36 acts, 1,289 versions): check 0/0, dry run 0 commits.
 
 The Romania publishing loop (lexifina-cc, alan-laptop) uses it every 5 minutes.
