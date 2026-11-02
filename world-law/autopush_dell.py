@@ -377,65 +377,15 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
     top = lambda d: {p.partition(b'/')[0] for p in d}  # noqa: E731
     if remote:
         r_law = [s for s in r_list if _is_law(raws[s])]
-
-        def keyed(seq: list[str]) -> list[tuple]:
-            seen: dict = {}
-            out = []
-            for s in seq:
-                k = _key(raws[s])[1:]
-                seen[k] = seen.get(k, 0) + 1
-                out.append((k, seen[k]))
-            return out
-        r_by_key = dict(zip(keyed(r_law), r_law))
-        extras = []
-        for n, k in zip(n_law, keyed(n_law)):
-            if k in r_by_key:
-                mapping[n] = r_by_key[k]
-            else:
-                extras.append(n)
-        matched = set(mapping.values())
-        missing = [r for r in r_law if r not in matched]
-        if missing:
-            r0 = raws[missing[0]]
-            same_msg = [n for n in extras if _split(raws[n])[1] == _split(r0)[1]]
-            how = 're-dates' if same_msg else 'removes or rewords'
-            return {'kind': 'rewrite', 'reason': f'{how} published {_describe(r0)}'
-                    + (f' and {len(missing) - 1} more' if len(missing) > 1 else '') + ' (needs a correction)'}
-        ld_n = {n: _law_delta(n_delta[n]) for n in n_law}
-        ld_r = {r: _law_delta(r_delta[r]) for r in r_law}
-        for n, r in mapping.items():
-            if ld_n[n] != ld_r[r]:
-                diff = sorted({name(p.partition(b'/')[0]) for p in set(ld_n[n]) | set(ld_r[r])
-                               if ld_n[n].get(p) != ld_r[r].get(p)})
-                return {'kind': 'rewrite', 'reason': f'changes {", ".join(diff[:3])} in published {_describe(raws[r])}'}
-        r_seq: dict[bytes, list[str]] = {}
-        for r in r_law:
-            for f in top(ld_r[r]):
-                r_seq.setdefault(f, []).append(r)
-        n_seq: dict[bytes, list[str]] = {}
-        last_pub: dict[bytes, int] = {}
-        pos = {n: i for i, n in enumerate(n_law)}
-        for n in n_law:
-            if n in mapping:
-                for f in top(ld_n[n]):
-                    n_seq.setdefault(f, []).append(mapping[n])
-                    last_pub[f] = pos[n]
-        for f, seq in r_seq.items():
-            if n_seq.get(f) != seq:
-                return {'kind': 'rewrite', 'reason': f'reorders the published commits of {name(f)}'}
-        last_r_day = max((_ident(_field(raws[r], b'author'))[2] for r in r_law), default=None)
-        backfill = False
-        for e in extras:
-            late = [f for f in top(ld_n[e]) if pos[e] < last_pub.get(f, -1)]
-            if late:
-                return {'kind': 'rewrite', 'reason': f'inserts {_describe(raws[e])} into published {name(late[0])} '
-                                                     f'before {_describe(raws[n_law[last_pub[late[0]]]])}'}
-            if last_r_day is not None and _ident(_field(raws[e], b'author'))[2] < last_r_day:
-                backfill = True
-        new_law = extras
+        items, corrections, reasons = _plan_by_act(repo, raws, r_list, r_delta, n_law, n_delta, slug_email(raws))
+        if isinstance(items, str):
+            return {'kind': 'rewrite', 'reason': items}
+        new_law = [it['src'] for it in items if it.get('src')]
+        backfill = any(it.get('backfill') for it in items)
         parent = remote
     else:
         backfill = False
+        corrections, reasons = 0, []
         base = base or {}
         k = 0
         while k < len(n_law) and n_law[k] in base:
@@ -445,38 +395,46 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
             return {'kind': 'new', 'new': built, 'map': {s: s for s in n_list}, 'added': list(n_list),
                     'laws': len(n_law), 'docs': len(tail), 'law_tip': n_law[-1] if n_law else None}
         new_law = n_law[k:]
+        items = [{'src': s, 'author': _field(raws[s], b'author'), 'committer': raws[s], 'msg': _split(raws[s])[1],
+                  'delta': n_delta[s]} for s in new_law]
         # main's published law tip holds every prefix commit (after a back-fill, not the last one in build order)
         parent = base_tip if base_tip and k == sum(1 for s in n_law if s in base) else base[n_law[k - 1]]
     want_tree = _field(raws[built], b'tree').decode()
-    if not new_law and remote and git(repo, 'rev-parse', f'{remote}^{{tree}}') == want_tree:
+    if not items and remote and git(repo, 'rev-parse', f'{remote}^{{tree}}') == want_tree:
         return {'kind': 'same', 'new': remote, 'map': mapping, 'added': [], 'laws': 0, 'docs': 0,
-                'law_tip': r_law[-1] if r_law else None}
+                'law_tip': _last_law_change(r_list, r_delta)}
     prev_ct = _ident(_field(_read_commits(repo, [parent])[parent], b'committer'))[2]
     tip = parent
 
-    def committer(raw: bytes) -> tuple[bytes, int]:
+    def committer(raw: bytes | None) -> tuple[bytes, int]:
         nonlocal prev_ct
+        if raw is None:  # a correction commit: dated now, never before the commit it follows
+            prev_ct = max(int(time.time()), prev_ct + 1)
+            return f'Lexifina <{slug_email(raws)}> {prev_ct} +0000'.encode(), prev_ct
         c = _field(raw, b'committer')
         gt = c.rindex(b'>')
         ts, tz = c[gt + 1:].split()
         prev_ct = max(int(ts), prev_ct + 1)
         return c[:gt + 1] + f' {prev_ct} '.encode() + tz, prev_ct
 
-    if new_law:
-        # One `git fast-import` for all appended law commits: each changes only its own files on top of the tip.
+    added_items: list[str] = []
+    if items:
+        # One `git fast-import` for every appended commit: each changes only its own files on top of the tip.
         ref = f'refs/append-tmp/{os.getpid()}-{threading.get_ident()}'
         with tempfile.TemporaryDirectory() as tmp:
             marks = Path(tmp) / 'marks'
             buf = bytearray()
-            for i, s in enumerate(new_law, 1):
-                lines, msg = _split(raws[s])
+            for i, it in enumerate(items, 1):
+                cline = committer(it['committer'])[0]
                 buf += f'commit {ref}\nmark :{i}\n'.encode()
-                buf += b'author ' + _field(raws[s], b'author') + b'\n'
-                buf += b'committer ' + committer(raws[s])[0] + b'\n'
-                buf += f'data {len(msg)}\n'.encode() + msg + b'\n'
+                buf += b'author ' + (it['author'] if it['author'] is not None else cline) + b'\n'
+                buf += b'committer ' + cline + b'\n'
+                buf += f'data {len(it["msg"])}\n'.encode() + it['msg'] + b'\n'
                 if i == 1:
                     buf += f'from {tip}\n'.encode()
-                for path, v in sorted(n_delta[s].items()):
+                for d in it.get('clear', []):
+                    buf += b'D ' + d + b'\n'
+                for path, v in sorted(it['delta'].items()):
                     if b'\n' in path or path.startswith(b'"'):
                         raise RuntimeError(f'unsupported path {path!r}')
                     buf += (b'D ' + path if v is None else b'M ' + v[0] + b' ' + v[1].encode() + b' ' + path) + b'\n'
@@ -488,9 +446,12 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
                 raise RuntimeError(f'fast-import: {fi.stderr.decode("utf-8", "replace")[-300:]}')
             by_mark = dict(l.split(' ', 1) for l in marks.read_text().split('\n') if l)
         git(repo, 'update-ref', '-d', ref)
-        for i, s in enumerate(new_law, 1):
-            mapping[s] = by_mark[f':{i}'].strip()
-        tip = mapping[new_law[-1]]
+        for i, it in enumerate(items, 1):
+            sha = by_mark[f':{i}'].strip()
+            added_items.append(sha)
+            if it.get('src'):
+                mapping[it['src']] = sha
+        tip = added_items[-1]
     for s in tail:  # the build's documentation commit, with its exact tree, on top
         lines, msg = _split(raws[s])
         body = [l for l in lines if l.startswith(b'tree ')] + [b'parent ' + tip.encode()]
@@ -498,10 +459,10 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
         body += [l for l in lines if not l.startswith((b'tree ', b'parent ', b'author ', b'committer '))]
         tip = _write_object(repo, 'commit', b'\n'.join(body) + b'\n\n' + msg)
         mapping[s] = tip
-    todo = new_law + tail
-    if not todo:
+        added_items.append(tip)
+    if not added_items:
         return {'kind': 'same', 'new': remote or parent, 'map': mapping, 'added': [], 'laws': 0, 'docs': 0,
-                'law_tip': (r_law[-1] if r_law else None) if remote else parent}
+                'law_tip': _last_law_change(r_list, r_delta) if remote else parent}
     if git(repo, 'cat-file', '-t', tip) != 'commit':
         return {'kind': 'rewrite', 'reason': 'internal: the appended tip is not a commit'}
     if tail or remote:
@@ -512,10 +473,147 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
         return {'kind': 'rewrite', 'reason': 'the grafted branch does not have the build\'s law files'}
     if remote and subprocess.run(['git', 'merge-base', '--is-ancestor', remote, tip], cwd=repo).returncode:
         return {'kind': 'rewrite', 'reason': 'internal: the appended tip does not descend from the published tip'}
-    return {'kind': 'append', 'new': tip, 'map': mapping, 'added': [mapping[s] for s in todo],
-            'laws': len(new_law), 'docs': len(tail), 'backfill': backfill,
-            'law_tip': mapping[new_law[-1]] if new_law else (r_law[-1] if remote and r_law else parent)}
+    law_items = [sha for sha, it in zip(added_items, items) if it.get('src') or it.get('correction')]
+    return {'kind': 'append', 'new': tip, 'map': mapping, 'added': added_items,
+            'laws': sum(1 for it in items if it.get('src')), 'corrections': corrections, 'correction_reasons': reasons,
+            'docs': len(tail), 'backfill': backfill,
+            'law_tip': law_items[-1] if law_items else (_last_law_change(r_list, r_delta) if remote else parent)}
 
+
+def slug_email(raws: dict) -> str:
+    """The repo's own address (<slug>-law@lexifina.com), from the committer of any commit the builder made."""
+    for raw in raws.values():
+        _, email, _, _ = _ident(_field(raw, b'committer'))
+        if email.endswith('-law@lexifina.com'):
+            return email
+    return 'world-law@lexifina.com'
+
+
+def _last_law_change(seq: list[str], deltas: dict) -> str | None:
+    """The last commit of `seq` that changes a provision file (law or correction commit)."""
+    for s in reversed(seq):
+        if _law_delta(deltas[s]):
+            return s
+    return None
+
+
+def _in_force(raw: bytes) -> str | None:
+    for line in _split(raw)[1].split(b'\n'):
+        if line.startswith(b'In-force:'):
+            return line.split(b':', 1)[1].strip().decode()
+    return None
+
+
+def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law: list[str], n_delta: dict,
+                 email: str) -> tuple:
+    """What to append so that every act reads, on every date, as the build says (Alan, 2026-11-02: "bust the held
+    work"), without touching published history. Act by act (top-level folder), the published history and the build's
+    are both read the way tools/on.py and check.py read them: the newest commit touching the act whose In-force date is
+    on or before the day.
+    - An act whose published reading already equals the build on every version day, every day before one, and today:
+      nothing to append.
+    - Versions after everything published (newer versions, or a new act's whole history, older laws found late
+      included: D12): the build's own commits are appended, each carrying only its files for such acts.
+    - Otherwise (a published version's text, date or order differs): correction commits at the tip, one per build
+      version from the first one that reads differently, "Kind: correction" with In-force, Corrects, Supersedes and
+      Reason trailers, each setting the act to that version's text.
+    Returns (items to append in order, number of corrections, reasons) or (reason string, 0, []) to hold."""
+    def rows(seq: list[str], deltas: dict) -> tuple[dict, dict]:
+        """{act: [(in-force day, state, commit)]} in history order, and each act's final state."""
+        out: dict[bytes, list] = {}
+        state: dict[bytes, dict] = {}
+        for s in seq:
+            ld = _law_delta(deltas[s])
+            if not ld:
+                continue
+            day = _in_force(raws[s])
+            if day is None:
+                raise ValueError(f'{_describe(raws[s])} changes provisions but has no In-force trailer')
+            for f in {p.partition(b'/')[0] for p in ld}:
+                cur = state.setdefault(f, {})
+                for p, v in ld.items():
+                    if p.partition(b'/')[0] == f:
+                        if v is None:
+                            cur.pop(p, None)
+                        else:
+                            cur[p] = v[1]
+                out.setdefault(f, []).append((day, frozenset(cur.items()), s))
+        return out, state
+
+    def read(rs: list, day: str):
+        for d, st, s in reversed(rs):
+            if d <= day:
+                return st, s
+        return frozenset(), None
+
+    def before(day: str) -> str:
+        return (dt.date.fromisoformat(day) - dt.timedelta(days=1)).isoformat() if day > '0001-01-01' else day
+
+    try:
+        r_rows, _ = rows(r_list, r_delta)
+        n_rows, n_state = rows(n_law, n_delta)
+    except ValueError as e:
+        return str(e), 0, []
+    r_last_day = max((d for rs in r_rows.values() for d, _, _ in rs), default='')
+    keep: dict[str, set[bytes]] = {}  # build commit -> acts whose part of it is appended
+    fixes: list[tuple[bytes, int, str]] = []
+    for f in sorted(set(r_rows) | set(n_rows)):
+        ns, rs = n_rows.get(f, []), r_rows.get(f, [])
+        if not rs:  # an act not yet published: its whole history is appended (D12 when it is older)
+            for d, st, s in ns:
+                keep.setdefault(s, set()).add(f)
+            continue
+        first = None
+        for i, (d, st, s) in enumerate(ns):
+            want_prev = read(ns[:i], before(d))[0]
+            if read(rs, d)[0] != read(ns, d)[0] or read(rs, before(d))[0] != want_prev:
+                first = i
+                break
+        today = '9999-12-31'
+        if first is None:
+            if read(rs, today)[0] != read(ns, today)[0]:
+                first = len(ns)  # the published act has a later version or text the build no longer has
+            else:
+                continue
+        # Plain append when every published version comes before the first differing one and it reads unchanged
+        # until then: the build's versions from `first` on are simply newer.
+        rs_last = max(d for d, _, _ in rs)
+        if first < len(ns) and ns[first][0] > rs_last and read(rs, today)[0] == read(ns, before(ns[first][0]))[0]:
+            for d, st, s in ns[first:]:
+                keep.setdefault(s, set()).add(f)
+            continue
+        fixes.append((f, first, 'published text differs from the corrected build'
+                      if first < len(ns) else 'the act was removed or shortened in the corrected build'))
+    items = []
+    for s in n_law:
+        acts = keep.get(s)
+        if not acts:
+            continue
+        delta = {p: v for p, v in n_delta[s].items() if p.partition(b'/')[0] in acts}
+        items.append({'src': s, 'author': _field(raws[s], b'author'), 'committer': raws[s],
+                      'msg': _split(raws[s])[1], 'delta': delta,
+                      'backfill': bool(r_last_day) and (_in_force(raws[s]) or '') < r_last_day})
+    reasons = []
+    for f, first, why in fixes:
+        ns, rs = n_rows.get(f, []), r_rows[f]
+        name = f.decode('utf-8', 'replace')
+        versions = ns[first:] if first < len(ns) else []
+        if not versions:  # removed from the build: one correction that empties the act from its last published day
+            versions = [(max(d for d, _, _ in rs), frozenset(), None)]
+        for j, (d, st, s) in enumerate(versions):
+            nxt = versions[j + 1][0] if j + 1 < len(versions) else None
+            _, sup = read(rs, d)
+            sup = sup or rs[0][2]
+            to = before(nxt) if nxt else ''
+            msg = (f'Correction: {name} as in force from {d}\n\n'
+                   f'The published text of {name} differs from the corrected build ({why}). This commit sets it to the '
+                   f'build\'s text for {d}..{to}; the published commits stay as they were.\n\n'
+                   f'Kind: correction\nIn-force: {d}\nCorrects: {name} {d}..{to}\nSupersedes: {sup}\n'
+                   f'Reason: {why}\n').encode()
+            items.append({'src': None, 'author': None, 'committer': None, 'msg': msg, 'correction': True,
+                          'clear': [f], 'delta': {p: (b'100644', o) for p, o in st}})
+        reasons.append(f'{name}: {why}')
+    return items, len(items) - sum(1 for it in items if it.get('src')), reasons
 
 def _law_files(repo: Path, commit: str) -> dict[bytes, bytes]:
     out = subprocess.run(['git', 'ls-tree', '-r', '-z', commit], cwd=repo, capture_output=True).stdout
@@ -599,7 +697,9 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
         git(repo, 'update-ref', f'refs/build/{b}', new)  # the build as made, for comparison
         git(repo, 'update-ref', f'refs/heads/{b}', tip)
         what = (f'+{g["laws"]} law commit{"s" if g["laws"] != 1 else ""}' + (' back-filled at the end' if g.get('backfill')
-                else '') + (f', +{g["docs"]} docs' if g['docs'] else ''))
+                else '') + (f', +{g["corrections"]} correction{"s" if g["corrections"] != 1 else ""} '
+                            f'({"; ".join(g.get("correction_reasons", [])[:3])})' if g.get('corrections') else '')
+                + (f', +{g["docs"]} docs' if g['docs'] else ''))
         plan.append(f'{b} {"append" if old else "new branch"} {old[:9] or "(new)"}->{tip[:9]} ({what}; fast-forward)')
         refs.append(f'refs/heads/{b}:refs/heads/{b}')
         appended.append(b)
