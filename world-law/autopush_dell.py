@@ -221,49 +221,207 @@ def standing_approval(slug: str, repo: Path, branch: str, old: str, new: str, lo
     return ''
 
 
-def docs_update(slug: str, repo: Path, old: str, new: str) -> str | None:
-    """When a rebuild changes only the documentation commit (the laws are the same commits), a commit on top of the
-    remote with the new documentation tree, so the update fast-forwards instead of replacing the remote's tip.
-    Returns its SHA, 'same' when the remote already has that tree, or None when the laws differ (a real rewrite)."""
-    def is_docs(c: str) -> bool:
-        email, _, subj = git(repo, 'log', '-1', '--format=%ae%x1f%s', c).partition('\x1f')
-        return email == f'{slug}-law@lexifina.com' and subj.startswith('Documentation')
-    if not is_docs(new):
-        return None
-    tip = old
-    while is_docs(tip):  # the remote's own documentation commits, newest first, down to its last law commit
-        parents = git(repo, 'rev-list', '--parents', '-n', '1', tip).split()[1:]
-        if len(parents) != 1:
-            return None
-        tip = parents[0]
-    if tip != git(repo, 'rev-parse', f'{new}^'):
-        return None
-    tree = git(repo, 'rev-parse', f'{new}^{{tree}}')
-    if tree == git(repo, 'rev-parse', f'{old}^{{tree}}'):
-        return 'same'
-    name, email, date = git(repo, 'log', '-1', '--format=%an%x1f%ae%x1f%ad', '--date=raw', new).split('\x1f')
-    old_date = git(repo, 'log', '-1', '--format=%ad', '--date=raw', old)
-    date = max(date, old_date, key=lambda d: int(d.split()[0]))  # never earlier than the commit it follows
-    body = git(repo, 'log', '-1', '--format=%b', new)
-    msg = f'Documentation update: tables, tools and REPRODUCE.md\n\n{body}\n'.encode()
-    env = {'GIT_AUTHOR_NAME': name, 'GIT_AUTHOR_EMAIL': email, 'GIT_AUTHOR_DATE': date,
-           'GIT_COMMITTER_NAME': name, 'GIT_COMMITTER_EMAIL': email, 'GIT_COMMITTER_DATE': date}
-    return git(repo, 'commit-tree', tree, '-p', old, env=env, data=msg)
+# ---------------------------------------------------------------- append onto the remote (2026-11-02)
+# The builder regenerates a repo's whole history and ends it with a fresh documentation commit, so a new build is
+# never a descendant of the published main. append_onto() re-parents the build's new commits onto the published tip
+# instead: same trees, same authors, author dates and messages, committer dates kept rising. The published docs commit
+# stays in history; the build's docs commit is appended after it. Anything else (an older commit inserted, a published
+# law commit changed or removed) is a rewrite and waits for the user's yes.
 
 
-def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False) -> str:
-    """Push `branches` (local names, same name on the remote) and the tags to the shared repo, without ever
-    rewriting it unasked:
-    - a branch equal to the remote is skipped; one that fast-forwards it is pushed plainly;
-    - one that would replace remote commits (the docs-commit tip included) is pushed only if REWRITE-APPROVED.txt names
-      that exact old -> new, with --force-with-lease; otherwise it is recorded in REWRITE-PENDING.json and nothing is
-      pushed for the repo;
-    - new tags are pushed; a tag the remote holds at another commit moves only with its branch's approval; tags only
-      the remote holds are left alone (never deleted);
+def _read_commits(repo: Path, shas: list[str]) -> dict[str, bytes]:
+    """Raw commit objects (header + message, exact bytes) through one `git cat-file --batch`."""
+    out: dict[str, bytes] = {}
+    want = list(dict.fromkeys(shas))
+    if not want:
+        return out
+    data = subprocess.run(['git', 'cat-file', '--batch'], cwd=repo, capture_output=True,
+                          input=''.join(f'{s}\n' for s in want).encode()).stdout
+    i = 0
+    for s in want:
+        end = data.index(b'\n', i)
+        head = data[i:end].split()
+        if len(head) < 3 or head[1] != b'commit':
+            raise RuntimeError(f'not a commit: {s}')
+        size = int(head[2])
+        out[s] = data[end + 1:end + 1 + size]
+        i = end + 1 + size + 1
+    return out
+
+
+def _split(raw: bytes) -> tuple[list[bytes], bytes]:
+    head, _, msg = raw.partition(b'\n\n')
+    return head.split(b'\n'), msg
+
+
+def _field(raw: bytes, name: bytes) -> bytes:
+    for line in _split(raw)[0]:
+        if line.startswith(name + b' '):
+            return line[len(name) + 1:]
+    return b''
+
+
+def _ident(line: bytes) -> tuple[str, str, int, str]:
+    """'Name <email> 1700000000 +0100' -> (name, email, timestamp, tz)."""
+    lt, gt = line.rindex(b'<'), line.rindex(b'>')
+    ts, tz = line[gt + 1:].split()
+    return line[:lt].strip().decode('utf-8', 'replace'), line[lt + 1:gt].decode('utf-8', 'replace'), int(ts), tz.decode()
+
+
+def _is_law(raw: bytes) -> bool:
+    """A law commit: anything not authored by 'Lexifina' (documentation commits, the scaffold, README pauses)."""
+    return _ident(_field(raw, b'author'))[0] != 'Lexifina'
+
+
+def _key(raw: bytes) -> tuple[bytes, bytes, bytes]:
+    """What makes two law commits the same law commit, whatever their parents: tree, author line (name, email, date,
+    zone) and message."""
+    return _field(raw, b'tree'), _field(raw, b'author'), _split(raw)[1]
+
+
+def _describe(raw: bytes) -> str:
+    name, _, ts, _ = _ident(_field(raw, b'author'))
+    subj = _split(raw)[1].split(b'\n', 1)[0].decode('utf-8', 'replace')
+    return f'"{subj[:70]}" ({dt.datetime.fromtimestamp(ts, dt.timezone.utc).date()})'
+
+
+def _write_object(repo: Path, kind: str, body: bytes) -> str:
+    """A loose object, exactly as `git commit-tree` / `hash-object -w` would store it (one process for thousands)."""
+    import zlib
+    data = f'{kind} {len(body)}\0'.encode() + body
+    sha = hashlib.sha1(data).hexdigest()
+    objects = Path(git(repo, 'rev-parse', '--git-path', 'objects'))
+    if not objects.is_absolute():
+        objects = repo / objects
+    path = objects / sha[:2] / sha[2:]
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_name(f'.tmp-{sha[2:]}-{os.getpid()}-{threading.get_ident()}')
+        tmp.write_bytes(zlib.compress(data, 1))
+        try:
+            os.replace(tmp, path)
+        except OSError:
+            if not path.exists():
+                raise
+            tmp.unlink(missing_ok=True)
+    return sha
+
+
+def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str] | None = None) -> dict:
+    """Grow `remote` (the published tip, or None) towards `built` (the fresh build) by fast-forward only.
+
+    Walks both first-parent histories oldest first and matches law commits by tree, author line and message (not by
+    SHA; 'Lexifina'-authored commits are not law). Allowed: the build's law commits start with every published law
+    commit, in order; the rest of its law commits, then its trailing documentation commit, are written on top of the
+    published tip with their own trees, authors and messages, committer date max(own, previous + 1 s).
+    With no `remote` (a branch the remote lacks, e.g. a first `futuro`), `base` maps build SHAs already published
+    elsewhere (main's) to their published SHAs, and the build is grafted after the longest such prefix.
+
+    Returns {'kind': 'same'|'append'|'new'|'rewrite', 'new': tip to publish, 'map': {build sha: new sha},
+             'laws': law commits added, 'docs': docs commits added, 'reason': why a rewrite}."""
+    n_list = git(repo, 'rev-list', '--first-parent', '--reverse', built).split()
+    r_list = git(repo, 'rev-list', '--first-parent', '--reverse', remote).split() if remote else []
+    raws = _read_commits(repo, n_list + r_list)
+    n_law = [s for s in n_list if _is_law(raws[s])]
+    last_law = n_list.index(n_law[-1]) if n_law else -1
+    if any(not _is_law(raws[s]) for s in n_list[:last_law]):
+        return {'kind': 'rewrite', 'reason': 'the build has a non-law commit inside its law history'}
+    tail = n_list[last_law + 1:]  # the build's documentation commit(s), after its last law commit
+    mapping: dict[str, str] = {}
+    if remote:
+        r_law = [s for s in r_list if _is_law(raws[s])]
+        n_keys = [_key(raws[s]) for s in n_law]
+        for i, r in enumerate(r_law):
+            rk = _key(raws[r])
+            if i < len(n_law) and n_keys[i] == rk:
+                mapping[n_law[i]] = r
+                continue
+            # Diverged at published law commit i: say how, briefly.
+            if i >= len(n_law):
+                reason = f'removes {len(r_law) - i} published law commits from {_describe(raws[r])} on'
+            elif rk[1:] == n_keys[i][1:]:
+                # Same commit, other tree. If the build has an extra commit earlier on, every later snapshot carries
+                # its text, so this is reported where the first difference is: here.
+                reason = f'changes the text (tree) of published {_describe(raws[r])}'
+            elif rk[1:] in [k[1:] for k in n_keys[i:]]:
+                # The published commit comes later in the build: commits were inserted before it.
+                j = [k[1:] for k in n_keys].index(rk[1:], i)
+                reason = (f'inserts {j - i} older commit{"s" if j - i != 1 else ""} before {_describe(raws[r])}, '
+                          f'first {_describe(raws[n_law[i]])}')
+            elif rk[2] == n_keys[i][2]:
+                reason = f'changes the author or date of published {_describe(raws[r])}'
+            else:
+                gone = not any(k[1:] == rk[1:] for k in n_keys)
+                reason = (f'{"removes" if gone else "moves"} published {_describe(raws[r])}; the build has '
+                          f'{_describe(raws[n_law[i]])} there')
+            return {'kind': 'rewrite', 'reason': reason}
+        new_law = n_law[len(r_law):]
+        parent = remote
+    else:
+        base = base or {}
+        k = 0
+        while k < len(n_law) and n_law[k] in base:
+            mapping[n_law[k]] = base[n_law[k]]
+            k += 1
+        if not k:  # nothing published to graft onto: the build is pushed as it is (a new branch, no history lost)
+            return {'kind': 'new', 'new': built, 'map': {s: s for s in n_list}, 'added': list(n_list),
+                    'laws': len(n_law), 'docs': len(tail)}
+        new_law = n_law[k:]
+        parent = base[n_law[k - 1]]
+    want_tree = _field(raws[built], b'tree')
+    todo = list(new_law)
+    if not todo and remote and _field(_read_commits(repo, [remote])[remote], b'tree') == want_tree:
+        return {'kind': 'same', 'new': remote, 'map': mapping, 'added': [], 'laws': 0, 'docs': 0}
+    todo += tail
+    prev_ct = _ident(_field(_read_commits(repo, [parent])[parent], b'committer'))[2]
+    tip = parent
+    for s in todo:
+        lines, msg = _split(raws[s])
+        out, done_parent = [], False
+        for line in lines:
+            if line.startswith(b'parent '):
+                if not done_parent:
+                    out.append(b'parent ' + tip.encode())
+                    done_parent = True
+                continue
+            if line.startswith(b'committer '):
+                c = line[len(b'committer '):]
+                gt = c.rindex(b'>')
+                ts, tz = c[gt + 1:].split()
+                ct = max(int(ts), prev_ct + 1)
+                prev_ct = ct
+                line = b'committer ' + c[:gt + 1] + f' {ct} '.encode() + tz
+            out.append(line)
+            if line.startswith(b'tree ') and not done_parent:
+                out.append(b'parent ' + tip.encode())
+                done_parent = True
+        tip = _write_object(repo, 'commit', b'\n'.join(out) + b'\n\n' + msg)
+        mapping[s] = tip
+    if git(repo, 'cat-file', '-t', tip) != 'commit' or git(repo, 'rev-parse', f'{tip}^{{tree}}') != want_tree.decode():
+        return {'kind': 'rewrite', 'reason': 'the appended tip does not have the build\'s final tree'}
+    if remote and subprocess.run(['git', 'merge-base', '--is-ancestor', remote, tip], cwd=repo).returncode:
+        return {'kind': 'rewrite', 'reason': 'internal: the appended tip does not descend from the published tip'}
+    docs = sum(1 for s in todo if s in tail)
+    return {'kind': 'append', 'new': tip, 'map': mapping, 'added': [mapping[s] for s in todo],
+            'laws': len(todo) - docs, 'docs': docs}
+
+
+def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, check=None) -> str:
+    """Push `branches` (local names, same name on the remote) and the tags to the shared repo, append-only (user,
+    2026-11-02: "end force-pushes everywhere"; published history only grows by fast-forward):
+    - each branch goes through append_onto(): the build's new law commits and its new documentation commit are written
+      on top of the published tip (same trees, authors, author dates and messages), so the push is a fast-forward and
+      the published docs commit stays in history; a branch with nothing new is skipped;
+    - a build whose law history differs inside the published one (an older commit inserted, a published law commit
+      changed, moved or removed) is a rewrite: pushed only if REWRITE-APPROVED.txt names that exact old -> new, with
+      --force-with-lease; otherwise recorded with its reason in REWRITE-PENDING.json and nothing is pushed for the repo;
+    - `check()` (check.py on the appended branches) must be clean before anything is pushed;
+    - tags: only tags on the newly written commits are created, at their new SHAs; a tag the remote already holds is
+      never moved or deleted (a name clash at another object is skipped and logged);
     - everything that would be added goes through private.audit_push() first; any finding stops the push."""
     # Only the branches the remote already holds: one missing name (a first `zukunft`/`future`) fails the whole fetch
     # and leaves origin/main stale, which made the first push of such a repo fail.
-    have = {l.partition('	')[2] for l in git(repo, 'ls-remote', '--heads', 'origin', check=False).splitlines()}
+    have = {l.partition('\t')[2] for l in git(repo, 'ls-remote', '--heads', 'origin', check=False).splitlines()}
     there = [b for b in branches if f'refs/heads/{b}' in have]
     if there:
         git(repo, 'fetch', '-q', '--no-tags', 'origin', *[f'+refs/heads/{b}:refs/remotes/origin/{b}' for b in there],
@@ -279,69 +437,83 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False) -
         local_tags[ref] = sha
     approved = approved_rewrites()
     refs, leases, plan, rewrites = [], {}, [], []
+    new_tags: dict[str, str] = {}  # tag ref -> new commit, for commits written by append_onto()
+    appended: list[str] = []
+    main_map: dict[str, str] = {}
     for b in branches:
         new = git(repo, 'rev-parse', '-q', '--verify', f'refs/heads/{b}', check=False)
-        old = git(repo, 'rev-parse', '-q', '--verify', f'refs/remotes/origin/{b}', check=False)
-        if not new or new == old:
+        old = git(repo, 'rev-parse', '-q', '--verify', f'refs/remotes/origin/{b}', check=False) if b in there else ''
+        if not new:
             plan.append(f'{b} same')
             continue
-        if old and subprocess.run(['git', 'merge-base', '--is-ancestor', old, new], cwd=repo).returncode:
-            standing = standing_approval(slug, repo, b, old, new, local_tags, remote_tags)
-            if standing:
+        g = append_onto(repo, old or None, new, base=main_map if b != 'main' else None)
+        if b == 'main':
+            main_map = g.get('map', {})
+        if g['kind'] == 'rewrite':
+            standing = standing_approval(slug, repo, b, old, new, local_tags, remote_tags)  # '' since 2026-11-02
+            if (slug, f'refs/heads/{b}', old, new) in approved or standing:
                 found = private.audit_push(repo, new, old)
                 if found:
                     return f'NOT pushed: privacy audit found {len(found)} in {b}: {"; ".join(found[:5])}'
-                if not dry_run:
-                    # Keep the history being replaced: a plain push of the old tip to the private operations repo.
-                    if 'ops' not in git(repo, 'remote').split():
-                        git(repo, 'remote', 'add', 'ops', OPS_URL)
-                    arch = push(repo, f'{old}:refs/heads/archive3/{slug}-law/{b}/{old[:12]}', remote='ops')
-                    if arch.startswith('push failed'):
-                        return f'NOT pushed: could not archive the replaced {b} {old[:9]} to world-law-ops: {arch[:150]}'
                 leases[f'refs/heads/{b}'] = old
-                plan.append(f'{b} {standing} {old[:9]}->{new[:9]} (standing approval, lease, old tip archived)')
+                plan.append(f'{b} approved rewrite {old[:9]}->{new[:9]} ({g["reason"]})')
                 refs.append(f'refs/heads/{b}:refs/heads/{b}')
                 continue
-            docs = docs_update(slug, repo, old, new)
-            if docs == 'same':
-                plan.append(f'{b} same (documentation already current)')
-                continue
-            if docs:
-                found = private.audit_push(repo, docs, old)
-                if found:
-                    return f'NOT pushed: privacy audit found {len(found)} in {b}: {"; ".join(found[:5])}'
-                plan.append(f'{b} documentation update {old[:9]}->{docs[:9]} (fast-forward)')
-                refs.append(f'{docs}:refs/heads/{b}')
-                continue
             replaced = git(repo, 'rev-list', '--count', old, f'^{new}', check=False)
-            if (slug, f'refs/heads/{b}', old, new) not in approved:
-                rewrites.append({'ref': f'refs/heads/{b}', 'old': old, 'new': new, 'replaces_commits': int(replaced or 0),
-                                 'adds_commits': int(git(repo, 'rev-list', '--count', new, f'^{old}') or 0)})
-                continue
-            leases[f'refs/heads/{b}'] = old
-            plan.append(f'{b} approved rewrite {old[:9]}->{new[:9]}')
-        else:
-            plan.append(f'{b} fast-forward {old[:9] or "(new)"}->{new[:9]}')
-        refs.append(f'refs/heads/{b}:refs/heads/{b}')
-        found = private.audit_push(repo, new, old or None)
+            rewrites.append({'ref': f'refs/heads/{b}', 'old': old, 'new': new, 'reason': g['reason'],
+                             'replaces_commits': int(replaced or 0),
+                             'adds_commits': int(git(repo, 'rev-list', '--count', new, f'^{old}') or 0)})
+            continue
+        if g['kind'] == 'same':
+            plan.append(f'{b} same')
+            continue
+        tip = g['new']
+        found = private.audit_push(repo, tip, old or None)
         if found:
             return f'NOT pushed: privacy audit found {len(found)} in {b}: {"; ".join(found[:5])}'
+        git(repo, 'update-ref', f'refs/build/{b}', new)  # the build as made, for comparison
+        git(repo, 'update-ref', f'refs/heads/{b}', tip)
+        what = f'+{g["laws"]} law commit{"s" if g["laws"] != 1 else ""}' + (f', +{g["docs"]} docs' if g['docs'] else '')
+        plan.append(f'{b} {"append" if old else "new branch"} {old[:9] or "(new)"}->{tip[:9]} ({what}; fast-forward)')
+        refs.append(f'refs/heads/{b}:refs/heads/{b}')
+        appended.append(b)
+        added = set(g['added'])
+        for t, s in local_tags.items():
+            m = g['map'].get(s)
+            if m in added:
+                new_tags.setdefault(t, m)
     if rewrites:
         if not dry_run:
             note_pending(slug, {'repo': f'lexifina/{slug}-law', 'at': _now(), 'rewrites': rewrites})
         return ('NOT pushed: needs a rewrite the user has not approved ('
-                + ', '.join(f'{r["ref"][11:]} {r["old"][:9]}->{r["new"][:9]}, replaces {r["replaces_commits"]}'
-                            for r in rewrites) + ')' + ('' if dry_run else '; recorded in world-law/REWRITE-PENDING.json'))
+                + ', '.join(f'{r["ref"][11:]} {r["old"][:9]}->{r["new"][:9]}: {r["reason"]}' for r in rewrites) + ')' + ('' if dry_run else '; recorded in world-law/REWRITE-PENDING.json'))
     if not dry_run:
         note_pending(slug, None)
-    moved = [t for t, s in local_tags.items() if t in remote_tags and remote_tags[t] != s]
-    if moved and not leases:  # a published tag moves only with an approved rewrite (no standing yes since 2026-11-02)
-        return f'NOT pushed: {len(moved)} tags would move ({", ".join(t[10:] for t in moved[:3])}) with no approved rewrite'
-    for t in moved:
-        leases[t] = remote_tags[t]
-    refs += [f'{t}:{t}' for t, s in sorted(local_tags.items()) if remote_tags.get(t) != s]
+    if appended and check is not None:
+        # check.py on what would be published (the local branches now point at the appended tips).
+        ok, why = check()
+        if not ok:
+            return f'NOT pushed: {why}'
+    clashes = []
+    if leases:
+        # An approved rewrite: its tags follow it (a tag moves only with the user's yes for that rewrite).
+        moved = [t for t, s in local_tags.items() if t in remote_tags and remote_tags[t] != s]
+        for t in moved:
+            leases[t] = remote_tags[t]
+        refs += [f'{t}:{t}' for t, s in sorted(local_tags.items()) if remote_tags.get(t) != s]
+    for t, m in sorted(new_tags.items()):
+        if t in remote_tags:  # never moved or deleted; a clash at another object is skipped and logged
+            if remote_tags[t] != m:
+                clashes.append(t)
+            continue
+        refs.append(f'{m}:{t}')
+    if clashes and not dry_run:
+        with open(Path(__file__).resolve().parent / 'logs' / 'tag-clashes.log', 'a', encoding='utf-8') as f:
+            f.write(f'{_now()} {slug}-law: {len(clashes)} new tags already on the remote at another commit, '
+                    f'not pushed: {" ".join(t[10:] for t in clashes)}\n')
     kept = sum(1 for t in remote_tags if t not in local_tags)
     summary = f'{"; ".join(plan)}; {sum(1 for r in refs if r.partition(":")[2].startswith("refs/tags/"))} tags to push' + \
+        (f'; {len(clashes)} new tags skipped (name already on the remote)' if clashes else '') + \
         (f'; {kept} remote-only tags left alone' if kept else '')
     if not refs:
         return f'nothing to push ({summary})'
@@ -448,8 +620,11 @@ def main_build(slug: str, folder: Path, repo: Path, state: dict, dry_run: bool =
     h.update(repr(sorted(a for a in approved_rewrites() if a[0] == slug)).encode())
     sha = h.hexdigest()
     # A failed push is retried even when nothing changed (e.g. a first push that lost a race with a new branch).
-    if state.get('built_sha') == sha and not dry_run and 'fail' not in str(state.get('result', '')):
+    if (state.get('built_sha') == sha and not dry_run and 'fail' not in str(state.get('result', ''))
+            and not _retry_due(state)):
         return {'main': f'unchanged since {state.get("built_at")} ({state.get("result")})'}
+    if not dry_run:
+        state['publish_mode'] = PUBLISH_MODE  # this visit is made under the current rules, whatever it ends in
     day = docs_date(corpus)
     future = corpus['country'].get('future_branch', 'futuro')
     parts = sorted((folder / 'corpus.d').glob('*.json')) if (folder / 'corpus.d').exists() else []
@@ -508,13 +683,41 @@ def main_build(slug: str, folder: Path, repo: Path, state: dict, dry_run: bool =
         state.update(built_sha=sha, built_at=_now(), result=f'main {info["stage"]} failed, not pushed')
         return {'main': f'main {info["stage"]} failed, not pushed', **out, **info}
     branches = ['main'] + ([future] if git(repo, 'rev-parse', '-q', '--verify', f'refs/heads/{future}', check=False) else [])
-    result = publish(slug, repo, branches, dry_run=dry_run)
+
+    def check_appended() -> tuple[bool, str]:
+        """check.py (not --write: verification.json keeps the build's own check) on the appended branches. Same trees
+        as the build, in the same order, so it must be as clean as the build's check."""
+        env = {**os.environ, 'GITLAW_VERIFIED_PARTS_ONLY': '1'}
+        low = {'creationflags': 0x00004000} if os.name == 'nt' else {}
+        c = subprocess.run([sys.executable, '-X', 'utf8', str(COMMON / 'check.py'), str(repo), '--corpus',
+                            str(corpus_path)], capture_output=True, text=True, encoding='utf-8', env=env, **low)
+        try:
+            chk = json.loads(c.stdout)
+        except ValueError:
+            return False, f'check failed on the appended history: {(c.stderr or c.stdout)[-300:]}'
+        out['check_appended'] = {k: v for k, v in chk.items() if k != 'details'}
+        if c.returncode == 0:
+            return True, ''
+        bad = {k: chk[k] for k in ('mismatches', 'trailer_errors', 'missing_in_force', 'merges', 'backwards',
+                                   'future_dated') if chk.get(k)}
+        if set(bad) == {'future_dated'}:
+            # Appended commits follow the published docs commit (noon local on its docs date), so before that time
+            # they would be dated ahead of now: wait for it rather than date anything backwards.
+            cts = [int(x) for x in git(repo, 'log', '--first-parent', '--format=%ct', 'main').split()[1:]]
+            state['retry_after'] = max([x for x in cts if x > time.time()] or [int(time.time()) + 600]) + 1
+            return False, (f'appended commits would be dated ahead of now; waits until '
+                           f'{dt.datetime.fromtimestamp(state["retry_after"], dt.timezone.utc):%Y-%m-%dT%H:%M:%SZ}')
+        return False, f'check failed on the appended history: {bad} {chk.get("details", [])[:3]}'
+
+    state.pop('retry_after', None)
+    result = publish(slug, repo, branches, dry_run=dry_run, check=check_appended)
     head = git(repo, 'rev-parse', '--short', 'main')
     # A failed push is retried on the next pass: only a pushed (or unchanged, or waiting-for-approval) build is
     # remembered as done. A new approval changes the hash above, so an approved rewrite is pushed on the next pass.
+    # One that waits for its dates (retry_after) is rebuilt once that time has passed.
     if not dry_run:
-        state.update(built_sha=None if result.startswith('push failed') else sha, built_at=_now(),
-                     result=f'{result[:200]} {head}')
+        state.update(built_sha=None if result.startswith('push failed') else sha,
+                     built_at=_now(), result=f'{result[:200]} {head}')
     return {'main': f'{result} {head}' + (f' (left out until verified: {", ".join(unverified)})' if unverified else ''),
             **out, 'check': info['check'], 'commits': git(repo, 'rev-list', '--count', 'main')}
 
@@ -643,6 +846,18 @@ def watchdog() -> None:
     seen_path.write_text(json.dumps(seen, indent=1) + '\n', encoding='utf-8')
 
 
+# Bumped when publish() changes what it would push: every repo is then visited once more under the new rules.
+PUBLISH_MODE = 'append-v1'
+
+
+def _retry_due(state: dict) -> bool:
+    """True when a repo must be visited again although no file changed: an append that waited for its commit dates
+    (state['retry_after']) once that time has passed, or a last visit made under an older PUBLISH_MODE."""
+    if state.get('publish_mode') != PUBLISH_MODE:
+        return True
+    return bool(state.get('retry_after')) and time.time() >= state['retry_after']
+
+
 def unchanged(slug: str) -> bool:
     """True when nothing one() reads has changed since a visit that ended cleanly (stat calls only)."""
     folder = ROOT / 'scripts' / f'{slug}-law'
@@ -650,21 +865,36 @@ def unchanged(slug: str) -> bool:
     try:
         state = json.loads(state_path.read_text(encoding='utf-8')) if state_path.exists() else {}
         return (state.get('sig') == _folder_sig(folder, slug) and bool(state.get('built_sha'))
-                and bool(state.get('wip_ok')) and 'fail' not in str(state.get('result', '')))
+                and bool(state.get('wip_ok')) and 'fail' not in str(state.get('result', '')) and not _retry_due(state))
     except (OSError, ValueError):
         return False
 
 
-def one(slug: str, dry_run: bool = False) -> str:
+def one(slug: str, dry_run: bool = False, work: Path | None = None) -> str:
     folder = ROOT / 'scripts' / f'{slug}-law'
     repo = DOCS / f'{slug}-law'
+    if work is not None:
+        # A dry run in a scratch folder: a copy of the country folder (no caches) and a scratch repo, so neither the
+        # live clone nor the country folder (verification.json) is touched; no wip snapshot.
+        import shutil
+        dst = work / f'{slug}-law.folder'
+        if dst.exists():
+            shutil.rmtree(dst)
+        shutil.copytree(folder, dst, ignore=lambda d, names: [n for n in names if n in SKIP_DIRS or n.startswith('.tmp')
+                                                               or n in ('.git', 'logs', '.autopush.json')])
+        folder, repo = dst, work / f'{slug}-law'
+        if not (repo / '.git').exists():
+            repo.mkdir(parents=True, exist_ok=True)
+            git(repo, 'init', '-q', '-b', 'main')
+            git(repo, 'remote', 'add', 'origin', f'https://github.com/lexifina/{slug}-law.git')
     state_path = folder / '.autopush.json'
     state = json.loads(state_path.read_text(encoding='utf-8')) if state_path.exists() else {}
     status = {'at': _now()}
     # Cheap change test first: every input file's path, mtime and size. When nothing changed since a visit that ended
     # cleanly, skip the corpus parse, the hashing and the wip snapshot entirely (and write nothing).
     sig = _folder_sig(folder, slug)
-    if not dry_run and state.get('sig') == sig and state.get('built_sha') and state.get('wip_ok'):
+    if (not dry_run and state.get('sig') == sig and state.get('built_sha') and state.get('wip_ok')
+            and not _retry_due(state)):
         return f'{slug:10} {"no file changed":28} | {str(state.get("result", ""))[:80]}'
     try:
         if not (repo / '.git').exists():
@@ -673,7 +903,7 @@ def one(slug: str, dry_run: bool = False) -> str:
                               capture_output=True).returncode:
                 return f'{slug:10} {"no GitHub repo yet":28} | waiting for its builder to create it'
             subprocess.run(['git', 'clone', '-q', f'https://github.com/lexifina/{slug}-law.git', str(repo)], check=True)
-        status['wip'] = wip(slug, folder, repo, dry_run=dry_run)
+        status['wip'] = 'skipped (scratch dry run)' if work is not None else wip(slug, folder, repo, dry_run=dry_run)
         status.update(main_build(slug, folder, repo, state, dry_run=dry_run))
     except Exception as e:  # one country's failure never stops the others
         status['error'] = str(e)[:500]
@@ -695,11 +925,13 @@ def main():
     ap.add_argument('--workers', type=int, default=2, help='countries built and pushed at once in a single pass')
     ap.add_argument('--dry-run', action='store_true',
                     help='build, check and audit the --only countries, print what would be pushed, push nothing')
+    ap.add_argument('--work', help='with --dry-run: build in this scratch folder (copies of the country folders and '
+                                   'repos), leaving the live clones and country folders alone')
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding='utf-8')
     if args.dry_run:
         for s in args.only or []:
-            print(one(s, dry_run=True), flush=True)
+            print(one(s, dry_run=True, work=Path(args.work).resolve() if args.work else None), flush=True)
         return
     # Only countries that have started (their folder exists), so an empty folder never becomes an empty wip commit.
     countries = [s for s in (args.only or COUNTRIES) if (ROOT / 'scripts' / f'{s}-law').is_dir()]
