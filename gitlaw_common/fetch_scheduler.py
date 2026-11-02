@@ -3,15 +3,18 @@
     import sys; sys.path.insert(0, r'C:/Users/alany/Documents/lexifina/scripts/gitlaw_common')
     import fetch_scheduler as fs
     body = fs.get(url)                                  # bytes, or None on 403/404/410 (like wayback.host_get)
-    for url, res in fs.fetch_many(urls, workers=2): ...  # res is bytes, None or an exception; hosts interleaved
+    for url, res in fs.fetch_many(urls): ...             # res is bytes, None or an exception; hosts interleaved
     fs.adopt(H)                                         # route a br_city_get.Host's network requests through here
 
     python scripts/gitlaw_common/fetch_scheduler.py status [--json | --jsonl] [host ...]
 
-It is the layer above wayback.host_get, which keeps the per-request rules: the D5 tiers and pace (and its
-lock-protected per-host state, which is the token bucket every process shares), the daily cap, the D6
-conditional requests with 304s at 0.25, robots Crawl-delay, and stop-for-good on a challenge (HostStopped). This module
-never re-implements those. It adds:
+It is the layer above wayback.host_get, which keeps the per-request rules: the per-host pace (a publisher-stated
+rate, robots Crawl-delay, halving on 429/503) in its lock-protected per-host state, which every process shares, the
+D6 conditional requests, and stop-for-good on a challenge (HostStopped). This module never re-implements those.
+Since 2026-11-02 21:50 UTC (COVERAGE-WAVE.md, "Own pacing caps removed") the scheduler sets no limit of its own: no
+daily cap, no floor, no ramp, no worker cap. A host gets one request in flight and the next as soon as the last one
+answers, unless the site's own rules (robots, stated rate, Retry-After, 429/503, night window) say otherwise.
+It adds:
 - publisher-night windows: allowed hours per host (WINDOWS below, the registry, or a robots Visit-time). Outside the
   window get() waits, or with wait=False raises NotNow(next_open).
 - one shared cache for both scrapers: host_get's URL-keyed cache with ETag/Last-Modified in SHARED_CACHE, each body
@@ -22,11 +25,15 @@ never re-implements those. It adds:
 - extra stop-for-good rules on top of host_get's challenge markers: a 403 or 429 on robots.txt, a redirect with no
   Location (Sucuri's 307), a small page holding a captcha form, a DDoS-Guard page. Blocked hosts are refused by every
   caller; a block is lifted only when a person writes "lift_note" in the host's registry entry (see README).
-- fair queueing: one request in flight per host across all processes (a lease in host_get's host state), different
-  hosts in parallel, round-robin over the hosts that are ready (fetch_many).
+- fair queueing: requests in flight per host limited across all processes (leases in host_get's host state),
+  different hosts in parallel, round-robin over the hosts that are ready (fetch_many). The number in flight is
+  host_get's own (host_tiers.json "concurrency", 1-8, only for documented public APIs that state no limit; host_get
+  drops it to 1 on a 429/503/time-out until its throttle recovers, and for good on a bot-management sign). The
+  scheduler adds the path scope and the evidence: INFLIGHT below, or the registry field "max_inflight", names a
+  host's API paths; anything else on that host (crawled HTML) stays at 1 in flight.
+- Retry-After (honoured by host_get, machine-wide): get() retries inside the host's lease only while the pause is at
+  most RETRY_AFTER_MAX_WAIT; a longer one returns None at once and the host stays paused for every caller.
 - telemetry: one JSON line per request in FEED_DIR/<UTC day>.jsonl, and the status command.
-- GITLAW_CAP_SHARE (0-1, default 1): the fraction of each host's daily cap this machine may use, for when two
-  machines leave through one IP and must not see twice the cap between them.
 - GITLAW_FETCH_DRY=1: no network. Cached answers are served; anything else raises DryMiss with what would happen.
 Standard library only. See README-fetch-scheduler.md for adoption.
 """
@@ -56,10 +63,27 @@ OBJECTS = SCHED_DIR / 'objects'             # content-addressed bodies: <sha256(
 FEED_DIR = Path(os.environ.get('GITLAW_FETCH_FEED') or SCHED_DIR / 'feed')
 REGISTRY = Path(os.environ.get('GITLAW_FETCH_REGISTRY') or HERE / 'fetch_hosts.json')
 SESSION = os.environ.get('GITLAW_SESSION') or os.environ.get('COMPUTERNAME', 'unknown').lower()
-CAP_SHARE = float(os.environ.get('GITLAW_CAP_SHARE') or 1.0)
 DRY = os.environ.get('GITLAW_FETCH_DRY') == '1'
 LEASE_SLACK = 60.0       # a lease outlives its request's timeout by this much (a crashed holder frees it then)
+MAX_INFLIGHT_CEILING = 8 # Alan, 2026-11-02: 4-8 in flight, documented public APIs only (host_get's own maximum too)
+
+# Documented public APIs that state no limit (checked 2026-11-02). Keys: host without 'www.'; paths: the API path
+# prefixes (other pages on the host, such as crawled HTML, stay at 1). A registry "max_inflight" replaces an entry.
+# host_get grants the slots: each of these also needs its host_tiers.json "concurrency" (set to n there).
+INFLIGHT = {
+    'boe.es': {'n': 4, 'paths': ['/datosabiertos/api/'],
+               'evidence': 'BOE open data API, documented at www.boe.es/datosabiertos/api/api.php; the page states no '
+                           'rate, quota or concurrency limit (only a results-per-response default of 50); checked '
+                           '2026-11-02'},
+    'data.sa.gov.au': {'n': 4, 'paths': ['/data/'],
+                       'evidence': 'data.sa.gov.au CKAN: the Action API (/data/api/3/action/, the standard documented '
+                                   'CKAN API) and its dataset files (/data/dataset/...); no stated rate limit found; '
+                                   'checked 2026-11-02'},
+    # busquedas.elperuano.pe: not added. No official API documentation found (2026-11-02), only an unofficial MCP
+    # project that asks users not to scrape it at scale; it stays at 1 in flight.
+}
 EVIDENCE_TTL = 7 * 86400.0
+RETRY_AFTER_MAX_WAIT = 300.0   # get() waits out a Retry-After up to this long and retries; longer: returns None
 
 # Publisher-night windows from global-law-unblock-report.html (2026-11-02). hours are local "HH:MM-HH:MM" ranges
 # (a range may wrap past midnight); all_day names weekdays allowed in full. A registry "window" replaces these.
@@ -69,6 +93,8 @@ WINDOWS = {
                                 'modelled); announce to ris.it@bka.gv.at first'},
     'data.bka.gv.at': {'tz': 'Europe/Vienna', 'hours': ['20:00-05:00'], 'all_day': ['sat', 'sun'],
                        'source': 'RIS OGD API, same terms as ris.bka.gv.at'},
+    'ogd.ris.bka.gv.at': {'tz': 'Europe/Vienna', 'hours': ['20:00-05:00'], 'all_day': ['sat', 'sun'],
+                          'source': 'RIS OGD FAQ (28 Nov 2025): only 20:00-05:00 Vienna, weekends, holidays'},
     'legislation.gov.au': {'tz': 'Etc/GMT-10', 'hours': ['20:00-08:00'],
                            'source': 'Federal Register of Legislation: outside 08:00-20:00 at UTC+10'},
     'api.prod.legislation.gov.au': {'tz': 'Etc/GMT-10', 'hours': ['20:00-08:00'],
@@ -173,7 +199,7 @@ def _reg_update(host: str, fn) -> dict:
                 data = {}
             except ValueError:
                 raise RuntimeError(f'{REGISTRY} is not valid JSON (a hand edit?); fix it before fetching')
-            data.setdefault('_doc', 'Hosts registry of gitlaw_common/fetch_scheduler.py: tier, pace, daily cap and '
+            data.setdefault('_doc', 'Hosts registry of gitlaw_common/fetch_scheduler.py: tier, pace and '
                                     'their evidence per host, written by the scheduler. People may edit "window" and, '
                                     'to lift a block, "lift_note" (see README-fetch-scheduler.md).')
             hosts = data.setdefault('hosts', {})
@@ -456,8 +482,17 @@ def _note_evidence(host: str) -> None:
         return
 
     def upd(e):
-        e.update(tier=pol['tier'], interval=pol['interval'], daily=pol['daily'] * CAP_SHARE,
-                 tier_reason=pol['reason'])
+        e.pop('daily', None)   # no daily cap of ours since 2026-11-02 21:50 UTC
+        e.update(tier=pol['tier'], interval=pol['interval'], tier_reason=pol['reason'])
+        seed = INFLIGHT.get(_base(host))
+        if seed and (e.get('max_inflight') is None or (e.get('max_inflight') or {}).get('from') == 'seed'):
+            e['max_inflight'] = {**seed, 'from': 'seed'}
+        spec = inflight_spec(host)
+        lim = inflight_limit(host, f'https://{host}{(spec.get("paths") or ["/"])[0]}' if spec else None,
+                             wayback.host_status(host))
+        cfg = wayback._host_cfg(host)
+        e['inflight_now'] = {'n': lim[0], 'reason': lim[1],
+                             'host_tiers_concurrency': cfg.get('concurrency'), 'host_tiers_source': cfg.get('source')}
         old = e.get('evidence') or {}
         e['evidence'] = {'headers': _evidence_headers(hops), 'status': code, 'at': _iso(), 'at_epoch': _now(),
                          'bot': sig or old.get('bot'), 'bot_at': old.get('bot_at') or (_iso() if sig else None)}
@@ -479,13 +514,16 @@ def _feed(rec: dict) -> None:
         os.close(fd)
 
 
-def _feed_last(host: str, kind: str, caller: str | None = None) -> None:
+def _feed_last(host: str, kind: str, caller: str | None = None, retry_after: float | None = None) -> None:
     last = getattr(_tls, 'last', None)
     if not last:
         return
     url, code, _, size, ms = last
-    _feed({'host': host, 'url': url, 'event': kind, 'status': code, 'bytes': size, 'ms': ms,
-           'cost': wayback.HOST_304_COST if code == 304 else 1, 'caller': caller})
+    rec = {'host': host, 'url': url, 'event': kind, 'status': code, 'bytes': size, 'ms': ms, 'caller': caller,
+           'cost': wayback.HOST_304_COST if code == 304 else 1}   # a 304 is a quarter of a full request (D6)
+    if retry_after is not None:
+        rec['retry_after'] = retry_after
+    _feed(rec)
 
 
 # ---------------------------------------------------------------- shared cache
@@ -548,29 +586,83 @@ def _copy_to(cache: Path | None, url: str, body: bytes) -> None:
         dst.write_bytes(meta.read_bytes())
 
 
-# ---------------------------------------------------------------- the per-host lease (same host serialised)
+# ---------------------------------------------------------------- per-host leases (requests in flight)
 
-def _claim(host: str, timeout: float) -> tuple[str, float]:
-    """('go', 0) and a lease, or ('busy'|'wait', when) without one. One request per host in flight machine-wide."""
-    me = f'{SESSION}:{os.getpid()}:{threading.get_ident()}'
+def _me() -> str:
+    return f'{SESSION}:{os.getpid()}:{threading.get_ident()}'
+
+
+def inflight_spec(host: str) -> dict | None:
+    """The max_inflight entry for host ({'n', 'paths', 'evidence'}): the registry's, else INFLIGHT's, else None."""
+    host = host.lower()
+    e = registry_entry(host)
+    if e.get('max_inflight') is not None and (e['max_inflight'] or {}).get('from') != 'seed':
+        return e['max_inflight'] or None    # set by a person ({} = none)
+    return INFLIGHT.get(_base(host))
+
+
+def _path(url: str) -> str:
+    return '/' + url.split('://', 1)[-1].partition('/')[2]
+
+
+def inflight_limit(host: str, url: str | None, st: dict, now: float | None = None) -> tuple[int, str]:
+    """(requests allowed in flight for url on host, why). host_get's own concurrency (host_tiers.json, already 1 after
+    a 429/503/time-out or a bot-management sign), capped by the host's max_inflight entry, and 1 off its API paths."""
+    now = _now() if now is None else now
+    pol = wayback._policy(host, st, now)
+    conc = int(pol.get('concurrency', 1) or 0)
+    if conc <= 0:
+        return 1, 'stopped'
+    spec = inflight_spec(host)
+    if spec:
+        if url is not None and not any(_path(url).startswith(p) for p in spec.get('paths') or ['/']):
+            return 1, 'one in flight (not an API path of this host)'
+        conc = min(conc, max(1, int(spec.get('n') or 1)))
+    conc = max(1, min(conc, MAX_INFLIGHT_CEILING))
+    bot = st.get('bot') or (registry_entry(host).get('evidence') or {}).get('bot')
+    if bot:
+        return 1, f'one in flight (bot management seen: {bot})'
+    if conc == 1:
+        return 1, 'one in flight' + ('' if 'throttled' not in pol['reason'] else ' (throttled after 429/503/time-out)')
+    return conc, f'{conc} in flight (documented public API: {(spec or {}).get("evidence") or pol["reason"]})'[:200]
+
+
+def _live_leases(st: dict, now: float) -> dict:
+    """Leases still running: {holder: until}. Includes the single 'sched_lease' of older scheduler versions."""
+    live = {k: v for k, v in (st.get('sched_leases') or {}).items() if v > now}
+    old = st.get('sched_lease')
+    if old and old.get('until', 0) > now:
+        live.setdefault(old.get('by', 'old'), old['until'])
+    return live
+
+
+def _claim(host: str, timeout: float, url: str | None = None) -> tuple[str, float]:
+    """('go', 0) and a lease, or ('busy'|'wait', when) without one. At most inflight_limit() leases per host,
+    machine-wide (one, for every host but a listed public API)."""
+    me = _me()
 
     def f(st):
         now = _now()
-        lease = st.get('sched_lease')
-        if lease and lease.get('until', 0) > now and lease.get('by') != me:
-            return ('busy', lease['until']), st
+        live = _live_leases(st, now)
+        live.pop(me, None)
+        limit, _ = inflight_limit(host, url, st, now)
+        if len(live) >= limit:
+            return ('busy', min(live.values())), st
         ready = max(st.get('next', 0.0), st.get('pause_until', 0.0))
         if ready > now + 0.05:
             return ('wait', ready), st
-        st['sched_lease'] = {'by': me, 'until': now + timeout + LEASE_SLACK}
+        live = {k: v for k, v in (st.get('sched_leases') or {}).items() if v > now}
+        live[me] = now + timeout + LEASE_SLACK
+        st['sched_leases'] = live
         return ('go', 0.0), st
     return wayback._host_locked(host, f)
 
 
 def _release(host: str) -> None:
-    me = f'{SESSION}:{os.getpid()}:{threading.get_ident()}'
+    me = _me()
 
     def f(st):
+        (st.get('sched_leases') or {}).pop(me, None)
         if (st.get('sched_lease') or {}).get('by') == me:
             st.pop('sched_lease', None)
         return None, st
@@ -585,31 +677,49 @@ def _next_utc_day(now: float) -> float:
     return (int(now // 86400) + 1) * 86400 + 5
 
 
+def _pause_left(host: str) -> float:
+    """Seconds until host_get's pause (Retry-After, or its back-off after a 429/503/time-out) ends."""
+    return max(0.0, float(wayback.host_status(host).get('pause_until', 0.0)) - _now())
+
+
+def _retry_after_seen() -> float | None:
+    last = getattr(_tls, 'last', None)
+    return wayback._retry_after(last[2], _now()) if last and last[1] >= 300 and last[1] != 304 else None
+
+
+def _extend_lease(host: str, timeout: float) -> None:
+    me = _me()
+
+    def f(st):
+        if me in (st.get('sched_leases') or {}):
+            st['sched_leases'][me] = max(st.get('pause_until', 0.0), _now()) + timeout + LEASE_SLACK
+        return None, st
+    wayback._host_locked(host, f)
+
+
 # ---------------------------------------------------------------- get
 
-def check(host: str) -> float:
-    """Raise HostStopped / HostDailyCap for host, else 0 if a request may start now or the epoch second it may."""
+def check(host: str, url: str | None = None) -> float:
+    """Raise HostStopped for host, else 0 if a request may start now or the epoch second it may (the site's pace,
+    a Retry-After or 429/503 pause, another caller's request in flight, or the night window). No cap of our own."""
     host = host.lower()
     why = blocked(host)
     if why:
         raise HostStopped(f'{host}: stopped for good ({why.get("reason")}); never request it again, ask the publisher')
     st = wayback.host_status(host)
-    pol = wayback._policy(host, st, _now())
-    cap = pol['daily'] * CAP_SHARE
-    if _today_cost(st) >= cap:
-        raise HostDailyCap(f'{host}: {cap:g} requests today from this machine (share {CAP_SHARE:g}); resume tomorrow')
     t = window_next_open(window_of(host))
     ready = max(st.get('next', 0.0), st.get('pause_until', 0.0))
-    lease = st.get('sched_lease') or {}
-    if lease.get('until', 0) > _now():
-        ready = max(ready, min(lease['until'], _now() + 2))
+    live = _live_leases(st, _now())
+    live.pop(_me(), None)
+    if len(live) >= inflight_limit(host, url, st)[0]:
+        ready = max(ready, min(min(live.values()), _now() + 2))
     return max(t, ready if ready > _now() else 0.0)
 
 
 def get(url: str, cache: Path | str | None = None, tries: int = 5, timeout: int = 90, *, refresh: bool = False,
         wait: bool = True, caller: str | None = None) -> bytes | None:
     """Drop-in for wayback.host_get (same arguments and returns) under the scheduler. Shared cache first; then the
-    host's block, cap share and window; then one request through host_get while holding the host's lease.
+    host's block, Retry-After pause and window; then one request through host_get while holding the host's lease.
     wait=False raises NotNow(at) instead of sleeping for a window or a busy host."""
     cache = Path(cache) if cache else None
     host = _host_of(url)
@@ -630,14 +740,14 @@ def get(url: str, cache: Path | str | None = None, tries: int = 5, timeout: int 
                       f'policy {wayback.host_policy(host)})')
     scheme = url.split('://', 1)[0] if '://' in url else 'https'
     while True:
-        at = check(host)
+        at = check(host, url)
         if at > _now():
             if not wait:
                 raise NotNow(f'{host}: next allowed {_iso(at)}', at)
             _sleep(min(at - _now(), 60))
             continue
         iv = wayback._policy(host, wayback.host_status(host), _now())['interval']
-        how, at = _claim(host, timeout + 30 + 2 * min(iv, 600))
+        how, at = _claim(host, timeout + 30 + 2 * min(iv, 600), url)
         if how != 'go':
             if not wait and at - _now() > 2:
                 raise NotNow(f'{host}: {how} until {_iso(at)}', at)
@@ -651,12 +761,18 @@ def get(url: str, cache: Path | str | None = None, tries: int = 5, timeout: int 
             _tls.active = True
             try:
                 _ensure_robots(host, scheme)
-                _tls.last = None
-                body = wayback.host_get(url, SHARED_CACHE, tries, timeout, refresh=refresh)
+                for attempt in range(max(1, tries)):
+                    _tls.last = None
+                    body = wayback.host_get(url, SHARED_CACHE, 1, timeout, refresh=refresh)
+                    code = last_status()
+                    _feed_last(host, 'get', caller, retry_after=_retry_after_seen())
+                    if body is not None or code in (304, 403, 404, 410) or attempt + 1 >= tries:
+                        break
+                    if _pause_left(host) > RETRY_AFTER_MAX_WAIT:
+                        break                       # paused for everyone; this caller gets None now
+                    _extend_lease(host, timeout)    # host_get waits for the pause itself on the next attempt
             finally:
                 _tls.active = False
-            code = last_status()
-            _feed_last(host, 'get', caller)
             _note_evidence(host)
         except HostStopped as e:
             _feed_last(host, 'get', caller)
@@ -675,20 +791,24 @@ def get(url: str, cache: Path | str | None = None, tries: int = 5, timeout: int 
 
 # ---------------------------------------------------------------- fair queueing
 
-def fetch_many(urls, cache: Path | str | None = None, workers: int = 2, *, refresh: bool = False,
+def fetch_many(urls, cache: Path | str | None = None, workers: int | None = None, *, refresh: bool = False,
                caller: str | None = None, timeout: int = 90):
     """Fetch many URLs over many hosts, yielding (url, bytes | None | Exception) as each finishes.
 
     Per host one request at a time (here and across processes, by the lease); the workers take whichever host is
     ready next, round-robin, so hosts run side by side. A host that is stopped or capped fails its remaining URLs
-    with that exception; a host outside its window waits for it."""
+    with that exception; a host outside its window waits for it. workers defaults to one per allowed in-flight
+    request per host (up to 32): fetching is network-bound, and the leases keep each host to its in-flight limit."""
     import queue
-    workers = max(1, min(int(workers), 2))   # machine rule: pools of at most 2 workers
     pending: dict[str, deque] = {}
     for u in urls:
         pending.setdefault(_host_of(u), deque()).append(u)
+    def cap_of(h):
+        spec = inflight_spec(h)
+        return max(1, min(int((spec or {}).get('n') or 1), MAX_INFLIGHT_CEILING))
+    workers = max(1, int(workers) if workers else min(sum(cap_of(h) for h in pending), 32))
     order = deque(pending)                   # round-robin order of hosts
-    busy: set = set()
+    busy: dict[str, int] = {}
     until: dict[str, float] = {}
     lock = threading.Lock()
     out: queue.Queue = queue.Queue()
@@ -698,13 +818,15 @@ def fetch_many(urls, cache: Path | str | None = None, workers: int = 2, *, refre
         with lock:
             now, best = _now(), None
             for h in list(order):
-                if h in busy or not pending.get(h):
+                if not pending.get(h):
+                    continue
+                if busy.get(h, 0) and busy[h] >= inflight_limit(h, pending[h][0], wayback.host_status(h))[0]:
                     continue
                 t = until.get(h, 0.0)
                 if t <= now:
                     order.remove(h)
                     order.append(h)
-                    busy.add(h)
+                    busy[h] = busy.get(h, 0) + 1
                     return h, pending[h].popleft(), 0.0
                 best = t if best is None else min(best, t)
             return None, None, (best - now if best is not None else 0.2)
@@ -723,7 +845,7 @@ def fetch_many(urls, cache: Path | str | None = None, workers: int = 2, *, refre
                     return
             h, u, nap = pick()
             if h is None:
-                if not any(pending.values()) and not busy:
+                if not any(pending.values()) and not any(busy.values()):
                     return
                 _sleep(max(0.02, min(nap, 1.0)))
                 continue
@@ -744,7 +866,7 @@ def fetch_many(urls, cache: Path | str | None = None, workers: int = 2, *, refre
                 out.put((u, res))
             finally:
                 with lock:
-                    busy.discard(h)
+                    busy[h] -= 1
 
     threads = [threading.Thread(target=worker, daemon=True) for _ in range(workers)]
     for t in threads:
@@ -768,7 +890,8 @@ def fetch_many(urls, cache: Path | str | None = None, workers: int = 2, *, refre
 def adopt(H, caller: str | None = None, tries: int = 1):
     """Route a br_city_get.Host's network GETs through the scheduler, keeping its cache, request log, STOP file and
     error rules: a non-200 answer other than 404/410 (or HostStopped) writes its STOP file and raises its Stop.
-    POSTs and requests with extra headers keep the Host's own path. Waits (pace, window, daily cap) sleep."""
+    POSTs and requests with extra headers keep the Host's own path. Waits (pace, window) sleep. (HostDailyCap is
+    no longer raised by host_get, which has no daily cap since 2026-11-02; it is still slept out if it ever is.)"""
     import importlib
     Stop = importlib.import_module(type(H).__module__).Stop
     orig = H.get
@@ -840,18 +963,21 @@ def host_report(host: str) -> dict:
     e = registry_entry(host)
     why = blocked(host)
     win = window_of(host)
-    cap = pol['daily'] * CAP_SHARE
     today = _today_cost(st)
     try:
         at = check(host)
         status = 'ready' if at <= now else ('closed' if window_next_open(win, now) > now else 'pacing')
     except HostStopped:
         at, status = None, 'blocked'
-    except HostDailyCap:
-        at, status = _next_utc_day(now), 'capped'
+    live = _live_leases(st, now)
+    spec = inflight_spec(host)
+    api_url = f'https://{host}{(spec.get("paths") or ["/"])[0]}' if spec else None
+    lim, lim_why = inflight_limit(host, api_url, st, now)
     return {'host': host, 'status': status, 'tier': 'stop' if why else pol['tier'],
-            'interval_s': None if why else round(pol['interval'], 3), 'daily_cap': cap,
-            'requests_today': today, 'not_modified_total': st.get('not_modified', 0),
+            'interval_s': None if why else round(pol['interval'], 3),
+            'requests_today': today, 'in_flight': len(live), 'max_inflight': lim, 'max_inflight_reason': lim_why,
+            'paused_until': _iso(st['pause_until']) if st.get('pause_until', 0) > now else None,
+            'not_modified_total': st.get('not_modified', 0),
             'next_allowed': _iso(at) if at else (None if status == 'blocked' else _iso(now)),
             'window': win, 'blocked': why, 'reason': pol['reason'],
             'bot': (e.get('evidence') or {}).get('bot') or st.get('bot'),
@@ -882,11 +1008,11 @@ def _main(argv: list[str]) -> int:
             for r in rows:
                 print(json.dumps(r, ensure_ascii=False))
         else:
-            print(f'{"host":44} {"status":8} {"tier":4} {"every":>7} {"today":>8} {"cap":>6}  next allowed')
+            print(f'{"host":44} {"status":8} {"tier":4} {"every":>7} {"today":>8}  next allowed')
             for r in rows:
                 iv = '-' if r['interval_s'] is None else f'{r["interval_s"]:g}s'
-                print(f'{r["host"][:44]:44} {r["status"]:8} {r["tier"]:4} {iv:>7} {r["requests_today"]:>8g} '
-                      f'{r["daily_cap"]:>6g}  {r["next_allowed"] or "never"}')
+                print(f'{r["host"][:44]:44} {r["status"]:8} {r["tier"]:4} {iv:>7} {r["requests_today"]:>8g}  '
+                      f'{r["next_allowed"] or "never"}')
             print(f'feed: {FEED_DIR}  registry: {REGISTRY}  cache: {SHARED_CACHE}')
         return 0
     if argv[0] == 'blocks':

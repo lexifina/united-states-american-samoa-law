@@ -58,7 +58,7 @@ def etag_route(handler):
 
 
 PATHS = ('HOST_DIR', 'HOST_STOP_DIR', 'HOST_TIERS', '_now', '_sleep')
-FSPATHS = ('SCHED_DIR', 'SHARED_CACHE', 'OBJECTS', 'FEED_DIR', 'REGISTRY', 'CAP_SHARE', 'DRY')
+FSPATHS = ('SCHED_DIR', 'SHARED_CACHE', 'OBJECTS', 'FEED_DIR', 'REGISTRY', 'DRY', 'INFLIGHT')
 
 
 class SchedulerTest(unittest.TestCase):
@@ -87,7 +87,9 @@ class SchedulerTest(unittest.TestCase):
         wayback.HOST_DIR, wayback.HOST_STOP_DIR, wayback.HOST_TIERS = t / 'rate', t / 'stops', t / 'host_tiers.json'
         fs.SCHED_DIR = t / 'sched'
         fs.SHARED_CACHE, fs.OBJECTS, fs.FEED_DIR = t / 'sched/cache', t / 'sched/objects', t / 'sched/feed'
-        fs.REGISTRY, fs.CAP_SHARE, fs.DRY = t / 'fetch_hosts.json', 1.0, False
+        fs.REGISTRY, fs.DRY = t / 'fetch_hosts.json', False
+        fs.INFLIGHT = dict(fs.INFLIGHT)
+        self.saved['HOST_DAILY'] = wayback.HOST_DAILY
         fs._reg_cache.update(key=None, data=None)
         Stub.routes, Stub.seen = {'/robots.txt': (404, {}, b'')}, []
         self.tiers({'tier': 'A', 'interval': 2, 'source': 'test'})
@@ -149,21 +151,72 @@ class SchedulerTest(unittest.TestCase):
         self.assertNotIn('GPTBot', e['robots']['excerpt'])
         self.assertEqual(len(self.hits(path='/robots.txt')), 1)  # host_get does not read it a second time
 
-    # ---------------------------------------------------------------- cap
-    def test_daily_cap_with_machine_share(self):
+    # ---------------------------------------------------------------- no cap of our own (2026-11-02 21:50 UTC)
+    def test_scheduler_adds_no_cap(self):
+        """The scheduler has no daily cap, no machine share and no worker clamp; only host_get's own cap (being
+        removed there) could still refuse a host, and host_get's cap lifted means no refusal at any count."""
         self.fake_clock()
-        self.tiers({'tier': 'A', 'interval': 1, 'daily': 6, 'source': 'test'})
-        fs.CAP_SHARE = 0.5                                         # this machine may use 3 of the 6
-        for p in ('/a', '/b', '/c'):
-            Stub.routes[p] = (200, {}, b'ok')
+        self.assertFalse(hasattr(fs, 'CAP_SHARE'))
+        Stub.routes['/a'] = Stub.routes['/b'] = (200, {}, b'ok')
         fs.get(self.base + '/a')
-        fs.get(self.base + '/b')                                   # robots + 2 = 3
-        with self.assertRaises(fs.HostDailyCap):
-            fs.get(self.base + '/c')
-        self.assertEqual(len(self.hits(path='/c')), 0)
-        self.assertEqual(fs.host_report(self.host)['status'], 'capped')
-        CLOCK[0] = fs._next_utc_day(CLOCK[0]) + 1                  # the next UTC day
-        self.assertEqual(fs.get(self.base + '/c'), b'ok')
+        day = time.strftime('%Y-%m-%d', time.gmtime(CLOCK[0]))
+
+        def busy_day(st):
+            st.update(day=day, count=50000)   # far past the old 5,000 and 20,000 caps
+            return None, st
+        wayback._host_locked(self.host, busy_day)
+        self.assertEqual(fs.check(self.host) - CLOCK[0] <= 2 + 1e-6, True)   # the scheduler itself never refuses
+        wayback.HOST_DAILY = float('inf')                                  # host_get without its cap (hp-omen)
+        self.assertEqual(fs.get(self.base + '/b'), b'ok')
+        rep = fs.host_report(self.host)
+        self.assertNotEqual(rep['status'], 'capped')
+        self.assertNotIn('daily', fs.registry_entry(self.host))
+
+    def test_fetch_many_default_workers_one_per_host(self):
+        import inspect
+        self.assertIsNone(inspect.signature(fs.fetch_many).parameters['workers'].default)
+        self.assertNotIn('min(int(workers), 2)', inspect.getsource(fs.fetch_many))
+
+    # ---------------------------------------------------------------- back-off and Retry-After (the site's rules)
+    def test_retry_after_pauses_host_and_retries(self):
+        self.fake_clock()
+        calls = []
+
+        def flaky(handler):
+            calls.append(1)
+            return (429, {'Retry-After': '120'}, b'slow down') if len(calls) == 1 else (200, {}, b'done')
+        Stub.routes['/r'] = flaky
+        self.assertEqual(fs.get(self.base + '/r', tries=3), b'done')
+        t = [h[3] for h in self.hits(path='/r')]
+        self.assertEqual(len(t), 2)
+        self.assertGreaterEqual(t[1] - t[0], 120 - 1e-6)                 # Retry-After obeyed
+        self.assertEqual(wayback.host_status(self.host)['throttled'], 1)  # host_get's halving (throttle_iv)
+        feed = [json.loads(l) for f in fs.FEED_DIR.glob('*.jsonl') for l in f.read_text(encoding='utf-8').splitlines()]
+        self.assertIn(120.0, [r.get('retry_after') for r in feed])
+
+    def test_long_retry_after_pauses_every_caller(self):
+        self.fake_clock()
+        Stub.routes['/r'] = (503, {'Retry-After': '1000'}, b'maintenance')
+        Stub.routes['/other'] = (200, {}, b'x')
+        self.assertIsNone(fs.get(self.base + '/r', tries=3))            # longer than RETRY_AFTER_MAX_WAIT: no retry
+        self.assertEqual(len(self.hits(path='/r')), 1)
+        with self.assertRaises(fs.NotNow) as cm:
+            fs.get(self.base + '/other', wait=False)
+        self.assertGreaterEqual(cm.exception.at, CLOCK[0] + 1000 - 5)
+        self.assertIsNotNone(fs.host_report(self.host)['paused_until'])
+
+    def test_503_without_retry_after_backs_off_and_halves(self):
+        self.fake_clock()
+        calls = []
+
+        def flaky(handler):
+            calls.append(1)
+            return (503, {}, b'busy') if len(calls) == 1 else (200, {}, b'back')
+        Stub.routes['/b'] = flaky
+        self.assertEqual(fs.get(self.base + '/b', tries=2), b'back')
+        t = [h[3] for h in self.hits(path='/b')]
+        self.assertGreaterEqual(t[1] - t[0], wayback.HOST_BACKOFF - 1e-6)
+        self.assertEqual(wayback.host_status(self.host)['throttled'], 1)
 
     # ---------------------------------------------------------------- window
     def test_night_window_waits_or_says_not_now(self):
@@ -323,6 +376,101 @@ class SchedulerTest(unittest.TestCase):
             t.join()
         self.assertEqual(errors, [])
         self.assertEqual((fs.registry_entry('a')['n'], fs.registry_entry('b')['n']), (150, 150))
+
+    # ---------------------------------------------------------------- requests in flight per host
+    def slow_routes(self, prefix, n, delay=0.6):
+        state = {'now': 0, 'max': 0}
+        lk = threading.Lock()
+
+        def slow(handler):
+            with lk:
+                state['now'] += 1
+                state['max'] = max(state['max'], state['now'])
+            time.sleep(delay)
+            with lk:
+                state['now'] -= 1
+            return 200, {}, handler.path.encode()
+        for i in range(n):
+            Stub.routes[f'{prefix}{i}'] = slow
+        return state
+
+    def test_listed_api_paths_get_several_in_flight_html_stays_at_one(self):
+        self.tiers({'tier': 'A', 'rate': 1000, 'concurrency': 4, 'source': 'test: stated no limit'})
+        fs.INFLIGHT['127.0.0.1'] = {'n': 4, 'paths': ['/api/'], 'evidence': 'test API'}
+        api = self.slow_routes('/api/', 8)
+        got = list(fs.fetch_many([f'{self.base}/api/{i}' for i in range(8)], workers=6))
+        self.assertTrue(all(isinstance(r, bytes) for _, r in got), got)
+        self.assertGreaterEqual(api['max'], 2)                       # several at once ...
+        self.assertLessEqual(api['max'], 4)                          # ... never more than max_inflight
+        html = self.slow_routes('/page/', 4, 0.3)
+        got = list(fs.fetch_many([f'{self.base}/page/{i}' for i in range(4)], workers=4))
+        self.assertTrue(all(isinstance(r, bytes) for _, r in got), got)
+        self.assertEqual(html['max'], 1)                             # crawled HTML: one in flight
+        e = fs.registry_entry(self.host)                              # the registry records it, with evidence
+        self.assertEqual((e['max_inflight']['from'], e['max_inflight']['evidence']), ('seed', 'test API'))
+        self.assertIn('n', e['inflight_now'])
+
+    def test_unlisted_host_one_in_flight_machine_wide(self):
+        self.tiers({'tier': 'A', 'rate': 1000, 'source': 'test'})
+        res = []
+
+        def claim():
+            res.append(fs._claim(self.host, 60, self.base + '/api/x')[0])
+        ts = [threading.Thread(target=claim) for _ in range(5)]
+        for t in ts:
+            t.start()
+        for t in ts:
+            t.join()
+        self.assertEqual(res.count('go'), 1)
+        self.tiers({'tier': 'A', 'rate': 1000, 'concurrency': 4, 'source': 'test'})
+        fs.INFLIGHT['127.0.0.1'] = {'n': 4, 'paths': ['/api/'], 'evidence': 'test API'}
+        res.clear()
+        ts = [threading.Thread(target=claim) for _ in range(6)]
+        for t in ts:
+            t.start()
+        for t in ts:
+            t.join()
+        self.assertEqual(res.count('go'), 3)                         # 4 in flight, one lease already held
+
+    def test_429_drops_to_one_in_flight_until_host_get_recovers(self):
+        self.fake_clock()
+        self.tiers({'tier': 'A', 'rate': 1000, 'concurrency': 4, 'source': 'test'})
+        fs.INFLIGHT['127.0.0.1'] = {'n': 4, 'paths': ['/api/'], 'evidence': 'test API'}
+        api = self.base + '/api/1'
+        self.assertEqual(fs.inflight_limit(self.host, api, wayback.host_status(self.host))[0], 4)
+        Stub.routes['/api/1'] = (429, {}, b'too many')
+        self.assertIsNone(fs.get(api, tries=1))
+        st = wayback.host_status(self.host)
+        self.assertTrue(st.get('throttle_iv'))                                     # host_get halved the rate
+        self.assertEqual(fs.inflight_limit(self.host, api, st)[0], 1)              # and dropped to 1 in flight
+        Stub.routes['/api/1'] = (200, {}, b'ok')
+        CLOCK[0] = st['pause_until'] + 1
+        for i in range(400):                                                       # clean answers: it recovers
+            if not wayback.host_status(self.host).get('throttle_iv'):
+                break
+            Stub.routes[f'/api/r{i}'] = (200, {}, b'ok')
+            fs.get(f'{self.base}/api/r{i}')
+        self.assertFalse(wayback.host_status(self.host).get('throttle_iv'))
+        self.assertEqual(fs.inflight_limit(self.host, api, wayback.host_status(self.host))[0], 4)
+
+    def test_bot_sign_keeps_one_in_flight_and_ceiling_is_8(self):
+        fs.INFLIGHT['127.0.0.1'] = {'n': 50, 'paths': ['/api/'], 'evidence': 'test API'}
+        self.tiers({'tier': 'A', 'rate': 1000, 'concurrency': 50, 'source': 'test'})
+        api = self.base + '/api/1'
+        self.assertEqual(fs.inflight_limit(self.host, api, {})[0], 8)              # Alan: 4-8, never more
+        self.assertEqual(fs.inflight_limit(self.host, api, {'bot': 'cloudflare (cookie __cf_bm)'})[0], 1)
+        fs._reg_update(self.host, lambda e: e.update(max_inflight={}) or e)        # a person turned the scope off:
+        self.assertEqual(fs.inflight_limit(self.host, api, {})[0], 8)              # host_get's own value applies
+        self.tiers({'tier': 'A', 'rate': 1000, 'source': 'test'})                  # no concurrency in host_tiers
+        fs.INFLIGHT['127.0.0.1'] = {'n': 4, 'paths': ['/api/'], 'evidence': 'test API'}
+        fs._reg_update(self.host, lambda e: e.pop('max_inflight', None) and e or e)
+        self.assertEqual(fs.inflight_limit(self.host, api, {})[0], 1)              # host_get grants the slots
+
+    def test_seeded_public_apis(self):
+        self.assertEqual(fs.inflight_spec('www.boe.es')['paths'], ['/datosabiertos/api/'])
+        self.assertEqual(fs.inflight_spec('data.sa.gov.au')['paths'], ['/data/'])   # CKAN API and data files
+        self.assertIsNone(fs.inflight_spec('busquedas.elperuano.pe'))   # not documented as an API
+        self.assertEqual(fs.inflight_limit('www.boe.es', 'https://www.boe.es/buscar/act.php?id=1', {})[0], 1)
 
     # ---------------------------------------------------------------- real time: fair queue + two processes
     def test_fair_queue_interleaves_hosts(self):

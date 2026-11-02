@@ -10,6 +10,8 @@
     "repository.officiele-overheidspublicaties.nl": {"concurrency": 6, "source": "BWB open data (KOOP repository), no stated limit, no bot management; 6 in flight per the 2026-11-02 decision"},
     "zoeken.overheid.nl": {"concurrency": 6, "source": "BWB open data (KOOP SRU search), no stated limit, no bot management; 6 in flight per the 2026-11-02 decision"},
     "api.lovdata.no": {"concurrency": 6, "source": "Lovdata open data API, no stated limit, no bot management; 6 in flight per the 2026-11-02 decision"},
+    "www.boe.es": {"concurrency": 4, "source": "BOE open data API (www.boe.es/datosabiertos/api/api.php) states no rate, quota or concurrency limit (checked 2026-11-02); 4 in flight on /datosabiertos/api/ only, other paths stay at 1 (fetch_scheduler INFLIGHT path scope)"},
+    "data.sa.gov.au": {"concurrency": 4, "source": "data.sa.gov.au CKAN Action API (/data/api/3/action/), documented CKAN API, no stated limit found (2026-11-02); 4 in flight on its API and dataset files (/data/; fetch_scheduler INFLIGHT path scope)"},
     "legislation.act.gov.au": {"tier": "A", "interval": 10, "source": "robots Crawl-delay 10"},
     "legislation.gov.au": {"tier": "A", "interval": 10, "source": "robots Crawl-delay 10; full crawls need 1-2 weeks' notice"},
     "api.prod.legislation.gov.au": {"tier": "A", "interval": 10, "source": "legislation.gov.au API terms: obey the site's Crawl-delay 10"},
