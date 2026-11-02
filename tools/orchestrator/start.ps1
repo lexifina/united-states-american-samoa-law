@@ -20,11 +20,13 @@ function Launch($cmd) {
     return $r.ProcessId
 }
 
-Remove-Item "$H\stop-repoint", "$H\stop-pushwatch", "$H\stop-cpulog" -ErrorAction SilentlyContinue
+Remove-Item "$H\stop-repoint", "$H\stop-pushwatch", "$H\stop-cpulog", "$H\stop-speedwatch", "$H\stop-goaltrack" -ErrorAction SilentlyContinue
 
 $loops = @(
     @{ Name = 'repoint';   Match = 'repoint_loop.sh'; Pid = "$H\repoint.pid";   Cmd = "`"$bash`" `"$H\repoint_loop.sh`"" },
     @{ Name = 'pushwatch'; Match = 'pushwatch.sh';    Pid = "$H\pushwatch.pid"; Cmd = "`"$bash`" `"$H\pushwatch.sh`"" },
+    @{ Name = 'speedwatch'; Match = 'speedwatch.sh'; Pid = "$H\speedwatch.pid"; Cmd = "`"$bash`" `"$H\speedwatch.sh`"" },
+    @{ Name = 'goaltrack'; Match = 'goaltrack.sh'; Pid = "$H\goaltrack.pid"; Cmd = "`"$bash`" `"$H\goaltrack.sh`"" },
     @{ Name = 'cpulog';    Match = 'cpu_log.ps1';     Pid = "$H\cpulog.pid";    Cmd = "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$H\cpu_log.ps1`"" }
 )
 foreach ($l in $loops) {
