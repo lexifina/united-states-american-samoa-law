@@ -1,0 +1,11 @@
+# repos with a running hp-omen agent; edited by the coordinator
+chile
+brazil
+norway
+new-zealand
+belgium
+greece
+paraguay
+venezuela
+mexico
+uruguay

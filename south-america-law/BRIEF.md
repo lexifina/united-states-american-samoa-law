@@ -186,3 +186,52 @@ The user approved the decisions relayed by global-law-main-composer:
    Anything else (law commits changing, tags moving, deleting branches, visibility) still needs the user's explicit yes per repo.
 2. **Push as often as possible.** The per-country autopush loop runs again (--each).
 3. **Scrape at max.** Agents resume. Bulk and open data first, then Common Crawl, then Arquivo.pt, then archive.org. Robots Disallow and Crawl-delay are still obeyed. No bot-challenge, login or paywall workarounds, and no IP rotation. PUSH RULES 3 and the privacy rules still hold: nothing about fetching goes into README, SOURCES, repo/ or corpus notes.
+
+## MOVED TO ALAN-DELL, SCALE TO ~90% (user, 2026-10-29, late: "All, ignore SA rule")
+- All country folders were restored from world-law-ops `wip/<slug>-law` (the last loop snapshot before the wind-down). **Not restored:** `.cache/` and any `.tmp*` folder. Re-fetch what you need (bulk, background), and redo `.tmp` work your PROGRESS.md mentions (e.g. Colombia batch8/.tmp/99-batch8.json, Argentina batch10/.tmp/92-batch10.json). A few files written in the last minutes on the laptop may be missing. If PROGRESS.md mentions a file that isn't here, rebuild it.
+- No fixed agent cap: scale to ~90% CPU/RAM. Each agent runs at most **one fetch process and one build/parse process** at a time: no `&` fan-outs, no pollers, no monitors of its own.
+- Politeness is unchanged: robots Disallow, stated Crawl-delay, no bot challenges, Common Crawl ≤ 20/s machine-wide (wayback.py enforces it).
+
+## AFRICA LIIs: ARCHIVE COPIES ALLOWED (user, 2026-10-29 late: "Allow archive copies")
+This lifts the 10-29 hold for Common Crawl and Internet Archive captures of LII sites whose robots.txt blocks ClaudeBot (Kenya Law, ulii.org, zambialii.org, GhaLII, SierraLII, NamibLII, botswanalaws.com, TanzLII, MalawiLII, ZimLII …). **Live requests to those hosts stay forbidden.** Read archived captures only, at the Common Crawl pacing in wayback.py. Parts held with `*.held-robots` may be restored to PUBLISH once their text checks pass.
+
+## SPEED RECIPES (speed experiments, 2026-10-29; details in lexifina/world-law-max-speed experiments/SPEED-B.md)
+
+- **Argentina, InfoLEG bulk data (agent B).** Download the three zips linked from `https://datos.jus.gob.ar/dataset/d9a963ea-8b1d-4ca3-9dd9-07a4773e8c23` once (normas, normas-modificatorias, normas-modificadas; one at a time, 10 s apart for the stated Crawl-Delay; `/api/` is Disallowed): 3 requests, 132 s, 429,648 norms and 379,163 amendment links, current to about a month ago. Take dates, numbers and titles from the normas table and never fetch `verNorma.do` (792 of argentina-law's 1,622 requests were record pages parse.py never reads; all 792 are in the table with dates). Take "who amends X" from modificatorias (`id_norma_modificada == X`): it matched 4,918 of 4,922 verVinculos links, the 4 missing being norms newer than the table, so fetch `verVinculos.do` only for that last month. Texts are not in any bulk file: fetch `texto_original`/`texto_actualizado` URLs (https) with `wayback.host_get` from 12 threads (5.7 texts/s measured vs 1/s before). Net: ~27 min of fetching becomes ~4.5 min.
+- **Brazil, Arquivo.pt with a length filter (agent B).** List Planalto by directory with `wayback.pt_captures('www.planalto.gov.br/ccivil_03/<dir>/', match='prefix')` (leis/: 21,991 captures in 24 s; constituicao/, decreto-lei/, _ato2019-2022/, _ato2023-2026/: under 2 s each), then **drop records with `int(rec['length']) < 3200`**: those are the "enable JavaScript" bot copies that fill most 2010-2022 captures (21 of 49 sampled). That leaves 12,744 real law-page copies over 3,289 URLs, mostly 2009 and 2023-2025. Fetch with `pt_get` from 12 threads (4.8/s measured, against archive.org's ~2/s for the whole machine; its CDX listing of the Constitution page alone took 54 s). For the original texts of amending laws, `pt_captures('www2.camara.leg.br/legin/fed/', match='prefix')` lists 14,325 clean Chamber captures in 15.5 s, including 2,544 `publicacaooriginal` pages (archive copies only: camara.leg.br's robots has an AI-bot block). Use archive.org only for Planalto states Arquivo.pt lacks (most of 2010-2022). LexML is a catalogue (URN → date and links, Crawl-delay 5, its SRU API is under the Disallowed /busca/), not a text source.
+- **Peru, El Peruano discovery (agent B).** Don't list day by day, and don't go to the archives: no archive holds El Peruano's PDFs, and archived norm pages cover only 67% of 2026's laws (Common Crawl 52%, archive.org 47%, Arquivo.pt 0). Instead filter the live search by type (`&tipoDispositivo=LEY`, `DECRETO LEGISLATIVO`, `DECRETO DE URGENCIA`, … for both `tipoPublicacion=NL` and `EX`) and page a quarter or a year 20 at a time. Read `totalHits` and take ops from both `\"op\",\"<op>\"` and `/dispositivo/NL/<op>` (the page data stores repeated strings as references, so one pattern alone misses most cards). Accept a range only when rows == distinct == totalHits, otherwise halve it. Measured on 2026: 10 requests found 142 of 142 laws/D.Legs/DUs in peru-law's day cards with 0 repeats, where day lists take ~500 requests (peru-law used 2,088). Older ranges can still break (LEY 2019: 130 hits, 91 distinct), which the check catches. New issues: `wayback.sitemap_urls('https://busquedas.elperuano.pe/sitemap.xml')` lists today's norms (761) in 3 requests. diariooficial's `/DatosAbiertos/` is Disallowed by its robots.txt.
+- **Albania, QBZ API (agent B).** QBZ has no bulk route: no robots.txt or sitemap (both serve the app), page size capped at 100, no all-versions or all-relations endpoint, nothing in Common Crawl or Arquivo.pt. The win is `host_get` from a thread pool instead of a fixed 3/s: 40 list pages (`/api/v1/acts?type=Ligj&size=100&page=N`, 8 threads, 5.6 s) and then `/acts/{id}/versions` + `/relations` only for items with `versions > 0` (383 laws, 766 requests, 12 threads, 47 s, 16/s, 0 throttled). 806 requests took 53 s, against 26 minutes as albania-law ran them. Write the URL list first and fetch in one background run.
+
+## STANDING YES FOR VERIFIED REBUILDS (user, 2026-10-30 ~06:05 UTC)
+Any law-history rewrite of a repo this coordinator owns (autopush OWN) is now approved in advance, if every published part has PUBLISH and check.py and audit_push are clean. Before each such push, autopush archives the replaced tip to world-law-ops `archive3/<slug>-law/<branch>/<sha>`, then pushes with --force-with-lease. Deleting branches, changing visibility and other sessions' repos still need an explicit yes.
+
+## COMMON CRAWL PAUSED: robots.txt (hp-omen, 2026-10-31 ~19:00 local)
+data.commoncrawl.org/robots.txt is now `User-Agent: * / Disallow: /`. Common Crawl is not one of the user's robots exceptions,
+so do NOT fetch from data.commoncrawl.org (cc_get / cc_captures / cluster.idx reads) until the user decides. Use archive.org
+(wayback.get / captures) or the official site instead. Arquivo.pt's robots.txt also disallows /wayback with Crawl-delay 5, but
+Arquivo.pt is a user-approved exception (2026-10-29), so it stays allowed. Text already fetched and pinned stays usable.
+
+## LIVE-HOST LIMIT (coordinator rule, 2026-11-01 ~09:30 local; supersedes the host_get speed recipe above)
+Three hosts blocked another machine after long clean streaks (Sucuri, Incapsula after 92k requests, Imperva). For any
+host WITHOUT a stated Crawl-delay: at most 1 request per 3 s and about 5,000 requests per host per day, machine-wide.
+Hosts with a Crawl-delay keep it (IMPO 10 s). Spread big pulls over days, prefer bulk/API/archive copies, and STOP FOR
+GOOD on any challenge page (captcha, JS check, 403 "request blocked"): record it, never retry or work around it.
+`wayback.host_get` now enforces 1/3 s and raises `HostDailyCap` at 5,000/day per host. Fetch scripts that don't use
+host_get must apply the same limits themselves.
+archive.org (2026-11-01, coordinator): the shared wayback rate is now at most 1 request/s machine-wide, halving on
+429/503, and raises `ArchiveDailyCap` at 20,000 requests a day (UTC). Scripts that fetch archive.org without the
+shared client must keep the same limits.
+
+## INFOLEG STOPPED (2026-11-01 13:53Z)
+servicios.infoleg.gob.ar robots.txt answered HTTP 403 (plain Apache page) at 13:53Z after 404 earlier and 200s up to
+13:43Z. Treated as a possible block under the LIVE-HOST LIMIT: NO requests to InfoLEG until the user clears it. Argentina
+work continues from cached pages only.
+
+## STF /processos DISALLOWED (coordinator, 2026-11-02)
+portal.stf.jus.br robots.txt has `Disallow: /processos`. Make no request to /processos pages, live or via archive copies. Rulings are read only from allowed records (redir.stf.jus.br acórdão/paginador PDFs, Informativos). Earlier parts built from /processos pages (brazil 90-batch3, 80-proc, 70-clt, base corpus.json ADI 7047; possibly 99-batch10/zzn, 99-batch8) are listed for the user; do not change them until the user decides.
+
+## README: WHAT, NOT HOW (composer, 2026-11-02)
+A published README (and other repo-level docs, data, tools text) may say what each source is and credit it ("Internet Archive copy of <official page>, captured <date>") and what is left out and why ("not used in this record"). It must not say how anything was fetched: tools (curl), rates/requests per second, caching, build machine, robots.txt or crawl-delay notes, reachability or challenge notes. private.fetch_warnings() reports these (warn-only, logs/fetchwarn.log); it will become blocking once the sweeps finish. Fix forward: docs commit only, law commits and tags unchanged.
+
+## FAST-FORWARD ONLY (Alan, 2026-11-02 ~18:25Z, via composer)
+Published history only grows by fast-forward. The standing yes for verified rebuilds is WITHDRAWN: no rebuild-replace, no force-push, no tag moves, anywhere, unless Alan approves that repo in world-law/REWRITE-APPROVED.txt. autopush holds any rewrite and records it in world-law/REWRITE-PENDING.json. Do not reorder history to fit older laws in; corrections to published text must become new labelled correction commits once the append-only builder exists. Until then, keep building and verifying locally and write PUBLISH as before: a part whose publication would need a rewrite simply stays held (that is fine), and say so in your report.

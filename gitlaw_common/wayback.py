@@ -29,7 +29,10 @@ from pathlib import Path
 
 STATE = Path(tempfile.gettempdir()) / 'gitlaw-wayback-rate.json'
 LOCK = Path(tempfile.gettempdir()) / 'gitlaw-wayback-rate.lock'
-START, STEP, MAX, MIN = 3.0, 0.05, 15.0, 0.3       # requests per second, for the whole machine
+START, STEP, MAX, MIN = 1.0, 0.05, 1.0, 0.3        # requests per second, for the whole machine
+# Coordinator rule 2026-11-01: archive.org at most 1 request/s machine-wide (it has gone offline and answered 429
+# during our runs), halving on 429/503, and at most ARCHIVE_DAILY requests a day (UTC).
+ARCHIVE_DAILY = 20000
 BACKOFF = 45.0                                       # seconds everyone waits after a 429/503
 UA = 'lexifina-watch/1.0 (+https://lexifina.com/watch; corpus@lexifina.com)'
 
@@ -68,12 +71,25 @@ def _slot() -> None:
     """Wait for this process's turn under the machine-wide rate."""
     def take(st):
         now = time.time()
+        day = time.strftime('%Y-%m-%d', time.gmtime(now))
+        if st.get('day') != day:
+            st['day'], st['count'] = day, 0
+        if st['count'] >= ARCHIVE_DAILY:
+            return None, st
+        st['count'] += 1
+        st['rate'] = min(st['rate'], MAX)  # older state files may hold a faster rate
         start = max(now, st['next'], st['pause_until'])
         st['next'] = start + 1.0 / st['rate']
         return start - now, st
     wait = _locked(take)
+    if wait is None:
+        raise ArchiveDailyCap(f'archive.org: {ARCHIVE_DAILY} requests today from this machine; resume tomorrow')
     if wait > 0:
         time.sleep(wait)
+
+
+class ArchiveDailyCap(RuntimeError):
+    """archive.org has had ARCHIVE_DAILY requests from this machine today (UTC); resume tomorrow."""
 
 
 def _report(ok: bool) -> None:
@@ -323,8 +339,16 @@ class CCBlocked(RuntimeError):
 CC_RATE = 20.0  # requests a second to data.commoncrawl.org for the whole machine; ~130/s got it blocked (2026-10-29)
 
 
+class CCDisallowed(RuntimeError):
+    """data.commoncrawl.org's robots.txt disallows all agents (seen 2026-10-31): no record downloads while the flag file
+    gitlaw_common/CC-DATA-DISALLOWED exists. Not a temporary block, so callers must not retry it."""
+
+
 def _cc_pace() -> None:
     """Wait for this machine's next Common Crawl slot (one fixed rate shared by every process)."""
+    if (Path(__file__).resolve().parent / 'CC-DATA-DISALLOWED').exists():
+        raise CCDisallowed('data.commoncrawl.org robots.txt disallows all agents; record downloads paused')
+
     def take(st):
         now = time.time()
         start = max(now, st['next'], st['pause_until'])
@@ -449,7 +473,15 @@ def cc_get(rec: dict, cache: Path | str | None = None) -> bytes | None:
 # Starts at HOST_START requests a second, climbs with every success up to HOST_MAX, and halves (with a pause for
 # everyone) only when the host itself pushes back: 429, 503 or a timeout. This replaces fixed per-agent sleeps
 # (3 a second, IMPO's 10 s crawl delay), which left most of the time idle. Use host_get(url, cache) from a thread pool.
-HOST_START, HOST_STEP, HOST_MAX, HOST_MIN, HOST_BACKOFF = 4.0, 0.25, 25.0, 0.5, 30.0
+HOST_START, HOST_STEP, HOST_MAX, HOST_MIN, HOST_BACKOFF = 1 / 3, 0.0, 1 / 3, 0.1, 30.0
+# Coordinator rule 2026-11-01 (after Sucuri/Incapsula/Imperva blocks on long clean streaks): a host without a stated
+# Crawl-delay gets at most 1 request per 3 s and about HOST_DAILY requests a day, machine-wide. Spread big pulls over
+# days, prefer bulk/API, and stop for good on any challenge page.
+HOST_DAILY = 5000
+
+
+class HostDailyCap(RuntimeError):
+    """This host has had HOST_DAILY live requests from this machine today (UTC); resume tomorrow."""
 HOST_DIR = Path(tempfile.gettempdir()) / 'gitlaw-host-rate'
 
 
@@ -496,10 +528,19 @@ def host_get(url: str, cache: Path | str | None = None, tries: int = 5, timeout:
     for _ in range(tries):
         def take(st):
             now = time.time()
+            day = time.strftime('%Y-%m-%d', time.gmtime(now))
+            if st.get('day') != day:
+                st['day'], st['count'] = day, 0
+            if st['count'] >= HOST_DAILY:
+                return None, st
+            st['count'] += 1
+            st['rate'] = min(st['rate'], HOST_MAX)  # older state files may hold a faster rate
             start = max(now, st['next'], st['pause_until'])
             st['next'] = start + 1.0 / st['rate']
             return start - now, st
         wait = _host_locked(host, take)
+        if wait is None:
+            raise HostDailyCap(f'{host}: {HOST_DAILY} requests today from this machine; resume tomorrow')
         if wait > 0:
             time.sleep(wait)
         code, body = _curl(url, timeout=timeout)

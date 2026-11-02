@@ -114,3 +114,28 @@ nearest equivalents.
 - **Order:** publish after each statute is added. Don't wait to batch several statutes together.
 
 global-law picks up each new `main` automatically within about a minute (global-law-main-composer's pointer loop).
+
+## Processes (added 2026-10-30, after collateral kills)
+
+Never kill a process you did not start. Record the PID of every background job you launch, and only ever stop those exact PIDs. Never kill by guess, by name, or by working-directory match. Other sessions run fetches and builds on this machine.
+
+## New hosts: start slow (2026-10-30, after Queensland tripped Imperva)
+
+Open every new host at one request at a time, several seconds apart. Only speed up after about 50 clean responses, and never past its Crawl-delay. Never copy another host's pace or parallelism: a 4-wide burst of about 26 requests in 6 minutes set off a WAF on legislation.qld.gov.au. If a challenge page appears (even with HTTP 200), stop that host for good and record it for a publisher email.
+
+## Cap parallelism (2026-10-31, after one uncapped pool took ~9 cores)
+
+Never start a multiprocessing pool, thread pool or `xargs -P` without an explicit cap: at most 2 workers per agent, at BelowNormal, and pause while cpu5 > 90 (see %LOCALAPPDATA%\gitlaw-cpu.log). Defaults such as `Pool()` use every core.
+
+## Common Crawl paused (2026-10-31 19:00 UTC)
+
+data.commoncrawl.org/robots.txt now reads `User-Agent: * / Disallow: /`. Do not fetch Common Crawl records (cc_get, or any data.commoncrawl.org URL) until Alan decides. CDX index lookups on index.commoncrawl.org are allowed (its robots is empty), but they are useless without the records. Use live official sources, or other archives whose robots allow it.
+
+## Long runs: stay gentle (2026-11-01, after Sucuri/Incapsula/Imperva blocks on azleg.gov, SCJN and QLD)
+
+Three hosts challenged us after long clean runs (SCJN after 92,444 requests). For any host without a stated Crawl-delay:
+- keep at most 1 request every 3 s;
+- cap each host at about 5,000 requests a day;
+- spread big pulls over several days;
+- prefer bulk files or APIs.
+On any challenge or WAF page, stop that host for good and add it to Alan's held list.

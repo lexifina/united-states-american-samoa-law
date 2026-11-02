@@ -49,7 +49,7 @@ AFRICA = ['kenya', 'uganda', 'zambia', 'malawi', 'zimbabwe', 'namibia', 'lesotho
           'cabo-verde']
 COUNTRIES = SOUTH_AMERICA + AFRICA
 # Every country this coordinator owns (South America, Africa and the wave countries). Nothing else is ever pushed.
-OWN = set(COUNTRIES) | {'equatorial-guinea', 'romania', 'mexico', 'greece', 'cyprus', 'albania', 'bahamas', 'bulgaria',
+OWN = set(COUNTRIES) | {'equatorial-guinea', 'mexico', 'greece', 'cyprus', 'albania', 'bahamas', 'bulgaria',
                         'belgium', 'netherlands', 'norway', 'malaysia', 'lithuania', 'latvia', 'north-macedonia',
                         'montenegro', 'moldova', 'new-zealand', 'micronesia', 'palau'}
 # Folders under scripts/ that other sessions' builders own (their own build.py, their own repos): never touched.
@@ -197,7 +197,11 @@ def standing_approval(slug: str, repo: Path, branch: str, old: str, new: str, lo
       object) and every tag the remote holds is unchanged;
     - 'first build': the remote main is the scaffold ("sources, before any law"), an unpaused "Paused, not yet law"
       README, or a thin old corpus of at most 3 law commits.
-    Returns the kind, or '' when the rewrite still needs the user's yes."""
+    Returns the kind, or '' when the rewrite still needs the user's yes.
+
+    Since 2026-11-02 (user: "end force-pushes everywhere") no standing approval applies: published history only grows
+    by fast-forward, and any rewrite waits for the user's yes for that repo in REWRITE-APPROVED.txt."""
+    return ''
     # Standing yes (user, 2026-10-30 ~06:05 UTC: "Standing yes for verified rebuilds"): any law-history rewrite of a
     # repo this coordinator owns, once every published part has PUBLISH and check.py and audit_push are clean (both
     # already hold when publish() reaches here). The replaced history is archived to world-law-ops first (publish()).
@@ -330,6 +334,14 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False) -
         found = private.audit_push(repo, new, old or None)
         if found:
             return f'NOT pushed: privacy audit found {len(found)} in {b}: {"; ".join(found[:5])}'
+        # Warn-only (composer, 2026-11-02): README wording on how a source was fetched; blocking once the sweeps are done.
+        try:
+            warns = private.fetch_warnings(repo, new, old or None)
+        except Exception as e:  # a warning pass must never stop a push
+            warns = [f'fetch_warnings failed: {e}']
+        if warns:
+            with (Path(__file__).with_name('logs') / 'fetchwarn.log').open('a', encoding='utf-8') as f:
+                f.writelines(f'{_now()} {slug} {b}: {w}\n' for w in warns)
     if rewrites:
         if not dry_run:
             note_pending(slug, {'repo': f'lexifina/{slug}-law', 'at': _now(), 'rewrites': rewrites})
@@ -339,7 +351,7 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False) -
     if not dry_run:
         note_pending(slug, None)
     moved = [t for t, s in local_tags.items() if t in remote_tags and remote_tags[t] != s]
-    if moved and not leases and slug not in owned():  # owned repos: tag moves fall under the standing yes too
+    if moved and not leases:  # a published tag moves only with an approved rewrite (no standing yes since 2026-11-02)
         return f'NOT pushed: {len(moved)} tags would move ({", ".join(t[10:] for t in moved[:3])}) with no approved rewrite'
     for t in moved:
         leases[t] = remote_tags[t]
@@ -368,6 +380,7 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False) -
 
 
 CREDENTIAL = re.compile(r'(code|key|token|sig|apikey)=[A-Za-z0-9_%=-]{20,}')
+RESERVED = re.compile(r'(?i)^(con|prn|aux|nul|com\d|lpt\d)(\.|$)')
 
 
 def wip(slug: str, folder: Path, repo: Path, dry_run: bool = False) -> str:
@@ -399,6 +412,9 @@ def wip(slug: str, folder: Path, repo: Path, dry_run: bool = False) -> str:
                 # Even in the private repo: no machine path, and no credential an agent noted down.
                 clean = CREDENTIAL.sub(lambda m: f'{m.group(1)}=<redacted>', private.scrub(text))
                 shas[rel] = git(repo, 'hash-object', '-w', '--stdin', data=clean.encode('utf-8'))
+            elif RESERVED.match(p.name):
+                # git cannot open a Windows device name (com1.pdf), though Python can: hash the bytes read above.
+                shas[rel] = git(repo, 'hash-object', '-w', '--stdin', data=data)
             else:
                 plain.append((rel, p))
         # Two git processes for all the plain files, not two per file.
@@ -558,8 +574,11 @@ def _now() -> str:
 HARD_FOREIGN = {'estonia', 'liechtenstein', 'luxembourg', 'malta', 'swiss', 'switzerland', 'germany', 'grundgesetz',
                 'bundesrecht', 'uk', 'united-kingdom', 'global', 'world', 'denmark', 'ireland', 'finland', 'pakistan',
                 'hong-kong', 'kosovo', 'faroe-islands', 'belize', 'san-marino', 'trinidad-and-tobago', 'andorra',
-                'bangladesh', 'guernsey', 'aland', 'uzbekistan', 'rwanda', 'monaco', 'slovakia', 'slovenia', 'gibraltar', 'croatia', 'greenland', 'kyrgyzstan', 'united-states-guam', 'united-states-northern-mariana-islands', 'costa-rica', 'spain',
-                'czechia', 'france', 'russia', 'austria', 'italy', 'portugal', 'poland', 'cook-islands'}
+                'bangladesh', 'guernsey', 'british-virgin-islands', 'aland', 'uzbekistan', 'rwanda', 'monaco', 'slovakia', 'slovenia', 'gibraltar', 'croatia', 'greenland', 'kyrgyzstan', 'united-states-guam', 'united-states-northern-mariana-islands', 'costa-rica', 'spain',
+                'czechia', 'france', 'russia', 'austria', 'italy', 'portugal', 'poland', 'cook-islands',
+                # 2026-11-02 (composer, urgent): 143 stars / 9 forks; owned by Alan's laptop session (lexifina-cc),
+                # append-only, never force-pushed. Nothing goes to its main, wip or tags from this machine.
+                'romania'}
 
 
 def _hard_foreign(slug: str) -> bool:
@@ -575,6 +594,11 @@ def owned() -> set[str]:
     """OWN (minus FOREIGN) plus every repo claimed by this session in scripts/world-law/claims/<slug>-law.txt
     (re-read on each call). Claimed countries then stream through this loop as their parts get PUBLISH."""
     out = set(OWN) - FOREIGN - HARD_FOREIGN
+    try:  # repos adopted from other sessions' first builds (ADOPTED.txt) stay owned after their claims go
+        out |= {w for ln in (Path(__file__).resolve().parent / 'ADOPTED.txt').read_text(encoding='utf-8').splitlines()
+                if not ln.startswith('#') for w in ln.split() if not _hard_foreign(w)}
+    except OSError:
+        pass
     claimed = set()
     try:
         for c in CLAIMS.glob('*-law.txt'):

@@ -61,6 +61,11 @@ def _personal_emails() -> set[str]:
     return {out.lower()} if out and not out.lower().endswith('lexifina.com') else set()
 
 
+# In a law file the bare word "CAPTCHA" is law (accessibility rules quoting WCAG: BremBITV Anlage 1 "alternative
+# CAPTCHAs", "Audio-CAPTCHA"; 2026-11-01): there the bot-challenge marker counts only its other words.
+LAW_BOT_MARK = re.compile(rb'(?i)cloudflare|bot challenge|firewall page')
+
+
 def audit_push(repo: Path, new: str, old: str | None = None) -> list[str]:
     """Findings in what pushing `new` over `old` would add to a shared repo: private file names, the audit's content
     markers or the personal email in any added text blob, and any author or committer outside lexifina.com and the
@@ -97,11 +102,39 @@ def audit_push(repo: Path, new: str, old: str | None = None) -> list[str]:
             if path.startswith('tools/') and SPEED_MARK.search(body):
                 found.append(f'speed marker in shipped tool: {path}')
             found += [f'{k}: {path}' for k, rx in AUDIT_MARKS.items()
-                      if (docs or k != 'agent workflow') and rx.search(body)]
+                      if (docs or k != 'agent workflow') and rx.search(body)
+                      and (docs or k != 'bot-challenge notes' or LAW_BOT_MARK.search(body))]
             found += [f'personal email: {path}' for rx in mails if rx.search(body)]
     people = set(git('log', '--format=%ae%n%ce', *span).decode('utf-8', 'replace').split())
     found += [f'commit identity outside lexifina.com: {e}' for e in sorted(people)
               if not (e.endswith('lexifina.com') or e.endswith('.invalid'))]
+    return found
+
+
+# How a source was fetched, in a README (composer's rule, 2026-11-02): a README may say what the source is and credit
+# it, but not the tools, rates, machine, robots/crawl-delay or reachability notes. Warn-only until every owner's README
+# sweep is done; then these join AUDIT_MARKS. "wayback" is left out on purpose (often a legitimate credit).
+FETCH_WARN = re.compile(rb'\bcurl\b|robots\.txt|crawl-delay|requests? (?:a|per) second|build machine|not reachable|'
+                        rb'did not answer|challenge page', re.I)
+
+
+def fetch_warnings(repo: Path, new: str, old: str | None = None) -> list[str]:
+    """Repository docs, data and tools files that pushing `new` over `old` would add and that describe how a source was
+    fetched. Reported, not blocking."""
+    span = [new] + ([f'^{old}'] if old else [])
+    out = subprocess.run(['git', 'rev-list', '--objects', *span], cwd=repo, capture_output=True).stdout
+    found = []
+    for line in out.decode('utf-8', 'replace').splitlines():
+        sha, _, path = line.partition(' ')
+        # Repository docs, data and tools only, never act folders (law text and their generated READMEs can use these
+        # words in other senses), as for the 'agent workflow' marker.
+        docs = '/' not in path or path.startswith(('tools/', 'data/'))
+        # Code is skipped: the shared builder's own scrubbing patterns name these words in order to remove them.
+        if docs and path.endswith(AUDIT_TEXT) and not path.endswith(('.py', '.sh')):
+            body = subprocess.run(['git', 'cat-file', 'blob', sha], cwd=repo, capture_output=True).stdout
+            hits = sorted({m.group(0).decode('utf-8', 'replace').lower() for m in FETCH_WARN.finditer(body)})
+            if hits:
+                found.append(f'{path}: {", ".join(hits)}')
     return found
 
 

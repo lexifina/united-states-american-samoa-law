@@ -4,3 +4,5 @@ togo
 micronesia
 palau
 marshall-islands
+equatorial-guinea
+belarus
