@@ -94,6 +94,19 @@ From 20:00 to 22:00 the rate rose about 14×, while CPU stayed the same. The gai
   - Albania, Montenegro, Moldova, North Macedonia, Bosnia.
 - **Brief:** `world-law/WAVE3-BRIEF.md`. Each agent skips any jurisdiction with a recorded terms, robots, WAF or geo stop, and starts the next one while it waits on a fetch.
 
+**D-9 (Dell). Scheduler slots for documented APIs (98d6922, 23:2xZ).**
+- **What:** `fetch_scheduler` dropped its own daily cap, `GITLAW_CAP_SHARE` and the 2-worker clamp. `_claim` now leases `wayback._policy(host)['concurrency']` slots per host, machine-wide. Extra slots apply only to API paths: www.boe.es `/datosabiertos/api/` and data.sa.gov.au `/data/` get 4 each; their HTML stays at 1.
+- **Before:** every host got 1 slot through the scheduler, so Japan e-Gov, LexML, the BWB hosts and api.lovdata.no ran at 1 in flight despite host_get allowing 6.
+- **After:** 6 in flight for those hosts and 4 for the BOE and data.sa.gov.au APIs. A 429, 503 or time-out drops a host to 1; a bot sign drops it to 1 for good. 44/44 tests pass.
+- **Effect:** measure requests/h and commits/h on those hosts at the next speed sample.
+
+**D-10 (Dell). Breadth lanes started (22:50–23:20Z).** Baselines, to compare at the next census:
+- **SAPL:** about 60 councils, publishing their cached laws (up to 400 each) in appends of 500 or more. Before: most cities held a Lei Orgânica plus 0–225 laws.
+- **LexML states:** brazil-santa-catarina-law (20,825 laws via IA copies, D2) and brazil-amazonas-law (11,402 Leis via SAPL). Before: no repo. The first 500-act parts are about 2 h and 11 h away.
+- **brazil-minas-gerais-law:** about 30k ordinary Leis via the ALMG open-data API. Before: Constitution, ADCT and 173 LCs.
+- **South Australia (data.sa.gov.au XML):** before, partial main c974b4b (about 360 of 1,390 Acts).
+- **Claims janitor:** restart or release the about 38 stalled dell claims. Before: autopush_dell showed "waiting 38"; the after count goes in this entry when it reports.
+
 ## Hard limits (not traded for speed)
 
 - No bypassing bot challenges, CAPTCHAs, WAFs, logins or geo-blocks. Obey robots.txt and Crawl-delay, and respect publishers' terms.
