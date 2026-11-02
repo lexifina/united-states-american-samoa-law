@@ -307,20 +307,65 @@ def _write_object(repo: Path, kind: str, body: bytes) -> str:
     return sha
 
 
-def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str] | None = None) -> dict:
+def _deltas(repo: Path, tip: str) -> tuple[list[str], dict[str, dict[bytes, tuple[bytes, str] | None]]]:
+    """First-parent commits of `tip`, oldest first, and each one's file changes against its first parent
+    ({path: (mode, blob id) or None when deleted}), from one `git log --raw`."""
+    out = subprocess.run(['git', '-c', 'log.showRoot=true', 'log', '-z', '--first-parent', '--no-renames', '--raw',
+                          '--no-abbrev', '--format=%x01%H', tip], cwd=repo, capture_output=True).stdout
+    order: list[str] = []
+    deltas: dict[str, dict] = {}
+    cur = None
+    toks = out.split(b'\0')
+    i = 0
+    while i < len(toks):
+        t = toks[i].lstrip(b'\n')
+        i += 1
+        if t.startswith(b'\x01'):
+            cur = t[1:].decode()
+            order.append(cur)
+            deltas[cur] = {}
+        elif t.startswith(b':') and cur is not None:
+            meta = t[1:].split()
+            path = toks[i]
+            i += 1
+            deltas[cur][path] = None if meta[4].startswith(b'D') else (meta[1], meta[3].decode())
+    order.reverse()
+    return order, deltas
+
+
+def _is_law_path(path: bytes) -> bool:
+    """A provision file (<act>/<unit>.md): not an act README, the docs commit's data/ and tools/, or top-level docs."""
+    top, _, rest = path.partition(b'/')
+    return bool(rest) and path.endswith(b'.md') and not path.endswith(b'/README.md') and path != b'README.md' \
+        and top not in (b'data', b'tools')
+
+
+def _law_delta(d: dict) -> dict:
+    return {p: v for p, v in d.items() if _is_law_path(p)}
+
+
+def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str] | None = None,
+                base_tip: str | None = None) -> dict:
     """Grow `remote` (the published tip, or None) towards `built` (the fresh build) by fast-forward only.
 
-    Walks both first-parent histories oldest first and matches law commits by tree, author line and message (not by
-    SHA; 'Lexifina'-authored commits are not law). Allowed: the build's law commits start with every published law
-    commit, in order; the rest of its law commits, then its trailing documentation commit, are written on top of the
-    published tip with their own trees, authors and messages, committer date max(own, previous + 1 s).
+    Law commits ('Lexifina'-authored commits are not law) are matched by author line (name, email, in-force date) and
+    message, and compared by the provision files each one changes. Act by act (top-level folder), the build must tell
+    the published story unchanged: every published law commit is there, changes the same files to the same text, and
+    each act's published commits keep their order. The build's other law commits are appended on top of the published
+    tip in build order, each changing only its own files (the tip's other files, docs included, are carried until the
+    build's documentation commit replaces the whole tree). An appended commit may touch an act only after that act's
+    last published commit: a newer version, or an older law found late in an act folder of its own (Alan's D12,
+    2026-11-02: appended at the end of history, never inserted). Anything else (a published commit changed, re-dated,
+    removed or reordered, an older version slipped into a published act) is a rewrite and waits for the user's yes.
+    Committer dates are max(own, previous + 1 s).
     With no `remote` (a branch the remote lacks, e.g. a first `futuro`), `base` maps build SHAs already published
     elsewhere (main's) to their published SHAs, and the build is grafted after the longest such prefix.
 
     Returns {'kind': 'same'|'append'|'new'|'rewrite', 'new': tip to publish, 'map': {build sha: new sha},
-             'laws': law commits added, 'docs': docs commits added, 'reason': why a rewrite}."""
-    n_list = git(repo, 'rev-list', '--first-parent', '--reverse', built).split()
-    r_list = git(repo, 'rev-list', '--first-parent', '--reverse', remote).split() if remote else []
+             'added': new commits, 'laws': law commits added, 'docs': docs commits added, 'backfill': any appended law
+             commit older than the published laws it follows, 'reason': why a rewrite}."""
+    n_list, n_delta = _deltas(repo, built)
+    r_list, r_delta = _deltas(repo, remote) if remote else ([], {})
     raws = _read_commits(repo, n_list + r_list)
     n_law = [s for s in n_list if _is_law(raws[s])]
     last_law = n_list.index(n_law[-1]) if n_law else -1
@@ -328,36 +373,69 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
         return {'kind': 'rewrite', 'reason': 'the build has a non-law commit inside its law history'}
     tail = n_list[last_law + 1:]  # the build's documentation commit(s), after its last law commit
     mapping: dict[str, str] = {}
+    name = lambda f: f.decode('utf-8', 'replace')  # noqa: E731
+    top = lambda d: {p.partition(b'/')[0] for p in d}  # noqa: E731
     if remote:
         r_law = [s for s in r_list if _is_law(raws[s])]
-        n_keys = [_key(raws[s]) for s in n_law]
-        for i, r in enumerate(r_law):
-            rk = _key(raws[r])
-            if i < len(n_law) and n_keys[i] == rk:
-                mapping[n_law[i]] = r
-                continue
-            # Diverged at published law commit i: say how, briefly.
-            if i >= len(n_law):
-                reason = f'removes {len(r_law) - i} published law commits from {_describe(raws[r])} on'
-            elif rk[1:] == n_keys[i][1:]:
-                # Same commit, other tree. If the build has an extra commit earlier on, every later snapshot carries
-                # its text, so this is reported where the first difference is: here.
-                reason = f'changes the text (tree) of published {_describe(raws[r])}'
-            elif rk[1:] in [k[1:] for k in n_keys[i:]]:
-                # The published commit comes later in the build: commits were inserted before it.
-                j = [k[1:] for k in n_keys].index(rk[1:], i)
-                reason = (f'inserts {j - i} older commit{"s" if j - i != 1 else ""} before {_describe(raws[r])}, '
-                          f'first {_describe(raws[n_law[i]])}')
-            elif rk[2] == n_keys[i][2]:
-                reason = f'changes the author or date of published {_describe(raws[r])}'
+
+        def keyed(seq: list[str]) -> list[tuple]:
+            seen: dict = {}
+            out = []
+            for s in seq:
+                k = _key(raws[s])[1:]
+                seen[k] = seen.get(k, 0) + 1
+                out.append((k, seen[k]))
+            return out
+        r_by_key = dict(zip(keyed(r_law), r_law))
+        extras = []
+        for n, k in zip(n_law, keyed(n_law)):
+            if k in r_by_key:
+                mapping[n] = r_by_key[k]
             else:
-                gone = not any(k[1:] == rk[1:] for k in n_keys)
-                reason = (f'{"removes" if gone else "moves"} published {_describe(raws[r])}; the build has '
-                          f'{_describe(raws[n_law[i]])} there')
-            return {'kind': 'rewrite', 'reason': reason}
-        new_law = n_law[len(r_law):]
+                extras.append(n)
+        matched = set(mapping.values())
+        missing = [r for r in r_law if r not in matched]
+        if missing:
+            r0 = raws[missing[0]]
+            same_msg = [n for n in extras if _split(raws[n])[1] == _split(r0)[1]]
+            how = 're-dates' if same_msg else 'removes or rewords'
+            return {'kind': 'rewrite', 'reason': f'{how} published {_describe(r0)}'
+                    + (f' and {len(missing) - 1} more' if len(missing) > 1 else '') + ' (needs a correction)'}
+        ld_n = {n: _law_delta(n_delta[n]) for n in n_law}
+        ld_r = {r: _law_delta(r_delta[r]) for r in r_law}
+        for n, r in mapping.items():
+            if ld_n[n] != ld_r[r]:
+                diff = sorted({name(p.partition(b'/')[0]) for p in set(ld_n[n]) | set(ld_r[r])
+                               if ld_n[n].get(p) != ld_r[r].get(p)})
+                return {'kind': 'rewrite', 'reason': f'changes {", ".join(diff[:3])} in published {_describe(raws[r])}'}
+        r_seq: dict[bytes, list[str]] = {}
+        for r in r_law:
+            for f in top(ld_r[r]):
+                r_seq.setdefault(f, []).append(r)
+        n_seq: dict[bytes, list[str]] = {}
+        last_pub: dict[bytes, int] = {}
+        pos = {n: i for i, n in enumerate(n_law)}
+        for n in n_law:
+            if n in mapping:
+                for f in top(ld_n[n]):
+                    n_seq.setdefault(f, []).append(mapping[n])
+                    last_pub[f] = pos[n]
+        for f, seq in r_seq.items():
+            if n_seq.get(f) != seq:
+                return {'kind': 'rewrite', 'reason': f'reorders the published commits of {name(f)}'}
+        last_r_day = max((_ident(_field(raws[r], b'author'))[2] for r in r_law), default=None)
+        backfill = False
+        for e in extras:
+            late = [f for f in top(ld_n[e]) if pos[e] < last_pub.get(f, -1)]
+            if late:
+                return {'kind': 'rewrite', 'reason': f'inserts {_describe(raws[e])} into published {name(late[0])} '
+                                                     f'before {_describe(raws[n_law[last_pub[late[0]]]])}'}
+            if last_r_day is not None and _ident(_field(raws[e], b'author'))[2] < last_r_day:
+                backfill = True
+        new_law = extras
         parent = remote
     else:
+        backfill = False
         base = base or {}
         k = 0
         while k < len(n_law) and n_law[k] in base:
@@ -365,45 +443,89 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
             k += 1
         if not k:  # nothing published to graft onto: the build is pushed as it is (a new branch, no history lost)
             return {'kind': 'new', 'new': built, 'map': {s: s for s in n_list}, 'added': list(n_list),
-                    'laws': len(n_law), 'docs': len(tail)}
+                    'laws': len(n_law), 'docs': len(tail), 'law_tip': n_law[-1] if n_law else None}
         new_law = n_law[k:]
-        parent = base[n_law[k - 1]]
-    want_tree = _field(raws[built], b'tree')
-    todo = list(new_law)
-    if not todo and remote and _field(_read_commits(repo, [remote])[remote], b'tree') == want_tree:
-        return {'kind': 'same', 'new': remote, 'map': mapping, 'added': [], 'laws': 0, 'docs': 0}
-    todo += tail
+        # main's published law tip holds every prefix commit (after a back-fill, not the last one in build order)
+        parent = base_tip if base_tip and k == sum(1 for s in n_law if s in base) else base[n_law[k - 1]]
+    want_tree = _field(raws[built], b'tree').decode()
+    if not new_law and remote and git(repo, 'rev-parse', f'{remote}^{{tree}}') == want_tree:
+        return {'kind': 'same', 'new': remote, 'map': mapping, 'added': [], 'laws': 0, 'docs': 0,
+                'law_tip': r_law[-1] if r_law else None}
     prev_ct = _ident(_field(_read_commits(repo, [parent])[parent], b'committer'))[2]
     tip = parent
-    for s in todo:
+
+    def committer(raw: bytes) -> tuple[bytes, int]:
+        nonlocal prev_ct
+        c = _field(raw, b'committer')
+        gt = c.rindex(b'>')
+        ts, tz = c[gt + 1:].split()
+        prev_ct = max(int(ts), prev_ct + 1)
+        return c[:gt + 1] + f' {prev_ct} '.encode() + tz, prev_ct
+
+    if new_law:
+        # One `git fast-import` for all appended law commits: each changes only its own files on top of the tip.
+        ref = f'refs/append-tmp/{os.getpid()}-{threading.get_ident()}'
+        with tempfile.TemporaryDirectory() as tmp:
+            marks = Path(tmp) / 'marks'
+            buf = bytearray()
+            for i, s in enumerate(new_law, 1):
+                lines, msg = _split(raws[s])
+                buf += f'commit {ref}\nmark :{i}\n'.encode()
+                buf += b'author ' + _field(raws[s], b'author') + b'\n'
+                buf += b'committer ' + committer(raws[s])[0] + b'\n'
+                buf += f'data {len(msg)}\n'.encode() + msg + b'\n'
+                if i == 1:
+                    buf += f'from {tip}\n'.encode()
+                for path, v in sorted(n_delta[s].items()):
+                    if b'\n' in path or path.startswith(b'"'):
+                        raise RuntimeError(f'unsupported path {path!r}')
+                    buf += (b'D ' + path if v is None else b'M ' + v[0] + b' ' + v[1].encode() + b' ' + path) + b'\n'
+                buf += b'\n'
+            buf += b'done\n'
+            fi = subprocess.run(['git', 'fast-import', '--quiet', '--done', '--date-format=raw',
+                                 f'--export-marks={marks}'], cwd=repo, input=bytes(buf), capture_output=True)
+            if fi.returncode:
+                raise RuntimeError(f'fast-import: {fi.stderr.decode("utf-8", "replace")[-300:]}')
+            by_mark = dict(l.split(' ', 1) for l in marks.read_text().split('\n') if l)
+        git(repo, 'update-ref', '-d', ref)
+        for i, s in enumerate(new_law, 1):
+            mapping[s] = by_mark[f':{i}'].strip()
+        tip = mapping[new_law[-1]]
+    for s in tail:  # the build's documentation commit, with its exact tree, on top
         lines, msg = _split(raws[s])
-        out, done_parent = [], False
-        for line in lines:
-            if line.startswith(b'parent '):
-                if not done_parent:
-                    out.append(b'parent ' + tip.encode())
-                    done_parent = True
-                continue
-            if line.startswith(b'committer '):
-                c = line[len(b'committer '):]
-                gt = c.rindex(b'>')
-                ts, tz = c[gt + 1:].split()
-                ct = max(int(ts), prev_ct + 1)
-                prev_ct = ct
-                line = b'committer ' + c[:gt + 1] + f' {ct} '.encode() + tz
-            out.append(line)
-            if line.startswith(b'tree ') and not done_parent:
-                out.append(b'parent ' + tip.encode())
-                done_parent = True
-        tip = _write_object(repo, 'commit', b'\n'.join(out) + b'\n\n' + msg)
+        body = [l for l in lines if l.startswith(b'tree ')] + [b'parent ' + tip.encode()]
+        body += [l for l in lines if l.startswith(b'author ')] + [b'committer ' + committer(raws[s])[0]]
+        body += [l for l in lines if not l.startswith((b'tree ', b'parent ', b'author ', b'committer '))]
+        tip = _write_object(repo, 'commit', b'\n'.join(body) + b'\n\n' + msg)
         mapping[s] = tip
-    if git(repo, 'cat-file', '-t', tip) != 'commit' or git(repo, 'rev-parse', f'{tip}^{{tree}}') != want_tree.decode():
-        return {'kind': 'rewrite', 'reason': 'the appended tip does not have the build\'s final tree'}
+    todo = new_law + tail
+    if not todo:
+        return {'kind': 'same', 'new': remote or parent, 'map': mapping, 'added': [], 'laws': 0, 'docs': 0,
+                'law_tip': (r_law[-1] if r_law else None) if remote else parent}
+    if git(repo, 'cat-file', '-t', tip) != 'commit':
+        return {'kind': 'rewrite', 'reason': 'internal: the appended tip is not a commit'}
+    if tail or remote:
+        if git(repo, 'rev-parse', f'{tip}^{{tree}}') != want_tree:
+            if tail or _law_files(repo, tip) != _law_files(repo, built):
+                return {'kind': 'rewrite', 'reason': 'the appended tip does not have the build\'s final tree'}
+    elif _law_files(repo, tip) != _law_files(repo, built):  # a new future branch on main's published law commits
+        return {'kind': 'rewrite', 'reason': 'the grafted branch does not have the build\'s law files'}
     if remote and subprocess.run(['git', 'merge-base', '--is-ancestor', remote, tip], cwd=repo).returncode:
         return {'kind': 'rewrite', 'reason': 'internal: the appended tip does not descend from the published tip'}
-    docs = sum(1 for s in todo if s in tail)
     return {'kind': 'append', 'new': tip, 'map': mapping, 'added': [mapping[s] for s in todo],
-            'laws': len(todo) - docs, 'docs': docs}
+            'laws': len(new_law), 'docs': len(tail), 'backfill': backfill,
+            'law_tip': mapping[new_law[-1]] if new_law else (r_law[-1] if remote and r_law else parent)}
+
+
+def _law_files(repo: Path, commit: str) -> dict[bytes, bytes]:
+    out = subprocess.run(['git', 'ls-tree', '-r', '-z', commit], cwd=repo, capture_output=True).stdout
+    files = {}
+    for rec in out.split(b'\0'):
+        if rec:
+            meta, _, path = rec.partition(b'\t')
+            if _is_law_path(path):
+                files[path] = meta.split()[2]
+    return files
 
 
 def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, check=None) -> str:
@@ -440,15 +562,18 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
     new_tags: dict[str, str] = {}  # tag ref -> new commit, for commits written by append_onto()
     appended: list[str] = []
     main_map: dict[str, str] = {}
+    main_law_tip = None
     for b in branches:
         new = git(repo, 'rev-parse', '-q', '--verify', f'refs/heads/{b}', check=False)
         old = git(repo, 'rev-parse', '-q', '--verify', f'refs/remotes/origin/{b}', check=False) if b in there else ''
         if not new:
             plan.append(f'{b} same')
             continue
-        g = append_onto(repo, old or None, new, base=main_map if b != 'main' else None)
+        g = append_onto(repo, old or None, new, base=main_map if b != 'main' else None,
+                        base_tip=main_law_tip if b != 'main' else None)
         if b == 'main':
             main_map = g.get('map', {})
+            main_law_tip = g.get('law_tip')
         if g['kind'] == 'rewrite':
             standing = standing_approval(slug, repo, b, old, new, local_tags, remote_tags)  # '' since 2026-11-02
             if (slug, f'refs/heads/{b}', old, new) in approved or standing:
@@ -459,10 +584,10 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
                 plan.append(f'{b} approved rewrite {old[:9]}->{new[:9]} ({g["reason"]})')
                 refs.append(f'refs/heads/{b}:refs/heads/{b}')
                 continue
-            replaced = git(repo, 'rev-list', '--count', old, f'^{new}', check=False)
+            replaced = git(repo, 'rev-list', '--count', old, f'^{new}', check=False) if old else 0
             rewrites.append({'ref': f'refs/heads/{b}', 'old': old, 'new': new, 'reason': g['reason'],
                              'replaces_commits': int(replaced or 0),
-                             'adds_commits': int(git(repo, 'rev-list', '--count', new, f'^{old}') or 0)})
+                             'adds_commits': int(git(repo, 'rev-list', '--count', new, *([f'^{old}'] if old else [])) or 0)})
             continue
         if g['kind'] == 'same':
             plan.append(f'{b} same')
@@ -473,7 +598,8 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
             return f'NOT pushed: privacy audit found {len(found)} in {b}: {"; ".join(found[:5])}'
         git(repo, 'update-ref', f'refs/build/{b}', new)  # the build as made, for comparison
         git(repo, 'update-ref', f'refs/heads/{b}', tip)
-        what = f'+{g["laws"]} law commit{"s" if g["laws"] != 1 else ""}' + (f', +{g["docs"]} docs' if g['docs'] else '')
+        what = (f'+{g["laws"]} law commit{"s" if g["laws"] != 1 else ""}' + (' back-filled at the end' if g.get('backfill')
+                else '') + (f', +{g["docs"]} docs' if g['docs'] else ''))
         plan.append(f'{b} {"append" if old else "new branch"} {old[:9] or "(new)"}->{tip[:9]} ({what}; fast-forward)')
         refs.append(f'refs/heads/{b}:refs/heads/{b}')
         appended.append(b)
@@ -620,7 +746,7 @@ def main_build(slug: str, folder: Path, repo: Path, state: dict, dry_run: bool =
     h.update(repr(sorted(a for a in approved_rewrites() if a[0] == slug)).encode())
     sha = h.hexdigest()
     # A failed push is retried even when nothing changed (e.g. a first push that lost a race with a new branch).
-    if (state.get('built_sha') == sha and not dry_run and 'fail' not in str(state.get('result', ''))
+    if (state.get('built_sha') == sha and not dry_run and not _fail_retry(state)
             and not _retry_due(state)):
         return {'main': f'unchanged since {state.get("built_at")} ({state.get("result")})'}
     if not dry_run:
@@ -847,7 +973,23 @@ def watchdog() -> None:
 
 
 # Bumped when publish() changes what it would push: every repo is then visited once more under the new rules.
-PUBLISH_MODE = 'append-v1'
+PUBLISH_MODE = 'append-v2-d12'  # v2: D12 end blocks for older laws found late
+
+
+def _fail_retry(state: dict) -> bool:
+    """Whether a visit that ended badly should run again although no input changed. Transient failures (a push or fetch
+    that failed: network, races) retry on the next pass. Deterministic refusals (held rewrite, check or build failed,
+    NOT pushed) only retry hourly: rebuilding them every pass burned cores for nothing (2026-11-02)."""
+    r = str(state.get('result', ''))
+    if 'fail' not in r and 'NOT pushed' not in r:
+        return False
+    if any(k in r for k in ('check failed', 'build failed', 'NOT pushed', 'rewrite')):
+        try:
+            last = dt.datetime.fromisoformat(str(state.get('built_at', '')).replace('Z', '+00:00')).timestamp()
+        except ValueError:
+            return True
+        return time.time() - last > 3600
+    return True
 
 
 def _retry_due(state: dict) -> bool:
@@ -865,7 +1007,7 @@ def unchanged(slug: str) -> bool:
     try:
         state = json.loads(state_path.read_text(encoding='utf-8')) if state_path.exists() else {}
         return (state.get('sig') == _folder_sig(folder, slug) and bool(state.get('built_sha'))
-                and bool(state.get('wip_ok')) and 'fail' not in str(state.get('result', '')) and not _retry_due(state))
+                and bool(state.get('wip_ok')) and not _fail_retry(state) and not _retry_due(state))
     except (OSError, ValueError):
         return False
 
