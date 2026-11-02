@@ -700,6 +700,8 @@ def _challenge(code: int, hops, body: bytes) -> str | None:
     text = body[:65536].decode('utf-8', 'replace').lower()
     if code == 202 and not body.strip() and _bot_signal(hops):
         return f'HTTP 202 with an empty body from {_bot_signal(hops)}'
+    if code >= 400 and 'web page blocked' in text and 'attack id' in text:  # FortiWeb block page (seen as HTTP 500)
+        return f'HTTP {code} challenge page (FortiWeb "web page blocked")'
     if code in (403, 429, 503):
         for m in _CHALLENGE_STRONG + _CHALLENGE_WEAK:
             if m in text:

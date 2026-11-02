@@ -22,8 +22,8 @@
 
     "api.legislation.qld.gov.au": {"tier": "C", "source": "same publisher as the Imperva-challenged website; API needs a key"},
     "legislation.nysenate.gov": {"tier": "C", "source": "nysenate.gov challenges some clients"},
-    "get.data.gov.lt": {"tier": "C", "source": "Lithuania open data; e-TAR/e-seimas behind Cloudflare; one check request only"},
-    "data.gov.lt": {"tier": "C", "source": "THIN-SURVEY: may be challenged"},
+    "get.data.gov.lt": {"tier": "stop", "source": "FortiWeb block page (HTTP 500, Attack ID) 2026-10-29 and 2026-11-02"},
+    "data.gov.lt": {"tier": "stop", "source": "same server and block as get.data.gov.lt, 2026-11-02"},
     "api.legislation.govt.nz": {"tier": "C", "source": "live site has an AWS WAF challenge"},
 
     "legislation.qld.gov.au": {"tier": "stop", "source": "Imperva/Incapsula challenge (HTTP 200, 212-byte JS), after about 26 requests"},
