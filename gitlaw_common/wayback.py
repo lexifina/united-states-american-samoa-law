@@ -8,8 +8,9 @@
 Why: all agents share one IP, so archive.org's limit is per machine, not per agent. A fixed delay per agent is
 either too slow (most of the time) or too fast (when twenty agents fire at once). This client keeps ONE rate for
 every process on the machine, in a small state file guarded by a lock file:
-- it starts at START requests a second and adds STEP for every success, up to MAX;
-- an HTTP 429 or 503 (or a connection failure) halves the rate and pauses everyone for a backoff period.
+- one request in flight for the whole machine, the next as soon as the previous one answers (no cap of our own);
+- an HTTP 429 or 503 (or a connection failure) halves the rate and pauses everyone for a backoff period, and
+  Retry-After is always honoured.
 So the machine runs at whatever archive.org will take, and backs off the moment it complains.
 
 Requests go through curl (Python's TLS fails on this machine) with --compressed. Each response is cached by the
@@ -24,15 +25,18 @@ import os
 import random
 import subprocess
 import tempfile
+import threading
 import time
 from pathlib import Path
 
-STATE = Path(tempfile.gettempdir()) / 'gitlaw-wayback-rate.json'
-LOCK = Path(tempfile.gettempdir()) / 'gitlaw-wayback-rate.lock'
-START, STEP, MAX, MIN = 1.0, 0.05, 1.0, 0.3        # requests per second, for the whole machine
-# Coordinator rule 2026-11-01: archive.org at most 1 request/s machine-wide (it has gone offline and answered 429
-# during our runs), halving on 429/503, and at most ARCHIVE_DAILY requests a day (UTC).
-ARCHIVE_DAILY = 20000
+STATE = Path(os.environ.get('GITLAW_ARCHIVE_RATE') or Path(tempfile.gettempdir()) / 'gitlaw-wayback-rate.json')
+LOCK = STATE.with_suffix('.lock')
+# Alan, 2026-11-02 21:50 UTC: no caps of our own. archive.org gets one request in flight machine-wide and the next
+# goes out as soon as the previous one answers. A 429/503/connection failure halves the rate (doubles the interval
+# from max(current, latency, THROTTLE_FLOOR), at most 1/MIN), pauses everyone for BACKOFF and recovers by STEP
+# requests a second per success; Retry-After is always honoured. The per-day counter is kept for reporting only.
+STEP, MIN = 0.05, 0.3                                # recovery req/s per success; slowest throttle (requests a second)
+THROTTLE_FLOOR = 0.5
 BACKOFF = 45.0                                       # seconds everyone waits after a 429/503
 UA = 'lexifina-watch/1.0 (+https://lexifina.com/watch; corpus@lexifina.com)'
 
@@ -58,7 +62,7 @@ def _locked(fn):
         try:
             st = json.loads(STATE.read_text(encoding='utf-8'))
         except (OSError, ValueError):
-            st = {'rate': START, 'next': 0.0, 'pause_until': 0.0, 'ok': 0, 'throttled': 0}
+            st = {'next': 0.0, 'pause_until': 0.0, 'ok': 0, 'throttled': 0}
         out, st = fn(st)
         STATE.write_text(json.dumps(st), encoding='utf-8')
         return out
@@ -67,40 +71,64 @@ def _locked(fn):
         LOCK.unlink(missing_ok=True)
 
 
-def _slot() -> None:
-    """Wait for this process's turn under the machine-wide rate."""
+_ARCHIVE_SLOT_TTL = 240.0   # a slot outlives _curl's 120 s timeout by this much (a crashed holder frees it then)
+
+
+def _slot() -> str:
+    """Wait until no other archive.org request is in flight on the machine (and any pause is over); returns the slot."""
+    lease = f'{os.getpid()}:{threading.get_ident()}:{random.random():.12f}'
+
     def take(st):
-        now = time.time()
+        now = _now()
         day = time.strftime('%Y-%m-%d', time.gmtime(now))
         if st.get('day') != day:
             st['day'], st['count'] = day, 0
-        if st['count'] >= ARCHIVE_DAILY:
+        slots = {k: v for k, v in (st.get('inflight') or {}).items() if v > now}
+        st['inflight'] = slots
+        if slots:
             return None, st
-        st['count'] += 1
-        st['rate'] = min(st['rate'], MAX)  # older state files may hold a faster rate
-        start = max(now, st['next'], st['pause_until'])
-        st['next'] = start + 1.0 / st['rate']
+        start = max(now, st.get('next', 0.0), st.get('pause_until', 0.0))
+        slots[lease] = start + _ARCHIVE_SLOT_TTL
+        st['count'] = st.get('count', 0) + 1
+        st['next'] = start + float(st.get('throttle_iv') or 0)
         return start - now, st
-    wait = _locked(take)
-    if wait is None:
-        raise ArchiveDailyCap(f'archive.org: {ARCHIVE_DAILY} requests today from this machine; resume tomorrow')
-    if wait > 0:
-        time.sleep(wait)
+    while True:
+        wait = _locked(take)
+        if wait is None:
+            time.sleep(0.01 + random.random() * 0.02)
+            continue
+        if wait > 0:
+            _sleep(wait)
+        return lease
 
 
 class ArchiveDailyCap(RuntimeError):
-    """archive.org has had ARCHIVE_DAILY requests from this machine today (UTC); resume tomorrow."""
+    """No longer raised (the daily cap was removed on 2026-11-02); kept so callers that catch it still import."""
 
 
-def _report(ok: bool) -> None:
+def _report(ok: bool, lease: str | None = None, code: int = 0, hops=(), lat: float = 0.0) -> None:
     def upd(st):
+        now = _now()
+        if lease:
+            (st.get('inflight') or {}).pop(lease, None)
+        if code and lat:
+            st['lat'] = lat if 'lat' not in st else 0.8 * st['lat'] + 0.2 * lat
+        ra = _retry_after(hops, now) if (code >= 300 and code != 304) else None
+        if ra:
+            st['pause_until'] = max(st.get('pause_until', 0.0), now + ra)
         if ok:
-            st['rate'] = min(MAX, st['rate'] + STEP)
-            st['ok'] += 1
+            st['ok'] = st.get('ok', 0) + 1
+            if st.get('throttle_iv'):
+                iv = 1.0 / (1.0 / st['throttle_iv'] + STEP)
+                if iv <= THROTTLE_FLOOR:
+                    st.pop('throttle_iv', None)
+                else:
+                    st['throttle_iv'] = iv
         else:
-            st['rate'] = max(MIN, st['rate'] / 2)
-            st['pause_until'] = time.time() + BACKOFF
-            st['throttled'] += 1
+            cur = max(float(st.get('throttle_iv') or 0), st.get('lat', 0.0), THROTTLE_FLOOR)
+            st['throttle_iv'] = min(2 * cur, 1 / MIN)
+            st['pause_until'] = max(st.get('pause_until', 0.0), now + BACKOFF)
+            st['throttled'] = st.get('throttled', 0) + 1
         return None, st
     _locked(upd)
 
@@ -160,12 +188,18 @@ def fetch(url: str, cache: Path | str | None = None, tries: int = 6) -> bytes | 
     if hit is not None and hit.exists():
         return hit.read_bytes()
     for attempt in range(tries):
-        _slot()
-        code, body = _curl(url)
-        if code in (429, 503) or code == 0:
-            _report(False)
+        lease = _slot()
+        t0, done = time.time(), False
+        try:
+            code, body, hops = _curl_h(url, 120)
+            pushback = code in (429, 503) or code == 0
+            _report(not pushback, lease, code, hops, time.time() - t0)
+            done = True
+        finally:
+            if not done:
+                _report(True, lease)
+        if pushback:
             continue
-        _report(True)
         _log(cache, url, code, len(body))
         if code == 404:
             return None
@@ -469,29 +503,32 @@ def cc_get(rec: dict, cache: Path | str | None = None) -> bytes | None:
     return body
 
 
-# --- Direct fetching from official sites: one paced rate per host, shared by every process on the machine ------------
-# Coordinator rule 2026-11-01 (after Sucuri/Incapsula/Imperva blocks on long clean streaks): a host gets at most
-# 1 request per 3 s and HOST_DAILY requests a day (UTC), machine-wide, and we stop for good on any challenge page.
-# Decisions D5/D6/D7 (scripts/world-law/COVERAGE-WAVE.md, "Decisions applied 2026-11-02") add tiers on top:
-#   A  the site states a rate (terms, API docs, robots Crawl-delay): use it. From host_tiers.json, or automatically
-#      from a robots Crawl-delay once the host has qualified (below); a robots-derived rate is capped at HOST_A_MAX.
-#   B  no stated limit and no sign of bot management: ramp linearly from 1 per 3 s to HOST_B_MAX (1/s) over
-#      HOST_B_RAMP (3 days) from the moment the host qualified. The ramp start is kept in the host's state file.
-#   C  any bot-management header or cookie seen (Cloudflare, Akamai, Imperva, DataDome, PerimeterX, AWS WAF, Sucuri,
-#      Kasada, F5): 1 per 3 s and HOST_DAILY a day, for good. Unknown hosts are paced like C until they qualify:
-#      HOST_QUALIFY clean responses, a robots.txt read (200 or 404) and no bot-management sign.
-#   A challenge or WAF page in any tier stops the host for good: a stop file in HOST_STOP_DIR (outside the temp
-#   folder) makes every later call, in every process, raise HostStopped before any request. Never work round one.
-# A robots Crawl-delay always wins when it is slower. host_get reads robots.txt itself once per host every ROBOTS_TTL.
-# A 429/503/time-out still halves the host's rate (and pauses everyone for HOST_BACKOFF); 429/503 also restart a
-# tier B ramp. Per-host tiers, rates and stops can be set by hand in host_tiers.json (see _host_cfg).
+# --- Direct fetching from official sites: one request in flight per host, shared by every process on the machine ----
+# Alan, 2026-11-02 21:50 UTC ("clear our own pacing caps", end of scripts/world-law/COVERAGE-WAVE.md): no limits of
+# our own. A host gets one request in flight machine-wide (HOST_CONCURRENCY), and the next one goes out as soon as the
+# previous one answers. No daily cap and no fixed floor; the per-host request counters remain, for reporting only.
+# What still slows a host down is the site's own rules:
+#   - tier A: a rate the publisher states (terms, API docs), from host_tiers.json ("interval" s or "rate" req/s);
+#   - a robots Crawl-delay (the slower of it and any stated rate wins); host_get reads robots.txt once per ROBOTS_TTL;
+#   - Retry-After on any 3xx/4xx/5xx answer, always honoured;
+#   - a 429/503/time-out halves the host's rate (doubles its interval from max(current interval, latency,
+#     HOST_THROTTLE_FLOOR)), pauses everyone for HOST_BACKOFF and drops it to one request in flight; each clean answer
+#     then adds HOST_STEP requests a second back, until the throttle is gone;
+#   - a challenge or WAF page in any tier stops the host for good: a stop file in HOST_STOP_DIR (outside the temp
+#     folder) makes every later call, in every process, raise HostStopped before any request. Never work round one.
+# More than one in flight (2026-11-02, Alan): a host_tiers.json "concurrency" of up to HOST_CONCURRENCY_MAX, only for
+# documented public APIs that state no limit and show no bot management. The slots are leases in the host's state
+# file, under its cross-process lock (a counting semaphore). Any bot-management sign forces 1 for good, and a
+# 429/503/time-out forces 1 until the throttle has recovered.
+# Tier labels are now informational: A = publisher-stated rate, C = bot management seen (or set by hand), B = the rest.
 # D6: 200 responses keep their ETag/Last-Modified in <cache>/.http-meta/<sha256>.json; host_get(url, cache,
-# refresh=True) revalidates with If-None-Match/If-Modified-Since, and a 304 serves the cached body and costs
-# HOST_304_COST of a request against the daily cap. Cache entries without metadata still work (refresh = full GET).
-HOST_START, HOST_STEP, HOST_MAX, HOST_MIN, HOST_BACKOFF = 1 / 3, 0.0, 1 / 3, 0.1, 30.0
-HOST_DAILY = 5000
-HOST_B_MAX, HOST_B_RAMP, HOST_A_MAX = 1.0, 3 * 86400.0, 1.0
-HOST_QUALIFY = 20                 # clean responses (with no bot-management sign) before a host leaves the C pace
+# refresh=True) revalidates with If-None-Match/If-Modified-Since, and a 304 serves the cached body and counts
+# HOST_304_COST of a request in the host's counter. Cache entries without metadata still work (refresh = full GET).
+HOST_STEP, HOST_MIN, HOST_BACKOFF = 0.02, 0.1, 30.0  # recovery req/s per clean answer; slowest throttle 1 per 10 s
+HOST_THROTTLE_FLOOR = 0.5         # s: the first halving starts from at least this interval
+HOST_CONCURRENCY, HOST_CONCURRENCY_MAX = 1, 8
+HOST_LEASE_SLACK = 60.0           # a slot outlives its request's timeout by this much (a crashed holder frees it then)
+HOST_DAILY = float('inf')         # no daily cap since 2026-11-02 21:50 UTC; kept (inert) for code that reads it
 HOST_304_COST = 0.25
 ROBOTS_TTL = 7 * 86400.0
 HOST_DIR = Path(os.environ.get('GITLAW_HOST_RATE_DIR') or Path(tempfile.gettempdir()) / 'gitlaw-host-rate')
@@ -500,9 +537,8 @@ HOST_STOP_DIR = Path(os.environ.get('GITLAW_HOST_STOP_DIR')
 HOST_TIERS = Path(os.environ.get('GITLAW_HOST_TIERS') or Path(__file__).with_name('host_tiers.json'))
 _now, _sleep = time.time, time.sleep   # injectable clock for tests
 
-
 class HostDailyCap(RuntimeError):
-    """This host has had its daily cap of live requests from this machine today (UTC); resume tomorrow."""
+    """No longer raised by host_get (daily caps were removed on 2026-11-02); kept for callers that import or catch it."""
 
 
 class HostStopped(RuntimeError):
@@ -540,7 +576,7 @@ def _host_locked(host: str, fn):
         try:
             st = json.loads(state.read_text(encoding='utf-8'))
         except (OSError, ValueError):
-            st = {'rate': HOST_START, 'next': 0.0, 'pause_until': 0.0, 'ok': 0, 'throttled': 0}
+            st = {'next': 0.0, 'pause_until': 0.0, 'ok': 0, 'throttled': 0}
         out, st = fn(st)
         tmp = state.with_suffix('.tmp')
         tmp.write_text(json.dumps(st), encoding='utf-8')
@@ -567,10 +603,10 @@ def _host_cfg(host: str) -> dict:
         s = HOST_TIERS.stat()
         key = (str(HOST_TIERS), s.st_mtime_ns, s.st_size)
     except OSError:
-        key = None
+        key = ('missing', str(HOST_TIERS))
     if key != _cfg_cache['key']:
         hosts = {}
-        if key is not None:
+        if key[0] != 'missing':
             try:
                 hosts = {k.lower(): v for k, v in json.loads(HOST_TIERS.read_text(encoding='utf-8')).get('hosts', {}).items()
                          if isinstance(v, dict)}
@@ -721,50 +757,75 @@ def _challenge(code: int, hops, body: bytes) -> str | None:
 
 # ---- pacing
 
+def _stated(entry: dict) -> float | None:
+    if entry.get('interval'):
+        return float(entry['interval'])
+    if entry.get('rate'):
+        return 1.0 / float(entry['rate'])
+    return None
+
+
 def _policy(host: str, st: dict, now: float) -> dict:
-    """{'tier', 'interval' (s between request starts), 'daily', 'reason'} for host given its state at time now."""
+    """{'tier', 'interval' (s between request starts), 'concurrency' (requests in flight), 'daily' (always inf: no
+    cap), 'base' (the interval before any throttle), 'reason'} for host given its state at time now."""
     c = _host_cfg(host)
     t = str(c.get('tier', '')).upper()
-    daily = float(c.get('daily', HOST_DAILY))
-    factor = min(float(st.get('rate', HOST_START)), HOST_START) / HOST_START   # < 1 after 429/503/time-outs
-    cd = float(st.get('crawl_delay') or 0)
     if t == 'STOP' or st.get('stopped'):
-        return {'tier': 'stop', 'interval': float('inf'), 'daily': 0, 'reason': 'stopped'}
-
-    def stated(entry):
-        if entry.get('interval'):
-            return float(entry['interval'])
-        if entry.get('rate'):
-            return 1.0 / float(entry['rate'])
-        return None
+        return {'tier': 'stop', 'interval': float('inf'), 'concurrency': 0, 'daily': 0, 'base': float('inf'),
+                'reason': 'stopped'}
+    cd = float(st.get('crawl_delay') or 0)
     bot = st.get('bot')
-    qualified = (st.get('clean', 0) >= HOST_QUALIFY and st.get('robots_ok')) and not bot
-    if bot and not (t == 'A' and c.get('override_bot')):
-        tier, iv, why = 'C', 1 / HOST_START, f'bot management seen: {bot}'
-    elif t == 'A' and stated(c):
-        tier, iv, why = 'A', stated(c), 'host_tiers.json: ' + str(c.get('source', 'stated rate'))
+    if t == 'A' and _stated(c):
+        tier, base, why = 'A', _stated(c), 'host_tiers.json: ' + str(c.get('source', 'stated rate'))
+    elif bot:
+        tier, base, why = 'C', 0.0, f'bot management seen: {bot}'
     elif t == 'C':
-        tier, iv, why = 'C', 1 / HOST_START, 'host_tiers.json: ' + str(c.get('source', 'tier C'))
-    elif t == 'B' or (qualified and not cd):
-        since = st.get('b_since', now)
-        frac = min(1.0, max(0.0, (now - since) / HOST_B_RAMP))
-        tier, iv = 'B', 1.0 / (HOST_START + (HOST_B_MAX - HOST_START) * frac)
-        why = ('host_tiers.json' if t == 'B' else 'qualified') + f', ramp {frac:.0%}'
-    elif qualified and cd:
-        tier, iv, why = 'A', max(cd, 1 / HOST_A_MAX), f'robots Crawl-delay {cd:g}'
+        tier, base, why = 'C', 0.0, 'host_tiers.json: ' + str(c.get('source', 'tier C'))
     else:
-        tier, iv, why = 'C', 1 / HOST_START, f'unqualified ({st.get("clean", 0)}/{HOST_QUALIFY} clean responses)'
-    return {'tier': tier, 'interval': max(iv / factor, cd), 'daily': daily, 'reason': why}
+        tier, base, why = 'B', 0.0, 'no stated rate'
+    if cd > base:
+        base, why = cd, why + f'; robots Crawl-delay {cd:g}'
+    throttle = float(st.get('throttle_iv') or 0)
+    conc = HOST_CONCURRENCY
+    try:
+        conc = max(1, min(HOST_CONCURRENCY_MAX, int(c.get('concurrency') or HOST_CONCURRENCY)))
+    except (TypeError, ValueError):
+        pass
+    if bot:
+        conc = 1
+    elif throttle or now < float(st.get('pause_until', 0.0)):
+        conc = 1
+        why += '; throttled after 429/503/time-out'
+    return {'tier': tier, 'interval': max(base, throttle), 'concurrency': conc, 'daily': float('inf'),
+            'base': base, 'reason': why}
 
 
 def host_policy(host: str, now: float | None = None) -> dict:
-    """The tier and pace host_get applies to host now (for status pages and checks)."""
+    """The tier, pace and slots host_get applies to host now (for status pages and checks)."""
     host = host.lower()
     st = host_status(host)
     out = _policy(host, st, _now() if now is None else now)
     if host_stopped(host):
         out.update(tier='stop', reason=host_stopped(host).get('reason'))
     return out
+
+
+def _retry_after(hops, now: float) -> float | None:
+    """Seconds a Retry-After header (in seconds or as an HTTP date) asks us to wait, or None."""
+    for _, hdrs in reversed(hops):
+        for k, v in hdrs:
+            if k == 'retry-after':
+                v = v.strip()
+                try:
+                    return max(0.0, float(v))
+                except ValueError:
+                    pass
+                try:
+                    from email.utils import parsedate_to_datetime
+                    return max(0.0, parsedate_to_datetime(v).timestamp() - now)
+                except (TypeError, ValueError, IndexError, OverflowError):
+                    return None
+    return None
 
 
 def _note_robots(host: str, code: int | None, crawl_delay: float | None) -> None:
@@ -828,9 +889,12 @@ def _curl_h(url: str, timeout: int, headers: list[str] = ()) -> tuple[int, bytes
 
 def _host_fetch(url: str, host: str, cache: Path | None, tries: int, timeout: int,
                 cond: list[str] = ()) -> tuple[int, bytes, list]:
-    """One paced, counted request (retried, like before, on anything but 200/304/403/404/410). Raises HostStopped/HostDailyCap."""
+    """One request under host's slots and pace (retried, as before, on anything but 200/304/403/404/410).
+    Raises HostStopped. The per-day counter is kept for reporting and never blocks."""
     code, body, hops = 0, b'', []
-    for _ in range(tries):
+    lease = f'{os.getpid()}:{threading.get_ident()}:{random.random():.12f}'
+    attempt = 0
+    while attempt < tries:
         _check_stop(host)
         _maybe_robots(host, url)
 
@@ -841,56 +905,81 @@ def _host_fetch(url: str, host: str, cache: Path | None, tries: int, timeout: in
                 st['day'], st['count'] = day, 0
             pol = _policy(host, st, now)
             if pol['tier'] == 'stop':
-                return 'stop', st
-            if st['count'] >= pol['daily']:
-                return ('cap', pol['daily']), st
-            if pol['tier'] == 'B':
-                st.setdefault('b_since', now)
-            st['count'] += 1
-            st['rate'] = min(st.get('rate', HOST_START), HOST_MAX)  # older state files may hold a faster rate
+                return ('stop', 0.0), st
+            slots = {k: v for k, v in (st.get('inflight') or {}).items() if v > now}
+            if len(slots) >= pol['concurrency']:
+                st['inflight'] = slots
+                return ('busy', 0.0), st
             start = max(now, st.get('next', 0.0), st.get('pause_until', 0.0))
+            slots[lease] = start + timeout + HOST_LEASE_SLACK
+            st['inflight'] = slots
+            st['count'] = st.get('count', 0) + 1
             st['next'] = start + pol['interval']
             st['tier'] = pol['tier']
-            return start - now, st
-        wait = _host_locked(host, take)
-        if wait == 'stop':
+            return ('go', start - now), st
+        how, wait = _host_locked(host, take)
+        if how == 'stop':
             _check_stop(host)
             raise HostStopped(f'{host}: stopped for good')
-        if isinstance(wait, tuple):
-            raise HostDailyCap(f'{host}: {wait[1]:g} requests today from this machine; resume tomorrow')
-        if wait > 0:
-            _sleep(wait)
-        _check_stop(host)   # another process may have met a challenge while we waited
-        code, body, hops = _curl_h(url, timeout, cond)
-        why = _challenge(code, hops, body)
-        if why:
-            _stop_host(host, url, code, why)
-            _log(cache, url, code, 0)
-            raise HostStopped(f'{host}: {why} at {url}; stopped for good (never retry, never work round it)')
-        signal = _bot_signal(hops)
-        pushback = code in (429, 503) or code == 0
+        if how == 'busy':   # every slot is in use (another thread or process): wait for an answer, in real time
+            time.sleep(0.01 + random.random() * 0.02)
+            continue
+        attempt += 1
+        released = False
 
-        def upd(st):
-            if pushback:
-                st['rate'] = max(HOST_MIN, st.get('rate', HOST_START) / 2)
-                st['pause_until'] = _now() + HOST_BACKOFF
-                st['throttled'] = st.get('throttled', 0) + 1
-                if code:   # the host itself pushed back: a tier B ramp starts again once it requalifies
-                    st['clean'] = 0
-                    st.pop('b_since', None)
-            else:
-                st['rate'] = min(HOST_MAX, st.get('rate', HOST_START) + HOST_STEP)
-                st['ok'] = st.get('ok', 0) + 1
+        def release(st):
+            (st.get('inflight') or {}).pop(lease, None)
+            return None, st
+        try:
+            if wait > 0:
+                _sleep(wait)
+            _check_stop(host)   # another process may have met a challenge while we waited
+            t0 = time.time()
+            code, body, hops = _curl_h(url, timeout, cond)
+            lat = time.time() - t0
+            why = _challenge(code, hops, body)
+            if why:
+                _stop_host(host, url, code, why)
+                _log(cache, url, code, 0)
+                raise HostStopped(f'{host}: {why} at {url}; stopped for good (never retry, never work round it)')
+            signal = _bot_signal(hops)
+            pushback = code in (429, 503) or code == 0
+
+            def upd(st):
+                now = _now()
+                (st.get('inflight') or {}).pop(lease, None)
                 if signal:
                     st.setdefault('bot', signal)
                     st.setdefault('bot_at', time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()))
-                elif code < 500:
-                    st['clean'] = st.get('clean', 0) + 1
-                if code == 304:
-                    st['count'] = max(0.0, st['count'] - (1 - HOST_304_COST))
-                    st['not_modified'] = st.get('not_modified', 0) + 1
-            return None, st
-        _host_locked(host, upd)
+                if code:
+                    st['lat'] = lat if 'lat' not in st else 0.8 * st['lat'] + 0.2 * lat
+                ra = _retry_after(hops, now) if (code >= 300 and code != 304) else None
+                if ra:
+                    st['pause_until'] = max(st.get('pause_until', 0.0), now + ra)
+                    st['retry_after'] = ra
+                if pushback:
+                    base = _policy(host, st, now)['base']
+                    cur = max(float(st.get('throttle_iv') or 0), base, st.get('lat', 0.0), HOST_THROTTLE_FLOOR)
+                    st['throttle_iv'] = min(2 * cur, max(1 / HOST_MIN, 4 * base))
+                    st['pause_until'] = max(st.get('pause_until', 0.0), now + HOST_BACKOFF)
+                    st['throttled'] = st.get('throttled', 0) + 1
+                else:
+                    st['ok'] = st.get('ok', 0) + 1
+                    if st.get('throttle_iv'):   # recovery: HOST_STEP requests a second back per clean answer
+                        iv = 1.0 / (1.0 / st['throttle_iv'] + HOST_STEP)
+                        if iv <= max(HOST_THROTTLE_FLOOR, _policy(host, st, now)['base']):
+                            st.pop('throttle_iv', None)
+                        else:
+                            st['throttle_iv'] = iv
+                    if code == 304:
+                        st['count'] = max(0.0, st['count'] - (1 - HOST_304_COST))
+                        st['not_modified'] = st.get('not_modified', 0) + 1
+                return None, st
+            _host_locked(host, upd)
+            released = True
+        finally:
+            if not released:
+                _host_locked(host, release)
         if code in (200, 304, 403, 404, 410):
             return code, body, hops
     return code, body, hops
@@ -911,8 +1000,8 @@ def host_get(url: str, cache: Path | str | None = None, tries: int = 5, timeout:
 
     A cached copy is returned without a request, as before. With refresh=True a cached copy is revalidated: with its
     stored ETag/Last-Modified the request is conditional and a 304 returns the cached body (0.25 of a request against
-    the daily cap); an old entry without them is fetched in full. Returns None on 403/404/410 or after `tries`.
-    Raises HostDailyCap at the daily cap and HostStopped for a host that has served a challenge (now or ever)."""
+    the host's counter); an old entry without them is fetched in full. Returns None on 403/404/410 or after `tries`.
+    Raises HostStopped for a host that has served a challenge (now or ever). There is no daily cap."""
     host = _host_of(url)
     cache = Path(cache) if cache else None
     hit = _cached(cache, url)
