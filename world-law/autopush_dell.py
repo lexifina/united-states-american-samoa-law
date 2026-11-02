@@ -994,8 +994,10 @@ def _fail_retry(state: dict) -> bool:
 
 def _retry_due(state: dict) -> bool:
     """True when a repo must be visited again although no file changed: an append that waited for its commit dates
-    (state['retry_after']) once that time has passed, or a last visit made under an older PUBLISH_MODE."""
-    if state.get('publish_mode') != PUBLISH_MODE:
+    (state['retry_after']) once that time has passed, or a refusal made under an older PUBLISH_MODE (only those: a
+    repo that published cleanly is not rebuilt just because the rules grew)."""
+    r = str(state.get('result', ''))
+    if state.get('publish_mode') != PUBLISH_MODE and ('NOT pushed' in r or 'fail' in r):
         return True
     return bool(state.get('retry_after')) and time.time() >= state['retry_after']
 
