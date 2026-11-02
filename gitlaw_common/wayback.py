@@ -469,25 +469,60 @@ def cc_get(rec: dict, cache: Path | str | None = None) -> bytes | None:
     return body
 
 
-# --- Fast direct fetching from official sites: one adaptive rate per host, shared by every process on the machine -----
-# Starts at HOST_START requests a second, climbs with every success up to HOST_MAX, and halves (with a pause for
-# everyone) only when the host itself pushes back: 429, 503 or a timeout. This replaces fixed per-agent sleeps
-# (3 a second, IMPO's 10 s crawl delay), which left most of the time idle. Use host_get(url, cache) from a thread pool.
+# --- Direct fetching from official sites: one paced rate per host, shared by every process on the machine ------------
+# Coordinator rule 2026-11-01 (after Sucuri/Incapsula/Imperva blocks on long clean streaks): a host gets at most
+# 1 request per 3 s and HOST_DAILY requests a day (UTC), machine-wide, and we stop for good on any challenge page.
+# Decisions D5/D6/D7 (scripts/world-law/COVERAGE-WAVE.md, "Decisions applied 2026-11-02") add tiers on top:
+#   A  the site states a rate (terms, API docs, robots Crawl-delay): use it. From host_tiers.json, or automatically
+#      from a robots Crawl-delay once the host has qualified (below); a robots-derived rate is capped at HOST_A_MAX.
+#   B  no stated limit and no sign of bot management: ramp linearly from 1 per 3 s to HOST_B_MAX (1/s) over
+#      HOST_B_RAMP (3 days) from the moment the host qualified. The ramp start is kept in the host's state file.
+#   C  any bot-management header or cookie seen (Cloudflare, Akamai, Imperva, DataDome, PerimeterX, AWS WAF, Sucuri,
+#      Kasada, F5): 1 per 3 s and HOST_DAILY a day, for good. Unknown hosts are paced like C until they qualify:
+#      HOST_QUALIFY clean responses, a robots.txt read (200 or 404) and no bot-management sign.
+#   A challenge or WAF page in any tier stops the host for good: a stop file in HOST_STOP_DIR (outside the temp
+#   folder) makes every later call, in every process, raise HostStopped before any request. Never work round one.
+# A robots Crawl-delay always wins when it is slower. host_get reads robots.txt itself once per host every ROBOTS_TTL.
+# A 429/503/time-out still halves the host's rate (and pauses everyone for HOST_BACKOFF); 429/503 also restart a
+# tier B ramp. Per-host tiers, rates and stops can be set by hand in host_tiers.json (see _host_cfg).
+# D6: 200 responses keep their ETag/Last-Modified in <cache>/.http-meta/<sha256>.json; host_get(url, cache,
+# refresh=True) revalidates with If-None-Match/If-Modified-Since, and a 304 serves the cached body and costs
+# HOST_304_COST of a request against the daily cap. Cache entries without metadata still work (refresh = full GET).
 HOST_START, HOST_STEP, HOST_MAX, HOST_MIN, HOST_BACKOFF = 1 / 3, 0.0, 1 / 3, 0.1, 30.0
-# Coordinator rule 2026-11-01 (after Sucuri/Incapsula/Imperva blocks on long clean streaks): a host without a stated
-# Crawl-delay gets at most 1 request per 3 s and about HOST_DAILY requests a day, machine-wide. Spread big pulls over
-# days, prefer bulk/API, and stop for good on any challenge page.
 HOST_DAILY = 5000
+HOST_B_MAX, HOST_B_RAMP, HOST_A_MAX = 1.0, 3 * 86400.0, 1.0
+HOST_QUALIFY = 20                 # clean responses (with no bot-management sign) before a host leaves the C pace
+HOST_304_COST = 0.25
+ROBOTS_TTL = 7 * 86400.0
+HOST_DIR = Path(os.environ.get('GITLAW_HOST_RATE_DIR') or Path(tempfile.gettempdir()) / 'gitlaw-host-rate')
+HOST_STOP_DIR = Path(os.environ.get('GITLAW_HOST_STOP_DIR')
+                     or Path(os.environ.get('LOCALAPPDATA') or Path.home() / '.local' / 'state') / 'gitlaw' / 'host-stops')
+HOST_TIERS = Path(os.environ.get('GITLAW_HOST_TIERS') or Path(__file__).with_name('host_tiers.json'))
+_now, _sleep = time.time, time.sleep   # injectable clock for tests
 
 
 class HostDailyCap(RuntimeError):
-    """This host has had HOST_DAILY live requests from this machine today (UTC); resume tomorrow."""
-HOST_DIR = Path(tempfile.gettempdir()) / 'gitlaw-host-rate'
+    """This host has had its daily cap of live requests from this machine today (UTC); resume tomorrow."""
+
+
+class HostStopped(RuntimeError):
+    """This host served a challenge or WAF page (or host_tiers.json says stop): no process requests it again."""
+
+
+HostChallenged = HostStopped
+
+
+def _hostfile(host: str) -> str:
+    return host.replace(':', '_')  # a port's colon is not allowed in Windows file names
+
+
+def _host_of(url: str) -> str:
+    return url.split('://', 1)[-1].split('/', 1)[0].lower()
 
 
 def _host_locked(host: str, fn):
-    HOST_DIR.mkdir(exist_ok=True)
-    lock, state = HOST_DIR / f'{host}.lock', HOST_DIR / f'{host}.json'
+    HOST_DIR.mkdir(parents=True, exist_ok=True)
+    lock, state = HOST_DIR / f'{_hostfile(host)}.lock', HOST_DIR / f'{_hostfile(host)}.json'
     for _ in range(4000):
         try:
             fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
@@ -507,7 +542,9 @@ def _host_locked(host: str, fn):
         except (OSError, ValueError):
             st = {'rate': HOST_START, 'next': 0.0, 'pause_until': 0.0, 'ok': 0, 'throttled': 0}
         out, st = fn(st)
-        state.write_text(json.dumps(st), encoding='utf-8')
+        tmp = state.with_suffix('.tmp')
+        tmp.write_text(json.dumps(st), encoding='utf-8')
+        os.replace(tmp, state)
         return out
     finally:
         os.close(fd)
@@ -515,57 +552,402 @@ def _host_locked(host: str, fn):
 
 
 def host_status(host: str) -> dict:
-    return _host_locked(host, lambda st: (dict(st), st))
+    return _host_locked(host.lower(), lambda st: (dict(st), st))
 
 
-def host_get(url: str, cache: Path | str | None = None, tries: int = 5, timeout: int = 90) -> bytes | None:
-    """GET from an official site under its machine-wide adaptive rate (see above). Cached and logged like fetch()."""
-    host = url.split('://', 1)[-1].split('/', 1)[0].lower()
-    cache = Path(cache) if cache else None
-    hit = _cached(cache, url)
-    if hit is not None and hit.exists():
-        return hit.read_bytes()
+# ---- tier config (host_tiers.json) and stops
+
+_cfg_cache: dict = {'key': None, 'hosts': {}}
+
+
+def _host_cfg(host: str) -> dict:
+    """The host_tiers.json entry for host: exact name, then without 'www.', then '*.parent' wildcards. Entries:
+    {"tier": "A"|"B"|"C"|"stop", "rate": req/s or "interval": s, "daily": n, "override_bot": bool, "source": str}."""
+    try:
+        s = HOST_TIERS.stat()
+        key = (str(HOST_TIERS), s.st_mtime_ns, s.st_size)
+    except OSError:
+        key = None
+    if key != _cfg_cache['key']:
+        hosts = {}
+        if key is not None:
+            try:
+                hosts = {k.lower(): v for k, v in json.loads(HOST_TIERS.read_text(encoding='utf-8')).get('hosts', {}).items()
+                         if isinstance(v, dict)}
+            except (OSError, ValueError, AttributeError):
+                hosts = {}
+        _cfg_cache.update(key=key, hosts=hosts)
+    hosts = _cfg_cache['hosts']
+    name = host.split(':', 1)[0]
+    for k in (host, name, name[4:] if name.startswith('www.') else None):
+        if k and k in hosts:
+            return hosts[k]
+    parts = name.split('.')
+    for i in range(1, len(parts) - 1):
+        k = '*.' + '.'.join(parts[i:])
+        if k in hosts:
+            return hosts[k]
+    return {}
+
+
+def _stop_file(host: str) -> Path:
+    return HOST_STOP_DIR / f'{_hostfile(host)}.json'
+
+
+def host_stopped(host: str) -> dict | None:
+    """Why host is stopped for good ({'reason', 'at', 'url', ...}), or None."""
+    host = host.lower()
+    if _host_cfg(host).get('tier') == 'stop':
+        return {'host': host, 'reason': 'host_tiers.json: ' + str(_host_cfg(host).get('source', 'stop'))}
+    try:
+        return json.loads(_stop_file(host).read_text(encoding='utf-8'))
+    except FileNotFoundError:
+        return None
+    except (OSError, ValueError):
+        return {'host': host, 'reason': 'stop file present (unreadable)'}
+
+
+def _check_stop(host: str) -> None:
+    why = host_stopped(host)
+    if why:
+        raise HostStopped(f'{host}: stopped for good ({why.get("reason")}); never request it again, ask the publisher')
+
+
+def _stop_host(host: str, url: str, code: int, reason: str) -> None:
+    HOST_STOP_DIR.mkdir(parents=True, exist_ok=True)
+    rec = {'host': host, 'url': url, 'status': code, 'reason': reason,
+           'at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'pid': os.getpid()}
+    try:
+        fd = os.open(_stop_file(host), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            f.write(json.dumps(rec))
+    except FileExistsError:
+        pass
+
+    def mark(st):
+        st['stopped'] = rec
+        return None, st
+    _host_locked(host, mark)
+
+
+# ---- what a response says about the host
+
+_BOT_COOKIES = (('__cf_bm', 'cloudflare'), ('cf_clearance', 'cloudflare'), ('_abck', 'akamai'), ('bm_sz', 'akamai'),
+                ('ak_bmsc', 'akamai'), ('bm_sv', 'akamai'), ('incap_ses', 'imperva'), ('visid_incap', 'imperva'),
+                ('nlbi_', 'imperva'), ('reese84', 'imperva'), ('datadome', 'datadome'), ('_px', 'perimeterx'),
+                ('aws-waf-token', 'aws-waf'))
+_CHALLENGE_STRONG = ('_incapsula_resource', 'incapsula incident id', 'request unsuccessful. incapsula', 'cf-chl-',
+                     'cf_chl_opt', '/cdn-cgi/challenge-platform', 'captcha-delivery.com', 'px-captcha',
+                     'awswafintegration', 'sucuri_cloudproxy_js', 'sucuri website firewall', 'pardon our interruption',
+                     'bm-verify', 'sec-if-cpt', 'kpsdk', 'attention required! | cloudflare',
+                     'the requested url was rejected. please consult with your administrator')
+_CHALLENGE_WEAK = ('just a moment...', 'checking your browser', 'verify you are human', 'are you a robot', 'g-recaptcha',
+                   'hcaptcha.com', 'h-captcha', 'you have been blocked', 'web application firewall',
+                   'errors.edgesuite.net', 'datadome')
+
+
+def _parse_headers(raw: bytes) -> list[tuple[int, list[tuple[str, str]]]]:
+    """curl -D output (one block per hop with -L) -> [(status, [(lower name, value)])]."""
+    hops = []
+    for line in raw.decode('latin-1', 'replace').splitlines():
+        line = line.rstrip('\r')
+        if line.startswith('HTTP/'):
+            try:
+                hops.append((int(line.split()[1]), []))
+            except (IndexError, ValueError):
+                hops.append((0, []))
+        elif ':' in line and hops:
+            k, v = line.split(':', 1)
+            hops[-1][1].append((k.strip().lower(), v.strip()))
+    return hops
+
+
+def _bot_signal(hops) -> str | None:
+    """The bot-management product a response shows in any hop's headers or cookies, or None."""
+    for _, hdrs in hops:
+        names = {k for k, _ in hdrs}
+        cookies = [v.split('=', 1)[0].strip().lower() for k, v in hdrs if k == 'set-cookie']
+        val = {k: v.lower() for k, v in hdrs}
+        if 'cf-mitigated' in names:
+            return 'cloudflare (cf-mitigated)'
+        for c in cookies:
+            for prefix, who in _BOT_COOKIES:
+                if c.startswith(prefix) and (who != 'cloudflare' or 'cf-ray' in names or c == 'cf_clearance'):
+                    return f'{who} (cookie {c})'
+            if len(c) >= 8 and c[:2] == 'ts' and all(ch in '0123456789abcdef' for ch in c[2:]):
+                return f'f5 (cookie {c})'
+        if 'x-iinfo' in names or 'incapsula' in val.get('x-cdn', '') or 'imperva' in val.get('x-cdn', ''):
+            return 'imperva (header)'
+        if 'x-datadome' in names or 'x-dd-b' in names:
+            return 'datadome (header)'
+        if 'x-amzn-waf-action' in names:
+            return 'aws-waf (header)'
+        if 'x-sucuri-id' in names or 'x-sucuri-cache' in names or 'sucuri' in val.get('server', ''):
+            return 'sucuri (header)'
+        if any(n.startswith('x-kpsdk') for n in names):
+            return 'kasada (header)'
+    return None
+
+
+def _challenge(code: int, hops, body: bytes) -> str | None:
+    """Why this response is a challenge or WAF page, or None. 200s are judged by vendor-specific markers only."""
+    for _, hdrs in hops:
+        for k, v in hdrs:
+            if k == 'cf-mitigated' and 'challenge' in v.lower():
+                return 'cf-mitigated: challenge'
+            if k == 'x-amzn-waf-action' and v.lower() in ('challenge', 'captcha', 'block'):
+                return f'x-amzn-waf-action: {v}'
+    text = body[:65536].decode('utf-8', 'replace').lower()
+    if code == 202 and not body.strip() and _bot_signal(hops):
+        return f'HTTP 202 with an empty body from {_bot_signal(hops)}'
+    if code in (403, 429, 503):
+        for m in _CHALLENGE_STRONG + _CHALLENGE_WEAK:
+            if m in text:
+                return f'HTTP {code} challenge page ({m!r})'
+    elif code >= 400:
+        for m in _CHALLENGE_STRONG:
+            if m in text:
+                return f'HTTP {code} challenge page ({m!r})'
+    elif 200 <= code < 300 and len(body) < 65536:
+        for m in _CHALLENGE_STRONG:
+            if m in text:
+                return f'HTTP {code} challenge page ({m!r})'
+        if 'just a moment...' in text and 'cloudflare' in text:
+            return f'HTTP {code} challenge page (cloudflare "just a moment")'
+    return None
+
+
+# ---- pacing
+
+def _policy(host: str, st: dict, now: float) -> dict:
+    """{'tier', 'interval' (s between request starts), 'daily', 'reason'} for host given its state at time now."""
+    c = _host_cfg(host)
+    t = str(c.get('tier', '')).upper()
+    daily = float(c.get('daily', HOST_DAILY))
+    factor = min(float(st.get('rate', HOST_START)), HOST_START) / HOST_START   # < 1 after 429/503/time-outs
+    cd = float(st.get('crawl_delay') or 0)
+    if t == 'STOP' or st.get('stopped'):
+        return {'tier': 'stop', 'interval': float('inf'), 'daily': 0, 'reason': 'stopped'}
+
+    def stated(entry):
+        if entry.get('interval'):
+            return float(entry['interval'])
+        if entry.get('rate'):
+            return 1.0 / float(entry['rate'])
+        return None
+    bot = st.get('bot')
+    qualified = (st.get('clean', 0) >= HOST_QUALIFY and st.get('robots_ok')) and not bot
+    if bot and not (t == 'A' and c.get('override_bot')):
+        tier, iv, why = 'C', 1 / HOST_START, f'bot management seen: {bot}'
+    elif t == 'A' and stated(c):
+        tier, iv, why = 'A', stated(c), 'host_tiers.json: ' + str(c.get('source', 'stated rate'))
+    elif t == 'C':
+        tier, iv, why = 'C', 1 / HOST_START, 'host_tiers.json: ' + str(c.get('source', 'tier C'))
+    elif t == 'B' or (qualified and not cd):
+        since = st.get('b_since', now)
+        frac = min(1.0, max(0.0, (now - since) / HOST_B_RAMP))
+        tier, iv = 'B', 1.0 / (HOST_START + (HOST_B_MAX - HOST_START) * frac)
+        why = ('host_tiers.json' if t == 'B' else 'qualified') + f', ramp {frac:.0%}'
+    elif qualified and cd:
+        tier, iv, why = 'A', max(cd, 1 / HOST_A_MAX), f'robots Crawl-delay {cd:g}'
+    else:
+        tier, iv, why = 'C', 1 / HOST_START, f'unqualified ({st.get("clean", 0)}/{HOST_QUALIFY} clean responses)'
+    return {'tier': tier, 'interval': max(iv / factor, cd), 'daily': daily, 'reason': why}
+
+
+def host_policy(host: str, now: float | None = None) -> dict:
+    """The tier and pace host_get applies to host now (for status pages and checks)."""
+    host = host.lower()
+    st = host_status(host)
+    out = _policy(host, st, _now() if now is None else now)
+    if host_stopped(host):
+        out.update(tier='stop', reason=host_stopped(host).get('reason'))
+    return out
+
+
+def _note_robots(host: str, code: int | None, crawl_delay: float | None) -> None:
+    def upd(st):
+        if crawl_delay:
+            st['crawl_delay'] = max(float(crawl_delay), 0.0)
+        if code is not None:
+            now = _now()
+            ok = code in (200, 404, 410)
+            st['robots_status'] = code
+            st['robots_ok'] = ok or st.get('robots_ok', False)
+            st['robots_at'] = now if ok else now - ROBOTS_TTL + 86400   # a failed read is retried in a day
+            if ok:
+                st['crawl_delay'] = float(crawl_delay or 0)
+        return None, st
+    _host_locked(host, upd)
+
+
+def _maybe_robots(host: str, url: str) -> None:
+    """Read host's robots.txt (fresh, under the host's pace) when it has not been read for ROBOTS_TTL."""
+    if url.split('://', 1)[-1].partition('/')[2].split('?', 1)[0] == 'robots.txt':
+        return
+
+    def claim(st):
+        now = _now()
+        if now - st.get('robots_at', 0) < ROBOTS_TTL or now - st.get('robots_claim', 0) < 300:
+            return False, st
+        st['robots_claim'] = now
+        return True, st
+    if not _host_locked(host, claim):
+        return
+    scheme = url.split('://', 1)[0] if '://' in url else 'https'
+    code, body, _ = _host_fetch(f'{scheme}://{host}/robots.txt', host, None, 2, 30)
+    text = body.decode('utf-8', 'replace') if code == 200 else ''
+    if '<html' in text[:500].lower():
+        text = ''
+    _note_robots(host, code, _parse_robots(text)['crawl_delay'] if code == 200 else None)
+
+
+def _curl_h(url: str, timeout: int, headers: list[str] = ()) -> tuple[int, bytes, list]:
+    """Like _curl, plus request headers in and every hop's response headers out."""
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        tmp = f.name
+    hdr = tmp + '.h'
+    try:
+        cmd = ['curl', '-gsS', '-L', '--compressed', '-A', UA, '--max-time', str(timeout), '-D', hdr, '-o', tmp,
+               '-w', '%{http_code}']
+        for h in headers:
+            cmd += ['-H', h]
+        out = subprocess.run(cmd + [url], capture_output=True, text=True)
+        code = int(out.stdout.strip() or 0) if out.returncode == 0 else 0
+        try:
+            hops = _parse_headers(Path(hdr).read_bytes())
+        except OSError:
+            hops = []
+        return code, (Path(tmp).read_bytes() if code else b''), hops
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+        Path(hdr).unlink(missing_ok=True)
+
+
+def _host_fetch(url: str, host: str, cache: Path | None, tries: int, timeout: int,
+                cond: list[str] = ()) -> tuple[int, bytes, list]:
+    """One paced, counted request (retried, like before, on anything but 200/304/403/404/410). Raises HostStopped/HostDailyCap."""
+    code, body, hops = 0, b'', []
     for _ in range(tries):
+        _check_stop(host)
+        _maybe_robots(host, url)
+
         def take(st):
-            now = time.time()
+            now = _now()
             day = time.strftime('%Y-%m-%d', time.gmtime(now))
             if st.get('day') != day:
                 st['day'], st['count'] = day, 0
-            if st['count'] >= HOST_DAILY:
-                return None, st
+            pol = _policy(host, st, now)
+            if pol['tier'] == 'stop':
+                return 'stop', st
+            if st['count'] >= pol['daily']:
+                return ('cap', pol['daily']), st
+            if pol['tier'] == 'B':
+                st.setdefault('b_since', now)
             st['count'] += 1
-            st['rate'] = min(st['rate'], HOST_MAX)  # older state files may hold a faster rate
-            start = max(now, st['next'], st['pause_until'])
-            st['next'] = start + 1.0 / st['rate']
+            st['rate'] = min(st.get('rate', HOST_START), HOST_MAX)  # older state files may hold a faster rate
+            start = max(now, st.get('next', 0.0), st.get('pause_until', 0.0))
+            st['next'] = start + pol['interval']
+            st['tier'] = pol['tier']
             return start - now, st
         wait = _host_locked(host, take)
-        if wait is None:
-            raise HostDailyCap(f'{host}: {HOST_DAILY} requests today from this machine; resume tomorrow')
+        if wait == 'stop':
+            _check_stop(host)
+            raise HostStopped(f'{host}: stopped for good')
+        if isinstance(wait, tuple):
+            raise HostDailyCap(f'{host}: {wait[1]:g} requests today from this machine; resume tomorrow')
         if wait > 0:
-            time.sleep(wait)
-        code, body = _curl(url, timeout=timeout)
+            _sleep(wait)
+        _check_stop(host)   # another process may have met a challenge while we waited
+        code, body, hops = _curl_h(url, timeout, cond)
+        why = _challenge(code, hops, body)
+        if why:
+            _stop_host(host, url, code, why)
+            _log(cache, url, code, 0)
+            raise HostStopped(f'{host}: {why} at {url}; stopped for good (never retry, never work round it)')
+        signal = _bot_signal(hops)
         pushback = code in (429, 503) or code == 0
 
         def upd(st):
             if pushback:
-                st['rate'] = max(HOST_MIN, st['rate'] / 2)
-                st['pause_until'] = time.time() + HOST_BACKOFF
-                st['throttled'] += 1
+                st['rate'] = max(HOST_MIN, st.get('rate', HOST_START) / 2)
+                st['pause_until'] = _now() + HOST_BACKOFF
+                st['throttled'] = st.get('throttled', 0) + 1
+                if code:   # the host itself pushed back: a tier B ramp starts again once it requalifies
+                    st['clean'] = 0
+                    st.pop('b_since', None)
             else:
-                st['rate'] = min(HOST_MAX, st['rate'] + HOST_STEP)
-                st['ok'] += 1
+                st['rate'] = min(HOST_MAX, st.get('rate', HOST_START) + HOST_STEP)
+                st['ok'] = st.get('ok', 0) + 1
+                if signal:
+                    st.setdefault('bot', signal)
+                    st.setdefault('bot_at', time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()))
+                elif code < 500:
+                    st['clean'] = st.get('clean', 0) + 1
+                if code == 304:
+                    st['count'] = max(0.0, st['count'] - (1 - HOST_304_COST))
+                    st['not_modified'] = st.get('not_modified', 0) + 1
             return None, st
         _host_locked(host, upd)
-        if code == 200:
-            _log(cache, url, code, len(body))
-            if hit is not None:
-                tmp = hit.with_suffix('.part')
-                tmp.write_bytes(body)
-                os.replace(tmp, hit)
-            return body
-        if code in (403, 404, 410):
-            _log(cache, url, code, 0)
-            return None
+        if code in (200, 304, 403, 404, 410):
+            return code, body, hops
+    return code, body, hops
+
+
+def _meta_file(cache: Path, url: str) -> Path:
+    return cache / '.http-meta' / (hashlib.sha256(url.encode('utf-8')).hexdigest() + '.json')
+
+
+def _validators(hops) -> dict:
+    hdrs = dict(hops[-1][1]) if hops else {}
+    return {k: hdrs[h] for k, h in (('etag', 'etag'), ('last_modified', 'last-modified')) if hdrs.get(h)}
+
+
+def host_get(url: str, cache: Path | str | None = None, tries: int = 5, timeout: int = 90, *,
+             refresh: bool = False) -> bytes | None:
+    """GET from an official site under its machine-wide tiered pace (see above). Cached and logged like fetch().
+
+    A cached copy is returned without a request, as before. With refresh=True a cached copy is revalidated: with its
+    stored ETag/Last-Modified the request is conditional and a 304 returns the cached body (0.25 of a request against
+    the daily cap); an old entry without them is fetched in full. Returns None on 403/404/410 or after `tries`.
+    Raises HostDailyCap at the daily cap and HostStopped for a host that has served a challenge (now or ever)."""
+    host = _host_of(url)
+    cache = Path(cache) if cache else None
+    hit = _cached(cache, url)
+    have = hit is not None and hit.exists()
+    if have and not refresh:
+        return hit.read_bytes()
+    cond, meta_path = [], _meta_file(cache, url) if cache is not None else None
+    if have and meta_path is not None:
+        try:
+            meta = json.loads(meta_path.read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            meta = {}
+        if meta.get('etag'):
+            cond.append(f'If-None-Match: {meta["etag"]}')
+        if meta.get('last_modified'):
+            cond.append(f'If-Modified-Since: {meta["last_modified"]}')
+    code, body, hops = _host_fetch(url, host, cache, tries, timeout, cond)
+    if code == 304 and have:
+        _log(cache, url, 304, 0)
+        return hit.read_bytes()
+    if code == 200:
+        _log(cache, url, code, len(body))
+        if hit is not None:
+            tmp = hit.with_suffix('.part')
+            tmp.write_bytes(body)
+            os.replace(tmp, hit)
+            val = _validators(hops)
+            if val:
+                meta_path.parent.mkdir(exist_ok=True)
+                tmp = meta_path.with_suffix('.part')
+                tmp.write_text(json.dumps({'url': url, **val}), encoding='utf-8')
+                os.replace(tmp, meta_path)
+            else:
+                meta_path.unlink(missing_ok=True)
+        return body
+    if code in (403, 404, 410):
+        _log(cache, url, code, 0)
     return None
 
 
@@ -641,13 +1023,13 @@ def cc_ok() -> bool:
     return out.stdout.strip() == '200'
 
 
-def robots_rules(host: str, cache: Path | str | None = None) -> dict:
-    """robots.txt of host for `User-agent: *`: {'crawl_delay': float | None, 'disallow': [paths], 'sitemaps': [urls]}.
-    A missing robots.txt (or an HTML page in its place) gives no rules."""
-    raw = host_get(f'https://{host}/robots.txt', cache, tries=2, timeout=30) or b''
-    text = raw.decode('utf-8', 'replace')
-    if '<html' in text[:500].lower():
-        text = ''
+# D7 (2026-11-02): a robots.txt group binds us when it names `*`, one of Anthropic's crawlers or our own user agent.
+# Groups naming only other vendors' crawlers (GPTBot, CCBot, Google-Extended, ...) do not.
+ROBOTS_BINDING = ('claudebot', 'anthropic-ai', 'claude-web', 'lexifina')
+
+
+def _parse_robots(text: str) -> dict:
+    """{'crawl_delay': slowest binding Crawl-delay or None, 'disallow': binding Disallow paths, 'sitemaps': [urls]}."""
     rules = {'crawl_delay': None, 'disallow': [], 'sitemaps': []}
     agents, in_rules, mine = [], False, False
     for line in text.splitlines():
@@ -662,18 +1044,34 @@ def robots_rules(host: str, cache: Path | str | None = None) -> dict:
             if in_rules:  # a new group starts
                 agents, in_rules = [], False
             agents.append(v.lower())
-            mine = '*' in agents
+            mine = any(a == '*' or any(t in a for t in ROBOTS_BINDING) for a in agents)
         elif mine:
             in_rules = True
             if k == 'disallow' and v:
-                rules['disallow'].append(v)
+                if v not in rules['disallow']:
+                    rules['disallow'].append(v)
             elif k == 'crawl-delay':
                 try:
-                    rules['crawl_delay'] = float(v)
+                    cd = float(v)
                 except ValueError:
-                    pass
+                    continue
+                rules['crawl_delay'] = cd if rules['crawl_delay'] is None else max(rules['crawl_delay'], cd)
         else:
             in_rules = True
+    return rules
+
+
+def robots_rules(host: str, cache: Path | str | None = None) -> dict:
+    """robots.txt of host for the groups that bind us (`*`, ClaudeBot, anthropic-ai, Claude-Web; see ROBOTS_BINDING):
+    {'crawl_delay': float | None, 'disallow': [paths], 'sitemaps': [urls]}. A missing robots.txt (or an HTML page in
+    its place) gives no rules. A stated Crawl-delay is also recorded for host_get's pacing."""
+    raw = host_get(f'https://{host}/robots.txt', cache, tries=2, timeout=30) or b''
+    text = raw.decode('utf-8', 'replace')
+    if '<html' in text[:500].lower():
+        text = ''
+    rules = _parse_robots(text)
+    if rules['crawl_delay']:
+        _note_robots(host.lower(), None, rules['crawl_delay'])
     return rules
 
 
