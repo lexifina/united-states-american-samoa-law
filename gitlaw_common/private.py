@@ -26,7 +26,7 @@ HOME = re.compile(r'(?i)(?:[A-Z]:[\\/]+Users[\\/]+alany|/c/Users/alany|/home/ala
 # The final privacy audit's content markers, checked in every text blob a push would add.
 AUDIT_MARKS = {
     'speed tooling': re.compile(rb'host_get|cc_get\b|cc_captures|import wayback|wayback\.(get|captures|fetch)|'
-                                rb'ThreadPoolExecutor|requests a second|adaptive rate', re.I),
+                                rb'ThreadPoolExecutor|requests a second(?! (?:evaluation|opinion|hearing|review|examination))|adaptive rate', re.I),  # law text: "requests a second evaluation" (C.R.S. 16-8.5-103)
     'common crawl / archive tactics': re.compile(rb'data\.commoncrawl\.org|index\.commoncrawl\.org|cluster\.idx', re.I),
     'home path': re.compile(rb'(?i)(?:[A-Z]:(?:\\\\|\\|/)+Users(?:\\\\|\\|/)+alany|/c/Users/alany)'),
     'bot-challenge notes': re.compile(rb'(?i)cloudflare|bot challenge|captcha|firewall page'),
