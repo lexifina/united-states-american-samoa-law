@@ -1,6 +1,8 @@
 {
   "_doc": "Per-host pacing for wayback.host_get (D5, scripts/world-law/COVERAGE-WAVE.md, 'Decisions applied 2026-11-02'). Keys: exact host, the host without 'www.', or '*.parent.domain'. tier A = the site states a rate (give 'interval' seconds or 'rate' requests/s, and 'source'); B = force the 3-day ramp to 1/s; C = 1 per 3 s; stop = never request this host. 'daily' overrides the 5,000 cap. Hosts not listed start at the C pace and move to B (or A from a robots Crawl-delay) after 20 clean responses and a robots.txt read; any bot-management header or cookie makes them C for good, and any challenge stops them for good (stop file in %LOCALAPPDATA%/gitlaw/host-stops). A slower robots Crawl-delay always wins. Sources: global-law-unblock-report.html (2026-11-02) and the scraper logs.",
   "hosts": {
+    "dati.normattiva.it": {"tier": "stop", "source": "IPZS protection page (HTTP 409) on robots.txt, 2026-11-02"},
+    "api.normattiva.it": {"tier": "stop", "source": "connection reset on robots.txt beside the IPZS block, 2026-11-02"},
     "laws.e-gov.go.jp": {"tier": "B", "daily": 20000, "source": "documented public API (e-Gov law API v2), no stated limit found (docs and api top checked 2026-11-02), no bot management; tier B ramp to at most 1/s; 20,000/day per the 2026-11-02 decision"},
     "legislation.act.gov.au": {"tier": "A", "daily": 8640, "interval": 10, "source": "robots Crawl-delay 10"},
     "legislation.gov.au": {"tier": "A", "interval": 10, "source": "robots Crawl-delay 10; full crawls need 1-2 weeks' notice"},
