@@ -1,0 +1,103 @@
+{
+ "at": "2026-10-29T14:13:02Z",
+ "runs": [
+  {
+   "method": "common-crawl cc_get",
+   "threads": 1,
+   "n": 20,
+   "ok": 20,
+   "seconds": 14.17,
+   "pages_per_s": 1.41,
+   "MB_per_s": 0.271,
+   "avg_kB": 192.1
+  },
+  {
+   "method": "common-crawl cc_get",
+   "threads": 8,
+   "n": 60,
+   "ok": 60,
+   "seconds": 5.17,
+   "pages_per_s": 11.6,
+   "MB_per_s": 2.369,
+   "avg_kB": 204.2
+  },
+  {
+   "method": "common-crawl cc_get",
+   "threads": 16,
+   "n": 60,
+   "ok": 60,
+   "seconds": 1.95,
+   "pages_per_s": 30.76,
+   "MB_per_s": 4.18,
+   "avg_kB": 135.9
+  },
+  {
+   "method": "live host_get",
+   "threads": 1,
+   "n": 15,
+   "ok": 0,
+   "seconds": 4.21,
+   "pages_per_s": 0.0,
+   "MB_per_s": 0.0,
+   "avg_kB": 0.0
+  },
+  {
+   "method": "live host_get",
+   "threads": 4,
+   "n": 30,
+   "ok": 0,
+   "seconds": 3.23,
+   "pages_per_s": 0.0,
+   "MB_per_s": 0.0,
+   "avg_kB": 0.0
+  },
+  {
+   "method": "live host_get",
+   "threads": 12,
+   "n": 40,
+   "ok": 0,
+   "seconds": 3.28,
+   "pages_per_s": 0.0,
+   "MB_per_s": 0.0,
+   "avg_kB": 0.0
+  },
+  {
+   "method": "archive.org wayback.get",
+   "threads": 1,
+   "n": 10,
+   "ok": 10,
+   "seconds": 36.38,
+   "pages_per_s": 0.27,
+   "MB_per_s": 0.056,
+   "avg_kB": 203.6
+  },
+  {
+   "method": "archive.org wayback.get",
+   "threads": 8,
+   "n": 20,
+   "ok": 20,
+   "seconds": 79.46,
+   "pages_per_s": 0.25,
+   "MB_per_s": 0.032,
+   "avg_kB": 127.1
+  }
+ ],
+ "cc_crawls_s": 15.26,
+ "cc_index": {
+  "prefix": "e-seimas.lrs.lt/portal/legalAct/lt/TAD/",
+  "crawls": 3,
+  "captures": 4662,
+  "seconds": 1.41
+ },
+ "ia_cdx": {
+  "captures": 218364,
+  "seconds": 116.92
+ },
+ "archive_rate_state": {
+  "rate": 0.8000000000000002,
+  "next": 1793283463.3682828,
+  "pause_until": 1793283439.3970249,
+  "ok": 3232,
+  "throttled": 723
+ }
+}

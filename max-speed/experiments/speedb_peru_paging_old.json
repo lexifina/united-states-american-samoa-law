@@ -1,0 +1,27 @@
+{
+ "date": "2026-10-29T23:37:10Z",
+ "runs": [
+  {
+   "tipo": "LEY",
+   "from": "20190101",
+   "to": "20191231",
+   "requests": 7,
+   "failed": 0,
+   "seconds": 119.9,
+   "total_hits": 130,
+   "rows": 99,
+   "distinct": 91
+  },
+  {
+   "tipo": "DECRETO LEGISLATIVO",
+   "from": "20160601",
+   "to": "20181231",
+   "requests": 12,
+   "failed": 1,
+   "seconds": 261.2,
+   "total_hits": 209,
+   "rows": 209,
+   "distinct": 209
+  }
+ ]
+}

@@ -1,0 +1,29 @@
+[
+ {
+  "page": "Latvia Satversme",
+  "crawls": 128,
+  "captures_200": 331,
+  "distinct_contents": 331,
+  "years": "2016-2026",
+  "distinct_years": 11,
+  "seconds": 879.3
+ },
+ {
+  "page": "Spain Constitution",
+  "crawls": 128,
+  "captures_200": 281,
+  "distinct_contents": 206,
+  "years": "2013-2026",
+  "distinct_years": 14,
+  "seconds": 215.9
+ },
+ {
+  "page": "Austria B-VG",
+  "crawls": 128,
+  "captures_200": 111,
+  "distinct_contents": 111,
+  "years": "2013-2026",
+  "distinct_years": 14,
+  "seconds": 111.2
+ }
+]

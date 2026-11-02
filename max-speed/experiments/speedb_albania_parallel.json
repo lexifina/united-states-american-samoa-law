@@ -1,0 +1,42 @@
+{
+ "date": "2026-10-29T23:46:04Z",
+ "common_crawl_api": {
+  "crawls": [
+   "CC-MAIN-2026-43",
+   "CC-MAIN-2026-39",
+   "CC-MAIN-2026-34",
+   "CC-MAIN-2026-30"
+  ],
+  "seconds": 3.6,
+  "captures": 0
+ },
+ "arquivo_pt_api": {
+  "seconds": 0.4,
+  "captures": 0
+ },
+ "listing": {
+  "requests": 40,
+  "seconds": 5.6,
+  "acts": 3907,
+  "with_versions": 383
+ },
+ "versions_relations": {
+  "requests": 766,
+  "ok": 766,
+  "seconds": 47.3,
+  "per_second": 16.2,
+  "threads": 12,
+  "host_state": {
+   "rate": 25.0,
+   "next": 1793317637.7353764,
+   "pause_until": 0.0,
+   "ok": 828,
+   "throttled": 0
+  }
+ },
+ "total": {
+  "requests": 806,
+  "seconds": 52.9,
+  "at_old_fixed_3_per_second": 268.7
+ }
+}

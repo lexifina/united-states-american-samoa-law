@@ -1,0 +1,247 @@
+{
+ "date": "2026-10-29T23:12:53Z",
+ "bulk_normas": {
+  "bytes": 49743478,
+  "seconds": 79.0,
+  "rows": 429648,
+  "columns": [
+   "id_norma",
+   "tipo_norma",
+   "numero_norma",
+   "clase_norma",
+   "organismo_origen",
+   "fecha_sancion",
+   "numero_boletin",
+   "fecha_boletin",
+   "pagina_boletin",
+   "titulo_resumido",
+   "titulo_sumario",
+   "texto_resumido",
+   "observaciones",
+   "texto_original",
+   "texto_actualizado",
+   "modificada_por",
+   "modifica_a"
+  ]
+ },
+ "bulk_modificatorias": {
+  "bytes": 9503901,
+  "seconds": 13.7,
+  "rows": 379163,
+  "columns": [
+   "id_norma_modificatoria",
+   "id_norma_modificada",
+   "tipo_norma",
+   "nro_norma",
+   "clase_norma",
+   "organismo_origen",
+   "fecha_boletin",
+   "titulo_sumario",
+   "titulo_resumido"
+  ]
+ },
+ "bulk_modificadas": {
+  "bytes": 10485306,
+  "seconds": 18.7,
+  "rows": 383793,
+  "columns": [
+   "id_norma_modificada",
+   "id_norma_modificatoria",
+   "tipo_norma",
+   "nro_norma",
+   "clase_norma",
+   "organismo_origen",
+   "fecha_boletin",
+   "titulo_sumario",
+   "titulo_resumido"
+  ]
+ },
+ "bulk_total": {
+  "requests": 3,
+  "seconds_including_crawl_delay": 131.7
+ },
+ "normas_with_dates": {
+  "fecha_boletin": 417933,
+  "fecha_sancion": 424967,
+  "texto_original_url": 189321,
+  "texto_actualizado_url": 8701,
+  "max_fecha_boletin": "2026-09-30"
+ },
+ "ficha_pages_fetched": 792,
+ "ficha_ids_in_bulk_with_fecha_boletin": 792,
+ "ficha_ids_missing_from_bulk": [],
+ "vinculos_vs_modificatorias": [
+  {
+   "id": 92016,
+   "page": 314,
+   "bulk": 313,
+   "both": 313,
+   "only_page": [
+    431505
+   ],
+   "only_bulk": []
+  },
+  {
+   "id": 138,
+   "page": 96,
+   "bulk": 96,
+   "both": 96,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 62,
+   "page": 615,
+   "bulk": 615,
+   "both": 615,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 412,
+   "page": 574,
+   "bulk": 574,
+   "both": 574,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 27971,
+   "page": 642,
+   "bulk": 642,
+   "both": 642,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 37872,
+   "page": 47,
+   "bulk": 47,
+   "both": 47,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 42755,
+   "page": 73,
+   "bulk": 73,
+   "both": 73,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 18803,
+   "page": 56,
+   "bulk": 56,
+   "both": 56,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 63,
+   "page": 461,
+   "bulk": 461,
+   "both": 461,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 39520,
+   "page": 30,
+   "bulk": 30,
+   "both": 30,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 16071,
+   "page": 244,
+   "bulk": 243,
+   "both": 243,
+   "only_page": [
+    430801
+   ],
+   "only_bulk": []
+  },
+  {
+   "id": 464,
+   "page": 553,
+   "bulk": 551,
+   "both": 551,
+   "only_page": [
+    431140,
+    431463
+   ],
+   "only_bulk": []
+  },
+  {
+   "id": 265949,
+   "page": 122,
+   "bulk": 122,
+   "both": 122,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 62977,
+   "page": 292,
+   "bulk": 292,
+   "both": 292,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 20465,
+   "page": 16,
+   "bulk": 16,
+   "both": 16,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 206592,
+   "page": 141,
+   "bulk": 141,
+   "both": 141,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 70496,
+   "page": 55,
+   "bulk": 55,
+   "both": 55,
+   "only_page": [],
+   "only_bulk": []
+  },
+  {
+   "id": 158649,
+   "page": 591,
+   "bulk": 591,
+   "both": 591,
+   "only_page": [],
+   "only_bulk": []
+  }
+ ],
+ "vinculos_summary": {
+  "pages": 18,
+  "page_links": 4922,
+  "bulk_links": 4918,
+  "in_both": 4918
+ },
+ "texts_host_get": {
+  "requests": 60,
+  "ok": 60,
+  "seconds": 10.6,
+  "per_second": 5.68,
+  "threads": 12,
+  "host_state": {
+   "rate": 25.0,
+   "next": 1793315714.4256637,
+   "pause_until": 0.0,
+   "ok": 1680,
+   "throttled": 0
+  }
+ },
+ "texts_fixed_1rps_seconds_same_count": 63.0
+}

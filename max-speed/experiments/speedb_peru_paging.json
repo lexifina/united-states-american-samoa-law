@@ -1,0 +1,65 @@
+{
+ "date": "2026-10-29T23:36:29Z",
+ "runs": [
+  {
+   "tipo": "LEY",
+   "from": "20260301",
+   "to": "20260331",
+   "requests": 1,
+   "seconds": 0.0,
+   "total_hits": 5,
+   "rows": 5,
+   "distinct": 5,
+   "day_cards": 5,
+   "in_both": 5,
+   "missed": [],
+   "extra": [],
+   "day_requests_peru_law_would_use": 31
+  },
+  {
+   "tipo": "LEY",
+   "from": "20260401",
+   "to": "20260630",
+   "requests": 5,
+   "seconds": 21.6,
+   "total_hits": 95,
+   "rows": 95,
+   "distinct": 95,
+   "day_cards": 95,
+   "in_both": 95,
+   "missed": [],
+   "extra": [],
+   "day_requests_peru_law_would_use": 91
+  },
+  {
+   "tipo": "DECRETO LEGISLATIVO",
+   "from": "20260101",
+   "to": "20261028",
+   "requests": 3,
+   "seconds": 0.0,
+   "total_hits": 45,
+   "rows": 45,
+   "distinct": 45,
+   "day_cards": 45,
+   "in_both": 45,
+   "missed": [],
+   "extra": [],
+   "day_requests_peru_law_would_use": 284
+  },
+  {
+   "tipo": "DECRETO DE URGENCIA",
+   "from": "20260301",
+   "to": "20260531",
+   "requests": 1,
+   "seconds": 0.0,
+   "total_hits": 2,
+   "rows": 2,
+   "distinct": 2,
+   "day_cards": 2,
+   "in_both": 2,
+   "missed": [],
+   "extra": [],
+   "day_requests_peru_law_would_use": 92
+  }
+ ]
+}

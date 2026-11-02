@@ -1,0 +1,990 @@
+{
+ "at": "2026-10-29T14:24:22Z",
+ "official_sources": 223,
+ "countries_on_main": 59,
+ "register_flags": {
+  "api|not_on_main": 32,
+  "pit|not_on_main": 50,
+  "amend|not_on_main": 23,
+  "api|on_main": 6,
+  "pit|on_main": 17,
+  "amend|on_main": 7
+ },
+ "cc_lookup_total_s": 131.5,
+ "cc_coverage": [
+  {
+   "country": "Kazakhstan",
+   "host": "adilet.zan.kz",
+   "captures_3_crawls": 8378,
+   "seconds": 3.4
+  },
+  {
+   "country": "Tajikistan",
+   "host": "adliya.tj",
+   "captures_3_crawls": 0,
+   "seconds": 2.1
+  },
+  {
+   "country": "Brunei",
+   "host": "agc.gov.bn",
+   "captures_3_crawls": 1195,
+   "seconds": 2.4
+  },
+  {
+   "country": "Belize",
+   "host": "agm.gov.bz",
+   "captures_3_crawls": 61,
+   "seconds": 3.3
+  },
+  {
+   "country": "Tonga",
+   "host": "ago.gov.to",
+   "captures_3_crawls": 409,
+   "seconds": 1.6
+  },
+  {
+   "country": "Libya",
+   "host": "aladel.gov.ly",
+   "captures_3_crawls": 2101,
+   "seconds": 2.9
+  },
+  {
+   "country": "Egypt",
+   "host": "alamiria.com",
+   "captures_3_crawls": 235,
+   "seconds": 1.4
+  },
+  {
+   "country": "Qatar",
+   "host": "almeezan.qa",
+   "captures_3_crawls": 11,
+   "seconds": 2.1
+  },
+  {
+   "country": "Iceland",
+   "host": "althingi.is",
+   "captures_3_crawls": 205,
+   "seconds": 2.7
+  },
+  {
+   "country": "United States",
+   "host": "api.congress.gov",
+   "captures_3_crawls": 4,
+   "seconds": 3.4
+  },
+  {
+   "country": "United States",
+   "host": "api.govinfo.gov",
+   "captures_3_crawls": 3,
+   "seconds": 4.4
+  },
+  {
+   "country": "Armenia",
+   "host": "arlis.am",
+   "captures_3_crawls": 12381,
+   "seconds": 5.9
+  },
+  {
+   "country": "El Salvador",
+   "host": "asamblea.gob.sv",
+   "captures_3_crawls": 1121,
+   "seconds": 1.2
+  },
+  {
+   "country": "Gambia",
+   "host": "assembly.gm",
+   "captures_3_crawls": 561,
+   "seconds": 1.4
+  },
+  {
+   "country": "Mauritius",
+   "host": "attorneygeneral.govmu.org",
+   "captures_3_crawls": 541,
+   "seconds": 1.9
+  },
+  {
+   "country": "Saint Lucia",
+   "host": "attorneygeneralchambers.com",
+   "captures_3_crawls": 3925,
+   "seconds": 3.2
+  },
+  {
+   "country": "Barbados",
+   "host": "barbadoslawcourts.gov.bb",
+   "captures_3_crawls": 107,
+   "seconds": 2.0
+  },
+  {
+   "country": "Canada (British Columbia)",
+   "host": "bclaws.gov.bc.ca",
+   "captures_3_crawls": 48,
+   "seconds": 3.2
+  },
+  {
+   "country": "Bangladesh",
+   "host": "bdlaws.minlaw.gov.bd",
+   "captures_3_crawls": 10031,
+   "seconds": 4.6
+  },
+  {
+   "country": "Bermuda",
+   "host": "bermudalaws.bm",
+   "captures_3_crawls": 421,
+   "seconds": 5.3
+  },
+  {
+   "country": "Macau",
+   "host": "bo.io.gov.mo",
+   "captures_3_crawls": 0,
+   "seconds": 1.1
+  },
+  {
+   "country": "Spain",
+   "host": "boe.es",
+   "captures_3_crawls": 118950,
+   "seconds": 24.4
+  },
+  {
+   "country": "Andorra",
+   "host": "bopa.ad",
+   "captures_3_crawls": 964,
+   "seconds": 2.4
+  },
+  {
+   "country": "Kyrgyzstan",
+   "host": "cbd.minjust.gov.kg",
+   "captures_3_crawls": 68122,
+   "seconds": 17.0
+  },
+  {
+   "country": "Guatemala",
+   "host": "congreso.gob.gt",
+   "captures_3_crawls": 516,
+   "seconds": 1.2
+  },
+  {
+   "country": "San Marino",
+   "host": "consigliograndeegenerale.sm",
+   "captures_3_crawls": 7,
+   "seconds": 2.4
+  },
+  {
+   "country": "Dominican Republic",
+   "host": "consultoria.gov.do",
+   "captures_3_crawls": 89,
+   "seconds": 1.3
+  },
+  {
+   "country": "Sweden",
+   "host": "data.riksdagen.se",
+   "captures_3_crawls": 10866,
+   "seconds": 4.1
+  },
+  {
+   "country": "Portugal",
+   "host": "diariodarepublica.pt",
+   "captures_3_crawls": 71298,
+   "seconds": 16.9
+  },
+  {
+   "country": "Dominica",
+   "host": "dominica.gov.dm",
+   "captures_3_crawls": 165,
+   "seconds": 2.7
+  },
+  {
+   "country": "Azerbaijan",
+   "host": "e-qanun.az",
+   "captures_3_crawls": 1499,
+   "seconds": 2.8
+  },
+  {
+   "country": "Czechia",
+   "host": "e-sbirka.cz",
+   "captures_3_crawls": 1469,
+   "seconds": 1.2
+  },
+  {
+   "country": "United States",
+   "host": "ecfr.gov",
+   "captures_3_crawls": 103350,
+   "seconds": 23.8
+  },
+  {
+   "country": "Belgium",
+   "host": "ejustice.just.fgov.be",
+   "captures_3_crawls": 8423,
+   "seconds": 4.5
+  },
+  {
+   "country": "Hong Kong",
+   "host": "elegislation.gov.hk",
+   "captures_3_crawls": 29,
+   "seconds": 3.4
+  },
+  {
+   "country": "Honduras",
+   "host": "enag.gob.hn",
+   "captures_3_crawls": 452,
+   "seconds": 1.4
+  },
+  {
+   "country": "United States",
+   "host": "federalregister.gov",
+   "captures_3_crawls": 93059,
+   "seconds": 26.4
+  },
+  {
+   "country": "Switzerland",
+   "host": "fedlex.admin.ch",
+   "captures_3_crawls": 14496,
+   "seconds": 5.3
+  },
+  {
+   "country": "Finland",
+   "host": "finlex.fi",
+   "captures_3_crawls": 77989,
+   "seconds": 16.3
+  },
+  {
+   "country": "China",
+   "host": "flk.npc.gov.cn",
+   "captures_3_crawls": 14,
+   "seconds": 2.0
+  },
+  {
+   "country": "Cuba",
+   "host": "gacetaoficial.gob.cu",
+   "captures_3_crawls": 9639,
+   "seconds": 2.8
+  },
+  {
+   "country": "Panama",
+   "host": "gacetaoficial.gob.pa",
+   "captures_3_crawls": 292,
+   "seconds": 2.3
+  },
+  {
+   "country": "Germany",
+   "host": "gesetze-im-internet.de",
+   "captures_3_crawls": 12317,
+   "seconds": 2.8
+  },
+  {
+   "country": "Liechtenstein",
+   "host": "gesetze.li",
+   "captures_3_crawls": 7147,
+   "seconds": 2.5
+  },
+  {
+   "country": "Gibraltar",
+   "host": "gibraltarlaws.gov.gi",
+   "captures_3_crawls": 10770,
+   "seconds": 4.3
+  },
+  {
+   "country": "Guernsey",
+   "host": "guernseylegalresources.gg",
+   "captures_3_crawls": 9,
+   "seconds": 2.8
+  },
+  {
+   "country": "Kosovo",
+   "host": "gzk.rks-gov.net",
+   "captures_3_crawls": 1959,
+   "seconds": 1.1
+  },
+  {
+   "country": "India",
+   "host": "indiacode.nic.in",
+   "captures_3_crawls": 7399,
+   "seconds": 2.8
+  },
+  {
+   "country": "Mozambique",
+   "host": "inm.gov.mz",
+   "captures_3_crawls": 47,
+   "seconds": 1.4
+  },
+  {
+   "country": "Tunisia",
+   "host": "iort.gov.tn",
+   "captures_3_crawls": 68,
+   "seconds": 1.5
+  },
+  {
+   "country": "Iraq",
+   "host": "iraqld.e-sjc-services.iq",
+   "captures_3_crawls": 3,
+   "seconds": 1.5
+  },
+  {
+   "country": "Ireland",
+   "host": "irishstatutebook.ie",
+   "captures_3_crawls": 73,
+   "seconds": 2.3
+  },
+  {
+   "country": "Poland",
+   "host": "isap.sejm.gov.pl",
+   "captures_3_crawls": 59,
+   "seconds": 1.2
+  },
+  {
+   "country": "Jersey",
+   "host": "jerseylaw.je",
+   "captures_3_crawls": 1101,
+   "seconds": 3.3
+  },
+  {
+   "country": "Lebanon",
+   "host": "jo.pcm.gov.lb",
+   "captures_3_crawls": 11,
+   "seconds": 1.8
+  },
+  {
+   "country": "Algeria",
+   "host": "joradp.dz",
+   "captures_3_crawls": 345,
+   "seconds": 1.8
+  },
+  {
+   "country": "Gabon",
+   "host": "journal-officiel.ga",
+   "captures_3_crawls": 10,
+   "seconds": 2.1
+  },
+  {
+   "country": "Chad",
+   "host": "journalofficiel.td",
+   "captures_3_crawls": 0,
+   "seconds": 1.2
+  },
+  {
+   "country": "Comoros",
+   "host": "justice.gouv.km",
+   "captures_3_crawls": 342,
+   "seconds": 1.2
+  },
+  {
+   "country": "Thailand",
+   "host": "krisdika.go.th",
+   "captures_3_crawls": 47,
+   "seconds": 2.2
+  },
+  {
+   "country": "Laos",
+   "host": "laoofficialgazette.gov.la",
+   "captures_3_crawls": 6289,
+   "seconds": 1.9
+  },
+  {
+   "country": "South Korea",
+   "host": "law.go.kr",
+   "captures_3_crawls": 39315,
+   "seconds": 9.7
+  },
+  {
+   "country": "Taiwan",
+   "host": "law.moj.gov.tw",
+   "captures_3_crawls": 385,
+   "seconds": 3.1
+  },
+  {
+   "country": "Saint Kitts and Nevis",
+   "host": "lawcommission.gov.kn",
+   "captures_3_crawls": 67,
+   "seconds": 1.3
+  },
+  {
+   "country": "Nepal",
+   "host": "lawcommission.gov.np",
+   "captures_3_crawls": 840,
+   "seconds": 2.2
+  },
+  {
+   "country": "Sri Lanka",
+   "host": "lawnet.gov.lk",
+   "captures_3_crawls": 442,
+   "seconds": 1.2
+  },
+  {
+   "country": "Canada",
+   "host": "laws-lois.justice.gc.ca",
+   "captures_3_crawls": 74742,
+   "seconds": 26.9
+  },
+  {
+   "country": "Saudi Arabia",
+   "host": "laws.boe.gov.sa",
+   "captures_3_crawls": 0,
+   "seconds": 2.2
+  },
+  {
+   "country": "Japan",
+   "host": "laws.e-gov.go.jp",
+   "captures_3_crawls": 5329,
+   "seconds": 2.4
+  },
+  {
+   "country": "Antigua and Barbuda",
+   "host": "laws.gov.ag",
+   "captures_3_crawls": 347,
+   "seconds": 1.5
+  },
+  {
+   "country": "Fiji",
+   "host": "laws.gov.fj",
+   "captures_3_crawls": 104,
+   "seconds": 1.3
+  },
+  {
+   "country": "Grenada",
+   "host": "laws.gov.gd",
+   "captures_3_crawls": 20,
+   "seconds": 2.4
+  },
+  {
+   "country": "Trinidad and Tobago",
+   "host": "laws.gov.tt",
+   "captures_3_crawls": 106,
+   "seconds": 3.1
+  },
+  {
+   "country": "British Virgin Islands",
+   "host": "laws.gov.vg",
+   "captures_3_crawls": 1084,
+   "seconds": 2.2
+  },
+  {
+   "country": "Jamaica",
+   "host": "laws.moj.gov.jm",
+   "captures_3_crawls": 318,
+   "seconds": 2.3
+  },
+  {
+   "country": "Saint Vincent and the Grenadines",
+   "host": "legal.gov.vc",
+   "captures_3_crawls": 16,
+   "seconds": 1.8
+  },
+  {
+   "country": "Mongolia",
+   "host": "legalinfo.mn",
+   "captures_3_crawls": 2003,
+   "seconds": 1.6
+  },
+  {
+   "country": "France",
+   "host": "legifrance.gouv.fr",
+   "captures_3_crawls": 144,
+   "seconds": 1.3
+  },
+  {
+   "country": "Luxembourg",
+   "host": "legilux.public.lu",
+   "captures_3_crawls": 1175,
+   "seconds": 2.7
+  },
+  {
+   "country": "Monaco",
+   "host": "legimonaco.mc",
+   "captures_3_crawls": 1364,
+   "seconds": 2.7
+  },
+  {
+   "country": "Nicaragua",
+   "host": "legislacion.asamblea.gob.ni",
+   "captures_3_crawls": 6801,
+   "seconds": 4.2
+  },
+  {
+   "country": "Australia (ACT)",
+   "host": "legislation.act.gov.au",
+   "captures_3_crawls": 27934,
+   "seconds": 17.6
+  },
+  {
+   "country": "Australia",
+   "host": "legislation.gov.au",
+   "captures_3_crawls": 72951,
+   "seconds": 15.2
+  },
+  {
+   "country": "Isle of Man",
+   "host": "legislation.gov.im",
+   "captures_3_crawls": 119,
+   "seconds": 3.0
+  },
+  {
+   "country": "Cayman Islands",
+   "host": "legislation.gov.ky",
+   "captures_3_crawls": 263,
+   "seconds": 2.4
+  },
+  {
+   "country": "United Kingdom",
+   "host": "legislation.gov.uk",
+   "captures_3_crawls": 115468,
+   "seconds": 26.5
+  },
+  {
+   "country": "Malta",
+   "host": "legislation.mt",
+   "captures_3_crawls": 3855,
+   "seconds": 1.8
+  },
+  {
+   "country": "Australia (NSW)",
+   "host": "legislation.nsw.gov.au",
+   "captures_3_crawls": 130,
+   "seconds": 2.6
+  },
+  {
+   "country": "Australia (NT)",
+   "host": "legislation.nt.gov.au",
+   "captures_3_crawls": 11027,
+   "seconds": 4.4
+  },
+  {
+   "country": "Australia (Queensland)",
+   "host": "legislation.qld.gov.au",
+   "captures_3_crawls": 11423,
+   "seconds": 5.0
+  },
+  {
+   "country": "Australia (SA)",
+   "host": "legislation.sa.gov.au",
+   "captures_3_crawls": 21,
+   "seconds": 3.8
+  },
+  {
+   "country": "Australia (Tasmania)",
+   "host": "legislation.tas.gov.au",
+   "captures_3_crawls": 10698,
+   "seconds": 4.9
+  },
+  {
+   "country": "Australia (Victoria)",
+   "host": "legislation.vic.gov.au",
+   "captures_3_crawls": 358,
+   "seconds": 2.3
+  },
+  {
+   "country": "Australia (WA)",
+   "host": "legislation.wa.gov.au",
+   "captures_3_crawls": 26312,
+   "seconds": 9.4
+  },
+  {
+   "country": "Canada (Québec)",
+   "host": "legisquebec.gouv.qc.ca",
+   "captures_3_crawls": 128,
+   "seconds": 1.9
+  },
+  {
+   "country": "Uzbekistan",
+   "host": "lex.uz",
+   "captures_3_crawls": 105614,
+   "seconds": 23.2
+  },
+  {
+   "country": "Bahrain",
+   "host": "lloc.gov.bh",
+   "captures_3_crawls": 5,
+   "seconds": 1.9
+  },
+  {
+   "country": "Jordan",
+   "host": "lob.gov.jo",
+   "captures_3_crawls": 19,
+   "seconds": 4.9
+  },
+  {
+   "country": "Cambodia",
+   "host": "loc.gov",
+   "captures_3_crawls": 3256,
+   "seconds": 1.4
+  },
+  {
+   "country": "Faroe Islands",
+   "host": "logir.fo",
+   "captures_3_crawls": 22,
+   "seconds": 0.9
+  },
+  {
+   "country": "Israel",
+   "host": "main.knesset.gov.il",
+   "captures_3_crawls": 714,
+   "seconds": 2.4
+  },
+  {
+   "country": "Georgia",
+   "host": "matsne.gov.ge",
+   "captures_3_crawls": 12458,
+   "seconds": 3.4
+  },
+  {
+   "country": "Turkey",
+   "host": "mevzuat.gov.tr",
+   "captures_3_crawls": 294,
+   "seconds": 2.4
+  },
+  {
+   "country": "Rwanda",
+   "host": "minijust.gov.rw",
+   "captures_3_crawls": 8,
+   "seconds": 1.1
+  },
+  {
+   "country": "Turkmenistan",
+   "host": "minjust.gov.tm",
+   "captures_3_crawls": 165,
+   "seconds": 1.0
+  },
+  {
+   "country": "Timor-Leste",
+   "host": "mj.gov.tl",
+   "captures_3_crawls": 3399,
+   "seconds": 1.9
+  },
+  {
+   "country": "Samoa",
+   "host": "mjca.gov.ws",
+   "captures_3_crawls": 23,
+   "seconds": 1.8
+  },
+  {
+   "country": "Oman",
+   "host": "mjla.gov.om",
+   "captures_3_crawls": 5264,
+   "seconds": 3.2
+  },
+  {
+   "country": "Myanmar",
+   "host": "mlis.gov.mm",
+   "captures_3_crawls": 0,
+   "seconds": 2.0
+  },
+  {
+   "country": "Afghanistan",
+   "host": "moj.gov.af",
+   "captures_3_crawls": 1926,
+   "seconds": 3.0
+  },
+  {
+   "country": "Kuwait",
+   "host": "moj.gov.kw",
+   "captures_3_crawls": 3439,
+   "seconds": 2.2
+  },
+  {
+   "country": "Sudan",
+   "host": "moj.gov.sd",
+   "captures_3_crawls": 402,
+   "seconds": 1.8
+  },
+  {
+   "country": "South Sudan",
+   "host": "mojca.gov.ss",
+   "captures_3_crawls": 50,
+   "seconds": 1.0
+  },
+  {
+   "country": "Mauritania",
+   "host": "msgg.gov.mr",
+   "captures_3_crawls": 7,
+   "seconds": 7.2
+  },
+  {
+   "country": "Palestine",
+   "host": "muqtafi.birzeit.edu",
+   "captures_3_crawls": 59,
+   "seconds": 1.5
+  },
+  {
+   "country": "Maldives",
+   "host": "mvlaw.gov.mv",
+   "captures_3_crawls": 108,
+   "seconds": 1.6
+  },
+  {
+   "country": "Bhutan",
+   "host": "nab.gov.bt",
+   "captures_3_crawls": 217,
+   "seconds": 3.1
+  },
+  {
+   "country": "Greenland",
+   "host": "nalunaarutit.gl",
+   "captures_3_crawls": 8087,
+   "seconds": 3.9
+  },
+  {
+   "country": "Croatia",
+   "host": "narodne-novine.nn.hr",
+   "captures_3_crawls": 20352,
+   "seconds": 4.2
+  },
+  {
+   "country": "Hungary",
+   "host": "njt.jog.gov.hu",
+   "captures_3_crawls": 17101,
+   "seconds": 5.3
+  },
+  {
+   "country": "Italy",
+   "host": "normattiva.it",
+   "captures_3_crawls": 58187,
+   "seconds": 15.5
+  },
+  {
+   "country": "Philippines",
+   "host": "officialgazette.gov.ph",
+   "captures_3_crawls": 19,
+   "seconds": 2.0
+  },
+  {
+   "country": "Canada (Ontario)",
+   "host": "ontario.ca",
+   "captures_3_crawls": 41681,
+   "seconds": 10.1
+  },
+  {
+   "country": "Puerto Rico",
+   "host": "oslpr.org",
+   "captures_3_crawls": 195,
+   "seconds": 2.4
+  },
+  {
+   "country": "Kiribati",
+   "host": "paclii.org",
+   "captures_3_crawls": 13,
+   "seconds": 2.1
+  },
+  {
+   "country": "Pakistan",
+   "host": "pakistancode.gov.pk",
+   "captures_3_crawls": 8,
+   "seconds": 3.0
+  },
+  {
+   "country": "Papua New Guinea",
+   "host": "parliament.gov.pg",
+   "captures_3_crawls": 177,
+   "seconds": 0.8
+  },
+  {
+   "country": "Somalia",
+   "host": "parliament.gov.so",
+   "captures_3_crawls": 979,
+   "seconds": 0.8
+  },
+  {
+   "country": "Syria",
+   "host": "parliament.gov.sy",
+   "captures_3_crawls": 0,
+   "seconds": 1.3
+  },
+  {
+   "country": "Indonesia",
+   "host": "peraturan.go.id",
+   "captures_3_crawls": 0,
+   "seconds": 1.0
+  },
+  {
+   "country": "Slovenia",
+   "host": "pisrs.si",
+   "captures_3_crawls": 10288,
+   "seconds": 2.6
+  },
+  {
+   "country": "Serbia",
+   "host": "pravno-informacioni-sistem.rs",
+   "captures_3_crawls": 909,
+   "seconds": 1.7
+  },
+  {
+   "country": "Belarus",
+   "host": "pravo.by",
+   "captures_3_crawls": 56160,
+   "seconds": 11.0
+  },
+  {
+   "country": "Djibouti",
+   "host": "presidence.dj",
+   "captures_3_crawls": 1209,
+   "seconds": 1.4
+  },
+  {
+   "country": "Burundi",
+   "host": "presidence.gov.bi",
+   "captures_3_crawls": 1116,
+   "seconds": 3.1
+  },
+  {
+   "country": "Russia",
+   "host": "publication.pravo.gov.ru",
+   "captures_3_crawls": 163227,
+   "seconds": 33.9
+  },
+  {
+   "country": "Iran",
+   "host": "qavanin.ir",
+   "captures_3_crawls": 102,
+   "seconds": 1.9
+  },
+  {
+   "country": "Denmark",
+   "host": "retsinformation.dk",
+   "captures_3_crawls": 785,
+   "seconds": 1.7
+  },
+  {
+   "country": "Estonia",
+   "host": "riigiteataja.ee",
+   "captures_3_crawls": 56204,
+   "seconds": 13.4
+  },
+  {
+   "country": "Austria",
+   "host": "ris.bka.gv.at",
+   "captures_3_crawls": 80540,
+   "seconds": 18.7
+  },
+  {
+   "country": "Marshall Islands",
+   "host": "rmiparliament.org",
+   "captures_3_crawls": 811,
+   "seconds": 2.5
+  },
+  {
+   "country": "Nauru",
+   "host": "ronlaw.gov.nr",
+   "captures_3_crawls": 96,
+   "seconds": 2.6
+  },
+  {
+   "country": "Republic of Congo",
+   "host": "sgg.cg",
+   "captures_3_crawls": 712,
+   "seconds": 1.8
+  },
+  {
+   "country": "Benin",
+   "host": "sgg.gouv.bj",
+   "captures_3_crawls": 466,
+   "seconds": 1.9
+  },
+  {
+   "country": "Côte d’Ivoire",
+   "host": "sgg.gouv.ci",
+   "captures_3_crawls": 165,
+   "seconds": 3.1
+  },
+  {
+   "country": "Morocco",
+   "host": "sgg.gov.ma",
+   "captures_3_crawls": 330,
+   "seconds": 1.8
+  },
+  {
+   "country": "Costa Rica",
+   "host": "sinalevi.go.cr",
+   "captures_3_crawls": 64109,
+   "seconds": 16.2
+  },
+  {
+   "country": "Slovakia",
+   "host": "slov-lex.sk",
+   "captures_3_crawls": 6773,
+   "seconds": 1.5
+  },
+  {
+   "country": "Bosnia and Herzegovina",
+   "host": "sluzbenilist.ba",
+   "captures_3_crawls": 1150,
+   "seconds": 2.2
+  },
+  {
+   "country": "Solomon Islands",
+   "host": "solomons.gov.sb",
+   "captures_3_crawls": 2546,
+   "seconds": 1.8
+  },
+  {
+   "country": "Singapore",
+   "host": "sso.agc.gov.sg",
+   "captures_3_crawls": 72,
+   "seconds": 1.0
+  },
+  {
+   "country": "Germany",
+   "host": "testphase.rechtsinformationen.bund.de",
+   "captures_3_crawls": 5,
+   "seconds": 0.9
+  },
+  {
+   "country": "Tuvalu",
+   "host": "tuvalu-legislation.tv",
+   "captures_3_crawls": 80,
+   "seconds": 1.7
+  },
+  {
+   "country": "United Arab Emirates",
+   "host": "uaelegislation.gov.ae",
+   "captures_3_crawls": 88,
+   "seconds": 2.4
+  },
+  {
+   "country": "United States",
+   "host": "uscode.house.gov",
+   "captures_3_crawls": 72866,
+   "seconds": 21.1
+  },
+  {
+   "country": "Vietnam",
+   "host": "vbpl.vn",
+   "captures_3_crawls": 4597,
+   "seconds": 3.7
+  },
+  {
+   "country": "Vanuatu",
+   "host": "vfsc.vu",
+   "captures_3_crawls": 243,
+   "seconds": 2.3
+  },
+  {
+   "country": "Canada (Manitoba)",
+   "host": "web2.gov.mb.ca",
+   "captures_3_crawls": 25056,
+   "seconds": 4.5
+  },
+  {
+   "country": "Ukraine",
+   "host": "zakon.rada.gov.ua",
+   "captures_3_crawls": 249,
+   "seconds": 1.3
+  }
+ ],
+ "cc_summary": {
+  "hosts": 159,
+  "with_any": 152,
+  "with_100_plus": 114,
+  "with_1000_plus": 68,
+  "errors": 0,
+  "median_lookup_s": 2.4
+ },
+ "platform_mentions": {
+  "xml": 43,
+  "api": 39,
+  "lii": 30,
+  "eli": 22,
+  "akoma ntoso": 17,
+  "json": 15,
+  "laws.africa": 13,
+  "sparql": 5,
+  "paclii": 4,
+  "clml": 2
+ }
+}
