@@ -38,6 +38,8 @@ DOCS = ROOT.parent
 COMMON = ROOT / 'scripts' / 'gitlaw_common'
 sys.path.append(str(COMMON))  # LAST, so a country's own build.py is never shadowed
 from build import load  # noqa: E402
+import build as B  # noqa: E402
+import check as K  # noqa: E402  (gitlaw_common/check.py)
 import private  # noqa: E402  (what stays off shared repos)
 SOUTH_AMERICA = ['chile', 'uruguay', 'brazil', 'colombia', 'argentina', 'peru', 'paraguay', 'ecuador', 'bolivia',
                  'venezuela', 'guyana', 'suriname']
@@ -369,7 +371,8 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
     raws = _read_commits(repo, n_list + r_list)
     n_law = [s for s in n_list if _is_law(raws[s])]
     last_law = n_list.index(n_law[-1]) if n_law else -1
-    if any(not _is_law(raws[s]) for s in n_list[:last_law]):
+    r_set = set(r_list)
+    if any(not _is_law(raws[s]) and s not in r_set for s in n_list[:last_law]):
         return {'kind': 'rewrite', 'reason': 'the build has a non-law commit inside its law history'}
     tail = n_list[last_law + 1:]  # the build's documentation commit(s), after its last law commit
     mapping: dict[str, str] = {}
@@ -377,7 +380,10 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
     top = lambda d: {p.partition(b'/')[0] for p in d}  # noqa: E731
     if remote:
         r_law = [s for s in r_list if _is_law(raws[s])]
-        items, corrections, reasons = _plan_by_act(repo, raws, r_list, r_delta, n_law, n_delta, slug_email(raws))
+        # Every build commit up to its last law commit (a build made on top of the published head, as the
+        # incremental path makes it, carries the published docs and correction commits too).
+        items, corrections, reasons = _plan_by_act(repo, raws, r_list, r_delta, n_list[:last_law + 1], n_delta,
+                                                   slug_email(raws))
         if isinstance(items, str):
             return {'kind': 'rewrite', 'reason': items}
         new_law = [it['src'] for it in items if it.get('src')]
@@ -624,6 +630,315 @@ def _law_files(repo: Path, commit: str) -> dict[bytes, bytes]:
             if _is_law_path(path):
                 files[path] = meta.split()[2]
     return files
+
+
+# ---------------------------------------------------------------- incremental publishing (2026-11-02)
+# A publish builds only what is new: the verified corpus.d parts the published head does not hold yet, as the commits
+# the full build would make for them, plus the documentation, on top of the published head. Equivalent to a full build
+# followed by append_onto() (same commits, same trees), at a fraction of the CPU. Anything else (a published part,
+# corpus.json, the static docs or the shared builder changed; versions in force after the docs date; a law commit
+# that spans new and published acts; dates before 1970) falls back to the full build, and a full build still runs
+# once a day per repo at a quiet hour as the check gate.
+
+INC_VERSION = 'inc-1'
+FULL_EVERY = 24 * 3600
+QUIET_HOURS = range(1, 6)  # UTC
+
+
+def _full_due(state: dict) -> bool:
+    """The daily full build (the check gate), at a quiet hour; and always when there is no incremental base."""
+    if not state.get('inc'):
+        return True
+    return time.time() - float(state.get('last_full') or 0) > FULL_EVERY and dt.datetime.now(dt.timezone.utc).hour in QUIET_HOURS
+
+
+def _shared_digest(folder: Path) -> str:
+    """Everything but the corpus.d parts that a build reads or ships."""
+    h = hashlib.sha256(INC_VERSION.encode())
+    for p in ([COMMON / n for n in ('build.py', 'check.py', 'on.py', 'private.py')] + sorted(COMMON.glob('*.md'))
+              + sorted((folder / 'repo').rglob('*')) + [folder / 'corpus.json', folder / 'PUBLISH']):
+        if p.is_file() and '__pycache__' not in p.parts:
+            h.update(p.as_posix().encode() + b'\0' + p.read_bytes())
+        elif p.name == 'PUBLISH':
+            h.update(b'no PUBLISH')
+    return h.hexdigest()
+
+
+def _verified_parts(folder: Path) -> dict[str, str]:
+    d = folder / 'corpus.d'
+    if not d.is_dir():
+        return {}
+    return {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(d.glob('*.json'))
+            if p.with_suffix('.PUBLISH').exists()}
+
+
+def _load_verified(folder: Path) -> tuple[dict, bytes]:
+    """build.load() of corpus.json plus the verified parts only (what the main build reads), without touching the
+    process environment (several countries build at once in this process): a scratch folder of hard links."""
+    with tempfile.TemporaryDirectory() as tmp:
+        t = Path(tmp)
+        (t / 'corpus.d').mkdir()
+        if (folder / 'corpus.json').exists():
+            _link(folder / 'corpus.json', t / 'corpus.json')
+        for name in _verified_parts(folder):
+            _link(folder / 'corpus.d' / name, t / 'corpus.d' / name)
+        return B.load(t)
+
+
+def _link(src: Path, dst: Path) -> None:
+    try:
+        os.link(src, dst)
+    except OSError:
+        import shutil
+        shutil.copyfile(src, dst)
+
+
+class _Recorder:
+    """build.Writer's interface, recording instead of writing (so write_history() runs without git)."""
+
+    def __init__(self):
+        self.mark = 0
+        self.heads: dict[str, int] = {}
+        self.commits: list[dict] = []
+
+    def commit(self, branch, author, committer, when, message, files, parent=None):
+        self.mark += 1
+        self.commits.append({'mark': self.mark, 'branch': branch, 'author': author, 'committer': committer,
+                             'when': when, 'message': message, 'files': files})
+        self.heads[branch] = self.mark
+        return self.mark
+
+
+def _record_history(c: dict, docs_date: str, commits: list[dict]) -> tuple[_Recorder, dict, list[dict]]:
+    """build.write_history(), line for line, into a _Recorder (keep the two in step; the equivalence test compares
+    the result with a full build)."""
+    co = c['country']
+    committer = ('Lexifina', f'{co["slug"]}-law@lexifina.com')
+    clock = B.Clock(co['tz'])
+    w = _Recorder()
+    future = co.get('future_branch', 'futuro')
+    tags: dict[str, int] = {}
+    log = []
+    on_future = False
+    for x in commits:
+        if x['day'] > docs_date and not on_future:
+            on_future = True
+            if 'main' in w.heads:
+                w.heads[future] = w.heads['main']
+        branch = future if on_future else 'main'
+        if x['kind'] == 'start':
+            author, msg, trailers = B.start_message(c, x)
+            files = B.act_files(x['act'], x['version']['units'], None)
+            touched = [x['act']['slug']]
+        else:
+            author, msg, trailers = B.change_message(c, x)
+            files = {}
+            for p in x['parts']:
+                files.update(B.act_files(p['act'], p['cur']['units'], p['prev']['units'], p['keys']))
+            touched = [p['act']['slug'] for p in x['parts']]
+        B.check_trailers(trailers)
+        text = '\n'.join(msg).rstrip('\n') + '\n\n' + '\n'.join(trailers) + '\n'
+        mark = w.commit(branch, author, committer, clock.stamp(x['day']), text, files)
+        for s in touched:
+            tags[f'{s}/{x["day"]}'] = mark
+        if x['kind'] == 'law':
+            tags.setdefault(f'law/{x["law"]}', mark)
+        elif x['kind'] == 'start' and x['act'].get('first_law'):
+            tags.setdefault(f'law/{x["act"]["first_law"]}', mark)
+        log.append({'day': x['day'], 'kind': x['kind'], 'law': x.get('law') or (x['act'].get('first_law') if x['kind'] == 'start' else None),
+                    'acts': touched, 'units': len(files), 'branch': branch, 'clamped': x['day'] < '1970-01-01'})
+    return w, tags, log
+
+
+def _fast_import(repo: Path, start: str, commits: list[dict], tz_of=None) -> list[str]:
+    """Write `commits` ({author, committer: (name, email), when, message, files, deleteall?, keep?}) on top of
+    `start` with one `git fast-import`; committer dates max(own, previous + 1 s). Returns their SHAs."""
+    prev_ct = _ident(_field(_read_commits(repo, [start])[start], b'committer'))[2]
+    ref = f'refs/inc-tmp/{os.getpid()}-{threading.get_ident()}'
+    buf = bytearray()
+    for i, x in enumerate(commits, 1):
+        ts, tz = x['when'].split()
+        prev_ct = max(int(ts), prev_ct + 1)
+        a, cm = x['author'], x['committer']
+        msg = x['message'].encode('utf-8')
+        buf += f'commit {ref}\nmark :{i}\n'.encode()
+        buf += f'author {a[0]} <{a[1]}> {x["when"]}\n'.encode('utf-8')
+        buf += f'committer {cm[0]} <{cm[1]}> {prev_ct} {tz}\n'.encode('utf-8')
+        buf += f'data {len(msg)}\n'.encode() + msg + b'\n'
+        if i == 1:
+            buf += f'from {start}\n'.encode()
+        if x.get('deleteall'):
+            buf += b'deleteall\n'
+            for path, oid in sorted(x.get('keep', {}).items()):
+                buf += b'M 100644 ' + oid + b' ' + path + b'\n'
+        for path in sorted(x['files']):
+            text = x['files'][path]
+            p = path.encode('utf-8')
+            if b'\n' in p or p.startswith(b'"'):
+                raise RuntimeError(f'unsupported path {path!r}')
+            if text is None:
+                buf += b'D ' + p + b'\n'
+            else:
+                b = text.encode('utf-8')
+                buf += b'M 100644 inline ' + p + b'\n' + f'data {len(b)}\n'.encode() + b + b'\n'
+        buf += b'\n'
+    buf += b'done\n'
+    with tempfile.TemporaryDirectory() as tmp:
+        marks = Path(tmp) / 'marks'
+        fi = subprocess.run(['git', 'fast-import', '--quiet', '--done', '--date-format=raw', f'--export-marks={marks}'],
+                            cwd=repo, input=bytes(buf), capture_output=True)
+        if fi.returncode:
+            raise RuntimeError(f'fast-import: {fi.stderr.decode("utf-8", "replace")[-300:]}')
+        by_mark = dict(l.split(' ', 1) for l in marks.read_text().split('\n') if l)
+    git(repo, 'update-ref', '-d', ref, check=False)
+    return [by_mark[f':{i}'].strip() for i in range(1, len(commits) + 1)]
+
+
+def _scoped_check(repo: Path, c: dict, raw: bytes, acts: set[str]) -> dict:
+    """check.py's record for this corpus on the local main, reading back only `acts` (the new ones); the rest of
+    the record (trailers, merges, dates) covers the whole branch, as check.py does. The published acts were read
+    back by the full check of the corpus they came from and their commits are unchanged."""
+    cat = K.Cat(repo)
+    trees: dict = {}
+    mismatches, details = 0, []
+    sel = [a for a in c['acts'] if a['slug'] in acts]
+    by_act = K.all_commits_by_act(repo, 'main', [a['slug'] for a in sel])
+    for act in sel:
+        slug = act['slug']
+        rows = by_act[slug]
+        vs = act['versions']
+        for i, v in enumerate(vs):
+            if i + 1 < len(vs) and vs[i + 1]['from'] == v['from']:
+                continue
+            before = next((w for w in reversed(vs[:i]) if w['from'] < v['from']), None)
+            for day, want in ((v['from'], v), ((dt.date.fromisoformat(v['from']) - dt.timedelta(days=1)).isoformat(), before)):
+                h = K.state_on(rows, day)
+                if want is None:
+                    if h is not None:
+                        mismatches += 1
+                        details.append(f'{slug}: something is in force on {day}, before the first version')
+                    continue
+                if h is None:
+                    mismatches += 1
+                    details.append(f'{slug}: nothing in force on {day}')
+                    continue
+                files = K.tree_oids(cat, h, slug, trees)
+                expect = {f'{slug}/{k}.md': K.blob_oid(u['text']) for k, u in want['units'].items()}
+                for f in sorted(set(files) | set(expect)):
+                    if files.get(f) != expect.get(f):
+                        mismatches += 1
+                        if len(details) < 50:
+                            details.append(f'{slug} on {day}: {f} differs from version {want["from"]}')
+    cat.close()
+    trailer_errors, missing_in_force = 0, 0
+    out = K.git(repo, 'log', '--no-merges', '--format=%H%x1f%an%x1f%(trailers:only,unfold,separator=%x1e)%x1d', 'main')
+    for rec in out.split('\x1d'):
+        rec = rec.strip('\n')
+        if not rec:
+            continue
+        h, an, tr = rec.split('\x1f')
+        if an == 'Lexifina':
+            continue
+        keys = [t.split(':', 1)[0] for t in tr.split('\x1e') if t]
+        if not keys:
+            trailer_errors += 1
+        elif 'In-force' not in keys:
+            missing_in_force += 1
+    merges = int(K.git(repo, 'rev-list', '--merges', '--count', 'main').strip())
+    cts = [int(x) for x in K.git(repo, 'log', '--first-parent', '--reverse', '--format=%ct', 'main').split()]
+    backwards = sum(1 for a, b in zip(cts, cts[1:]) if b < a)
+    now = int(time.time())
+    future_dated = sum(1 for x in cts[:-1] if x > now) + (1 if cts and cts[-1] > now + 2 * 86400 else 0)
+    return {'acts': len(c['acts']), 'versions': sum(len(a['versions']) for a in c['acts']), 'mismatches': mismatches,
+            'trailer_errors': trailer_errors, 'missing_in_force': missing_in_force, 'merges': merges,
+            'backwards': backwards, 'future_dated': future_dated, 'details': details,
+            'corpus_sha256': hashlib.sha256(raw).hexdigest()}
+
+
+def incremental(slug: str, folder: Path, repo: Path, state: dict, day: str) -> dict:
+    """Prepare the local main as the published head plus only what is new (see the section comment). Returns
+    {'ok': True, 'tip': sha, 'parts': ..., 'check': record, 'new_acts': n, 'commits': n}, {'ok': 'same'} when no verified
+    part is new, or {'ok': False, 'why': reason} to fall back to the full build. Never pushes."""
+    inc = state.get('inc') or {}
+    if not inc:
+        return {'ok': False, 'why': 'no incremental base yet (first full build)'}
+    if inc.get('version') != INC_VERSION:
+        return {'ok': False, 'why': 'incremental format changed'}
+    if inc.get('shared') != _shared_digest(folder):
+        return {'ok': False, 'why': 'corpus.json, PUBLISH, the static docs or the shared builder changed'}
+    remote = git(repo, 'rev-parse', '-q', '--verify', 'refs/remotes/origin/main', check=False)
+    if not remote or remote != inc.get('head'):
+        return {'ok': False, 'why': 'the published main moved since the last publish from here'}
+    if (inc.get('check') or {}).get('mismatches') != 0:
+        return {'ok': False, 'why': 'the last full check was not clean'}
+    parts = _verified_parts(folder)
+    old = inc.get('parts') or {}
+    changed = [n for n, h in old.items() if parts.get(n) != h]
+    if changed:
+        return {'ok': False, 'why': f'published part changed or withdrawn: {", ".join(changed[:3])}'}
+    new_parts = [n for n in parts if n not in old]
+    if not new_parts:
+        return {'ok': 'same'}
+    new_acts: set[str] = set()
+    for n in new_parts:
+        new_acts |= {a['slug'] for a in json.loads((folder / 'corpus.d' / n).read_text(encoding='utf-8')).get('acts', [])}
+    c, raw = _load_verified(folder)
+    errs = B.validate(c)
+    if errs:
+        return {'ok': False, 'why': f'corpus has problems ({errs[0][:80]})'}
+    c['_docs_date'] = day
+    rec, tags, log = _record_history(c, day, B.plan(c))
+    new, pub = [], 0
+    for x, e in zip(rec.commits, log):
+        acts = set(e['acts'])
+        if e['branch'] != 'main':
+            return {'ok': False, 'why': 'versions in force after the docs date (future branch)'}
+        if acts & new_acts and acts - new_acts:
+            return {'ok': False, 'why': f'a law commit spans new and published acts ({e.get("law")} on {e["day"]})'}
+        if acts <= new_acts:
+            if e['clamped']:
+                return {'ok': False, 'why': 'a new act dated before 1970 (placeholder dates shift)'}
+            new.append(x)
+        else:
+            pub += 1
+    r_law = sum(1 for l in git(repo, 'log', '--first-parent', '--format=%an', remote).split('\n') if l and l != 'Lexifina')
+    if pub != r_law:
+        return {'ok': False, 'why': f'the published main has {r_law} law commits, the corpus {pub}'}
+    if not new:
+        return {'ok': 'same'}
+    git(repo, 'config', 'gc.auto', '0')
+    shas = _fast_import(repo, remote, new)
+    law_tip = shas[-1]
+    git(repo, 'update-ref', 'refs/heads/main', law_tip)
+    future = c['country'].get('future_branch', 'futuro')
+    git(repo, 'update-ref', '-d', f'refs/heads/{future}', check=False)
+    chk = _scoped_check(repo, c, raw, new_acts)
+    if chk['mismatches'] or chk['trailer_errors'] or chk['missing_in_force'] or chk['merges'] or chk['backwards']:
+        return {'ok': False, 'why': f'scoped check: {chk["mismatches"]} mismatches {chk["details"][:2]}'}
+    record = {k: v for k, v in chk.items() if k != 'details'}
+    ver_path = folder / 'verification.json'
+    ver = json.loads(ver_path.read_text(encoding='utf-8')) if ver_path.exists() else {}
+    ver['check'] = record
+    ver_path.write_text(json.dumps(ver, indent=1, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
+    # The documentation commit, exactly as the full build makes it: the law files of the last law commit plus the
+    # docs files (a whole new tree, so files the old docs had and the new ones do not are gone).
+    files = B.docs_files(c, folder, raw, log, tags, day)
+    co = c['country']
+    committer = ('Lexifina', f'{co["slug"]}-law@lexifina.com')
+    docs = {'author': committer, 'committer': committer, 'when': B.Clock(co['tz']).stamp(day),
+            'message': f'Documentation, tables, tools and REPRODUCE.md\n\nBuilt from corpus.json '
+                       f'(sha256 {hashlib.sha256(raw).hexdigest()}), data retrieved {day}.\n',
+            'files': files, 'deleteall': True,
+            'keep': {p: o for p, o in _law_files(repo, law_tip).items() if p.decode('utf-8') not in files}}
+    tip = _fast_import(repo, law_tip, [docs])[0]
+    git(repo, 'update-ref', 'refs/heads/main', tip)
+    # Local tags: exactly the new commits' tags (publish() pushes only tags on commits it adds).
+    marks = {x['mark']: s for x, s in zip(new, shas)}
+    lines = [f'delete {r}\n' for r in git(repo, 'for-each-ref', '--format=%(refname)', 'refs/tags').split('\n') if r]
+    lines += [f'update refs/tags/{t} {marks[m]}\n' for t, m in tags.items() if m in marks]
+    if lines:
+        git(repo, 'update-ref', '--stdin', data=''.join(lines).encode('utf-8'))
+    return {'ok': True, 'tip': tip, 'parts': parts, 'check': record, 'new_acts': len(new_acts), 'commits': len(new)}
 
 
 def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, check=None) -> str:
@@ -886,16 +1201,22 @@ def main_build(slug: str, folder: Path, repo: Path, state: dict, dry_run: bool =
     out = {'docs_date': day}
     # 1. Everything, verified or not, is built and checked here, so the agents see the whole country as they have it.
     #    It is no longer pushed to `preview`: the country repos are public and this text is not yet verified.
-    if not published or unverified:
+    preview_key = hashlib.sha256(raw + _shared_digest(folder).encode()).hexdigest()
+    if (not published or unverified) and state.get('preview_key') != preview_key:
         ok, info = build_check(False)
         if not ok:
             state.update(built_sha=sha, built_at=_now(), result=f'{info["stage"]} failed, not pushed')
             return {'main': f'{info["stage"]} failed, not pushed', **info}
         out['preview'] = f'built and checked locally at {git(repo, "rev-parse", "--short", "main")} (not published)'
         out['check'] = info['check']
+        if not dry_run:
+            state['preview_key'] = preview_key
         if not published:
             state.update(built_sha=sha, built_at=_now(), result=out['preview'])
             return {'main': f'{out["preview"]}; main waits for PUBLISH', **out}
+    if not published:  # preview inputs unchanged since the last preview build: nothing to do until PUBLISH
+        state.update(built_sha=sha, built_at=_now())
+        return {'main': f'{state.get("result", "preview unchanged")}; main waits for PUBLISH', **out}
     # 2. main holds only what has been verified against the official text: corpus.json (PUBLISH) and each corpus.d
     #    part whose owner wrote <part>.PUBLISH. Tags are pruned to match, so a part's tags leave with it.
     owner = remote_main_owner(slug, repo)
@@ -904,6 +1225,37 @@ def main_build(slug: str, folder: Path, repo: Path, state: dict, dry_run: bool =
         # own builder (Spain, Austria, Italy, ...). The build stays on preview; a person decides.
         state.update(built_sha=sha, built_at=_now(), result=f'main NOT pushed: {owner}')
         return {'main': f'main NOT pushed: remote main is {owner}; build kept on preview only', **out}
+    if not _full_due(state):
+        t0 = time.process_time()
+        try:
+            inc = incremental(slug, folder, repo, state, day)
+        except Exception as e:  # never fatal: the full build follows
+            inc = {'ok': False, 'why': f'incremental error: {str(e)[:150]}'}
+        if inc['ok'] == 'same':
+            if not dry_run:
+                state.update(built_sha=sha, built_at=_now(), result='nothing to push (no new verified part; incremental)')
+            return {'main': 'nothing to push (no new verified part; incremental)', **out}
+        if inc['ok'] is True:
+            def check_inc() -> tuple[bool, str]:
+                if git(repo, 'rev-parse', 'refs/heads/main') != inc['tip']:
+                    return False, 'check failed: publish would push another tip than the incremental build'
+                cts = [int(x) for x in git(repo, 'log', '--first-parent', '--format=%ct', 'main').split()]
+                now = time.time()
+                if any(x > now for x in cts[1:]) or (cts and cts[0] > now + 2 * 86400):
+                    state['retry_after'] = max(x for x in cts if x > now) + 1
+                    return False, 'appended commits would be dated ahead of now; waits'
+                return True, ''
+            state.pop('retry_after', None)
+            result = publish(slug, repo, ['main'], dry_run=dry_run, check=check_inc)
+            out['incremental'] = (f'{inc["commits"]} commits for {inc["new_acts"]} new acts, '
+                                  f'{time.process_time() - t0:.1f} s CPU in this process')
+            if not dry_run:
+                if result.startswith(('pushed', 'nothing to push')):
+                    state['inc'] = {**state['inc'], 'head': inc['tip'], 'parts': inc['parts'], 'check': inc['check']}
+                state.update(built_sha=None if result.startswith('push failed') else sha, built_at=_now(),
+                             result=f'{result[:200]} {inc["tip"][:8]} (incremental)')
+            return {'main': f'{result} {inc["tip"][:8]} (incremental)', **out, 'check': inc['check']}
+        out['incremental'] = f'full build: {inc["why"]}'
     ok, info = build_check(True)
     if not ok:
         state.update(built_sha=sha, built_at=_now(), result=f'main {info["stage"]} failed, not pushed')
@@ -944,6 +1296,13 @@ def main_build(slug: str, folder: Path, repo: Path, state: dict, dry_run: bool =
     if not dry_run:
         state.update(built_sha=None if result.startswith('push failed') else sha,
                      built_at=_now(), result=f'{result[:200]} {head}')
+        state['last_full'] = time.time()
+        if result.startswith(('pushed', 'nothing to push')) and branches == ['main']:
+            tip = git(repo, 'rev-parse', 'refs/heads/main' if result.startswith('pushed') else 'refs/remotes/origin/main')
+            state['inc'] = {'version': INC_VERSION, 'head': tip, 'parts': _verified_parts(folder),
+                            'shared': _shared_digest(folder), 'check': info.get('check')}
+        else:
+            state.pop('inc', None)
     return {'main': f'{result} {head}' + (f' (left out until verified: {", ".join(unverified)})' if unverified else ''),
             **out, 'check': info['check'], 'commits': git(repo, 'rev-list', '--count', 'main')}
 
