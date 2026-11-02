@@ -22,6 +22,8 @@ from urllib.parse import urlparse
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from br_city_get import Stop  # noqa: E402
 from br_sapl_multi import work  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'gitlaw_common'))
+import fetch_scheduler  # noqa: E402  (2026-11-02: shared scheduler, cache, registry and feed)
 
 SCRIPTS = Path(__file__).resolve().parents[1]
 STOPF = Path(__file__).resolve().parent / '.br-cities' / 'STOP-wave'
@@ -138,6 +140,7 @@ def laws(H, host, folder, n):
 def city(host, folder, n, do_lom, nmax):
     g = work(host, folder)
     H = next(g)
+    fetch_scheduler.adopt(H, caller='br_sapl_wave')
     yield H
     if do_lom:
         for _ in g:

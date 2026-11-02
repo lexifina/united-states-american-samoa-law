@@ -1,0 +1,3 @@
+fetch_hosts.json
+fetch_hosts.json.lock
+fetch_hosts.json.*.tmp
