@@ -658,8 +658,9 @@ def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law
             if name not in x['ranges']:
                 continue
             a, b = x['ranges'][name]
-            if b is None:
-                b = before(min((d for d, _, _ in rs if d > a), default='9999-12-31'))
+            if b is None:  # open: to the day before the act's next ordinary commit, else for good ('today' included)
+                nxt = min((d for d, _, _ in rs if d > a), default=None)
+                b = before(nxt) if nxt else '9999-12-31'
             if a <= day <= b:
                 cur = dict(st) if cur is None else cur
                 for p, o in x['files'].get(name, {}).items():
