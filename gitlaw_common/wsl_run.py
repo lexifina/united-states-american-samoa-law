@@ -5,6 +5,7 @@
     python wsl_run.py check <slug|folder> [--write] [--repo DIR]
     python wsl_run.py push  <slug|folder> [--main] [--branch B] [--repo DIR]
     python wsl_run.py git   <slug|folder> <git args...>       # git inside the WSL build repo
+    python wsl_run.py py    <slug|folder> <script> [--repo DIR] <args...>  # a builder script (append_gate.py, ...)
     python wsl_run.py path  <slug|folder>                     # where the build repo is (also as a \\wsl.localhost path)
 
 <slug> is a folder name under scripts/ (e.g. chile-law); a folder path works too. The build repo is

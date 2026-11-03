@@ -9,6 +9,7 @@
 #   wsl_build.sh push  <slug|folder> [--repo DIR] [--main] [--branch B]
 #   wsl_build.sh git   <slug|folder> [--repo DIR] <git args...>
 #   wsl_build.sh path  <slug|folder> [--repo DIR]
+#   wsl_build.sh py    <slug|folder> <script.py|/abs/script.py> [--repo DIR] <script args...>
 #
 # Environment (wsl_run.py sets these): GITLAW_COMMON (this folder on /mnt/c), GITLAW_SCRIPTS (the scripts folder),
 # GITLAW_WIN_HOME (the Windows home on /mnt/c), GITLAW_WSL_TIME=1 to print wall and CPU time to stderr.
@@ -27,6 +28,8 @@ TZDATA_VERSION="${GITLAW_TZDATA_VERSION:-2026.6}"   # the tzdata the Windows bui
 # the Windows user.name/user.email (so `git config --global user.email`, which private.audit_push reads, answers as
 # on Windows) and sends credentials to the Windows Git Credential Manager, so no token is ever copied into WSL.
 export GIT_CONFIG_GLOBAL="$ROOT/gitconfig"
+# the personal address the push audit must keep out (read from the Windows config, never copied into ours)
+[ -n "${GITLAW_WIN_HOME:-}" ] && [ -f "$GITLAW_WIN_HOME/.gitconfig" ] && export GITLAW_PERSONAL_GITCONFIG="$GITLAW_WIN_HOME/.gitconfig"
 # zoneinfo reads the tzdata package (as on Windows, which has no system zone files), not /usr/share/zoneinfo.
 export PYTHONTZPATH=''
 export PYTHONUTF8=1
@@ -57,15 +60,10 @@ setup() {
   [ -f "$GCM" ] || die "Git Credential Manager not found at $GCM"
   local cfg="$GIT_CONFIG_GLOBAL.tmp"
   rm -f "$cfg"; : > "$cfg"
-  # user.name/user.email as in the Windows global config: private.audit_push asks `git config --global user.email`
-  # for the personal address it must keep out of pushes (an include would not do: --global lookups skip includes).
-  if [ -n "${GITLAW_WIN_HOME:-}" ] && [ -f "$GITLAW_WIN_HOME/.gitconfig" ]; then
-    local k v
-    for k in user.name user.email; do
-      v="$(git config -f "$GITLAW_WIN_HOME/.gitconfig" "$k" || true)"
-      [ -n "$v" ] && git config -f "$cfg" "$k" "$v"
-    done
-  fi
+  # No identity here (2026-11-03): the Windows global identity is personal, and copying it meant any WSL commit
+  # without an explicit GIT_AUTHOR_*/GIT_COMMITTER_* carried it. useConfigOnly makes such a commit fail instead.
+  # private.audit_push still finds the personal address through GITLAW_PERSONAL_GITCONFIG (exported above).
+  git config -f "$cfg" user.useConfigOnly true
   # An empty helper first clears any helper named earlier; then the Windows Git Credential Manager.
   git config -f "$cfg" credential.helper ''
   git config -f "$cfg" --add credential.helper "${GCM// /\\ }"
@@ -101,7 +99,7 @@ timed() {
   fi
 }
 
-[ $# -ge 1 ] || die "usage: wsl_build.sh setup|build|check|push|git|path ..."
+[ $# -ge 1 ] || die "usage: wsl_build.sh setup|build|check|push|git|py|path ..."
 cmd="$1"; shift
 if [ "$cmd" = setup ]; then setup; exit; fi
 [ -x "$PY" ] && [ -f "$GIT_CONFIG_GLOBAL" ] || die "not set up: run 'python wsl_run.py setup' first"
@@ -110,8 +108,8 @@ resolve "$1"; shift
 args=()
 while [ $# -gt 0 ]; do
   case "$1" in
-    --repo) REPO="$2"; shift 2 ;;
-    --repo=*) REPO="${1#--repo=}"; shift ;;
+    --repo) REPO="$2"; REPO_GIVEN=1; shift 2 ;;
+    --repo=*) REPO="${1#--repo=}"; REPO_GIVEN=1; shift ;;
     *) args+=("$1"); shift ;;
   esac
 done
@@ -142,6 +140,16 @@ case "$cmd" in
     ;;
   git)
     exec git -C "$REPO" "${args[@]}"
+    ;;
+  py)
+    # Any builder script with the venv python under nice 10: a name is taken from this folder (append_gate.py), an
+    # absolute path as given (autopush.py --finish-append). --repo, when given, is passed on to the script (expanded).
+    [ ${#args[@]} -ge 1 ] || die "py needs a script"
+    script="${args[0]}"
+    case "$script" in /*) ;; *) script="$COMMON/$script" ;; esac
+    rest=("${args[@]:1}")
+    if [ -n "${REPO_GIVEN:-}" ]; then rest+=(--repo "$REPO"); fi
+    timed nice -n 10 "$PY" "$script" "${rest[@]}"
     ;;
   path)
     echo "folder=$FOLDER"
