@@ -551,7 +551,8 @@ def _ptr(url: str) -> Path:
 
 def _body_path(url: str) -> Path | None:
     """Where url's shared body is on disk: the shared cache file or, when a caller's cache holds the only copy (see
-    _place), the caller file that .ptr/<sha256(url)> names. A pointer whose file has gone is dropped."""
+    _place), the caller file that .ptr/<sha256(url)> names. A pointer whose file has gone is a cache miss: it is
+    removed and logged to the feed ('ptr_lost'), never an error."""
     p = SHARED_CACHE / _sha_url(url)
     if p.exists():
         return p
@@ -561,7 +562,11 @@ def _body_path(url: str) -> Path | None:
         return None
     if t.is_file():
         return t
-    _ptr(url).unlink(missing_ok=True)
+    _ptr(url).unlink(missing_ok=True)             # the caller's folder was cleaned: a clean miss, logged once
+    try:
+        _feed({'host': _host_of(url), 'url': url, 'event': 'ptr_lost', 'path': str(t), 'cost': 0})
+    except OSError:
+        pass
     return None
 
 
@@ -594,51 +599,99 @@ def _to_object(url: str) -> None:
         pass
 
 
+def _same_volume(a: Path, b: Path) -> bool:
+    """Whether a and b are on one volume (a hard link between them is possible in principle)."""
+    try:
+        return os.stat(a).st_dev == os.stat(b).st_dev
+    except OSError:
+        return True
+
+
 def _place(dst: Path, url: str, body: bytes, caller: str | None = None) -> None:
     """Put url's body at dst (a caller's own cache file) without a second copy on disk: a hard link to the shared
-    body. When the link fails (another volume, a file system without links, NTFS's 1023 links per file), dst gets
-    the bytes and becomes the only copy: the shared entry is replaced by a pointer to dst (.ptr/<sha256(url)>, which
-    cached() follows) and its object is dropped when no other URL links to it. A copy that cannot be avoided (the
-    object is shared with other URLs, or the body already lives in another caller's folder) is written to the feed
-    as a 'dup' event, never silently."""
+    body. When the link fails, dst gets the bytes (the caller reads its own folder) and:
+    - dst on another volume than the shared cache, and the shared entry linked by nothing but its own object: dst
+      becomes the only copy. The shared entry is replaced by a pointer to dst (.ptr/<sha256(url)>, which cached()
+      follows) and its object is dropped. Just before removing it, the shared file must still be the one this body
+      came from (same file id, size and sha256); a refresh that wrote a new body meanwhile cancels the conversion.
+    - otherwise (same volume: a file in use, NTFS's 1023-link limit; or other URLs share the object, so removing the
+      entry frees nothing) the shared entry stays and the second copy is written to the feed as a 'dup' event with
+      the reason, never silently. Pointers stay rare: a pointer whose file is later deleted is a cache miss."""
     dst.parent.mkdir(parents=True, exist_ok=True)
     src = _body_path(url)
     # a temp name of this process and thread: a stale .part (a crash) or a peer placing the same dst makes os.link
     # fail, which would otherwise fall through to a needless copy and turn the shared entry into a pointer
     tmp = dst.with_name(f'{dst.name}.{os.getpid()}.{threading.get_ident()}.part')
+    err = 'no shared body'
     if src is not None:
         try:
             os.link(src, tmp)
             _replace(tmp, dst)
             return
-        except OSError:
+        except OSError as e:
             tmp.unlink(missing_ok=True)
+            err = f'link failed: {type(e).__name__} {getattr(e, "errno", "")}'.strip()
     tmp.write_bytes(body)
     _replace(tmp, dst)
     _compress_later(dst, body)
+    if src is None:
+        return
     shared = SHARED_CACHE / _sha_url(url)
-    dup = src is not None
-    if shared.exists():
-        try:
-            if os.path.samefile(shared, dst):
-                return
-            ptr = _ptr(url)
-            ptr.parent.mkdir(parents=True, exist_ok=True)
-            part = ptr.with_suffix('.part')
-            part.write_text(str(dst.resolve()), encoding='utf-8')
-            _replace(part, ptr)                       # pointer first: cached() never misses meanwhile
-            shared.unlink()
-            obj = OBJECTS / hashlib.sha256(body).hexdigest()
-            if not obj.exists():
-                dup = False
-            elif os.stat(obj).st_nlink == 1:          # no other URL has this body: dst is now its only copy
-                obj.unlink()
-                dup = False
-        except OSError:
-            pass
-    if dup:
+    why = _to_pointer(shared, dst, url, body)
+    if why:
         _feed({'host': _host_of(url), 'url': url, 'event': 'dup', 'bytes': len(body), 'path': str(dst),
-               'caller': caller, 'cost': 0})
+               'reason': f'{err}; {why}', 'caller': caller, 'cost': 0})
+
+
+def _to_pointer(shared: Path, dst: Path, url: str, body: bytes) -> str | None:
+    """Make dst the only copy of url's body (see _place). None when done; otherwise why the copy stays."""
+    try:
+        st = os.stat(shared)
+    except OSError:
+        return 'body already in another caller folder'          # the entry is a pointer already
+    if os.path.samefile(shared, dst):
+        return None
+    if _same_volume(shared, dst.parent):
+        return 'same volume: kept the shared copy'
+    obj = OBJECTS / hashlib.sha256(body).hexdigest()
+    try:                                          # links of the file stat'ed above: its entry and its own object
+        o = os.stat(obj)
+        own = 1 + ((o.st_ino, o.st_dev) == (st.st_ino, st.st_dev))
+    except OSError:
+        own = 1
+    if st.st_nlink > own:                         # other URLs or callers hold it too: removing frees nothing
+        return f'shared body has {st.st_nlink - own} other links: kept'
+    ptr, gone = _ptr(url), shared.with_name(f'{shared.name}.{os.getpid()}.{threading.get_ident()}.drop')
+    try:
+        ptr.parent.mkdir(parents=True, exist_ok=True)
+        part = ptr.with_name(f'{ptr.name}.{os.getpid()}.{threading.get_ident()}.part')
+        part.write_text(str(dst.resolve()), encoding='utf-8')
+        _replace(part, ptr)                       # pointer first: cached() never misses meanwhile
+        os.rename(shared, gone)                   # atomic: from here no reader or writer sees this file as the entry
+    except OSError as e:
+        ptr.unlink(missing_ok=True)
+        return f'pointer not made: {type(e).__name__}'
+    try:
+        g = os.stat(gone)
+        same = (g.st_ino, g.st_dev, g.st_size) == (st.st_ino, st.st_dev, len(body)) and \
+            hashlib.sha256(gone.read_bytes()).digest() == hashlib.sha256(body).digest()
+    except OSError:
+        same = False
+    if not same:                                  # a refresh wrote a new body meanwhile: put it back, no pointer
+        try:
+            os.link(gone, shared)
+        except OSError:
+            pass                                  # an even newer entry is there already
+        gone.unlink(missing_ok=True)
+        ptr.unlink(missing_ok=True)
+        return 'shared body changed during the conversion: kept'
+    gone.unlink(missing_ok=True)
+    try:
+        if obj.exists() and os.stat(obj).st_nlink == 1:
+            obj.unlink()
+    except OSError:
+        pass
+    return None
 
 
 def _copy_to(cache: Path | None, url: str, body: bytes, caller: str | None = None) -> None:

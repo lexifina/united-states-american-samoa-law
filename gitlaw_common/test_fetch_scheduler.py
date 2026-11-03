@@ -586,21 +586,40 @@ class SchedulerTest(unittest.TestCase):
         self.assertEqual(self.data_files(fs.SCHED_DIR, mine, body=b'one body'), 1)
         self.assertTrue(os.path.samefile(wayback._cached(mine, url), fs.SHARED_CACHE / fs._sha_url(url)))
 
-    def test_failed_link_leaves_one_copy_and_every_hit_still_works(self):
+    def failing_links(self, folder, err=None, other_volume=True, on_check=None):
+        """Links into folder fail with err (default: not same device); folder counts as another volume or not.
+        on_check runs when _place asks whether the volumes differ (a hook for the race test)."""
+        import contextlib
+        real_link, real_same = os.link, fs._same_volume
+
+        def link(src, dst, *a, **k):
+            if str(folder) in str(dst):
+                raise err or OSError(18, 'not same device')
+            return real_link(src, dst, *a, **k)
+
+        def same(a, b):
+            if on_check:
+                on_check()
+            return (not other_volume) if str(folder) in str(b) else real_same(a, b)
+
+        @contextlib.contextmanager
+        def ctx():
+            fs.os.link, fs._same_volume = link, same
+            try:
+                yield
+            finally:
+                fs.os.link, fs._same_volume = real_link, real_same
+        return ctx()
+
+    def feed(self):
+        return [json.loads(l) for f in fs.FEED_DIR.glob('*.jsonl') for l in f.read_text(encoding='utf-8').splitlines()]
+
+    def test_failed_link_across_volumes_leaves_one_copy_and_every_hit_still_works(self):
         self.fake_clock()
         Stub.routes['/e'] = etag_route
         url, mine, theirs = self.base + '/e', self.t / 'mine', self.t / 'theirs'
-        real_link = os.link
-
-        def link(src, dst, *a, **k):          # links into mine fail, as across volumes
-            if str(mine) in str(dst):
-                raise OSError(18, 'not same device')
-            return real_link(src, dst, *a, **k)
-        fs.os.link = link
-        try:
+        with self.failing_links(mine):
             self.assertEqual(fs.get(url, mine), b'versioned body')
-        finally:
-            fs.os.link = real_link
         body = b'versioned body'
         self.assertEqual(self.data_files(fs.SCHED_DIR, mine, body=body), 1)          # exactly one data copy
         self.assertTrue(wayback._cached(mine, url).exists())
@@ -608,6 +627,7 @@ class SchedulerTest(unittest.TestCase):
         self.assertEqual(fs._body_path(url).resolve(), wayback._cached(mine, url).resolve())
         self.assertTrue(wayback._meta_file(mine, url).exists())                      # .http-meta kept
         self.assertTrue((fs.SHARED_CACHE / 'requests.jsonl').exists())
+        self.assertEqual(list(fs.SHARED_CACHE.glob('*.drop')), [])
         # every kind of hit, no new request: the same caller, no cache, another caller (now linked to mine)
         self.assertEqual(fs.get(url, mine), body)
         self.assertEqual(fs.get(url), body)
@@ -615,8 +635,7 @@ class SchedulerTest(unittest.TestCase):
         self.assertTrue(os.path.samefile(wayback._cached(theirs, url), wayback._cached(mine, url)))
         self.assertEqual(len(self.hits(path='/e')), 1)
         self.assertEqual(self.data_files(fs.SCHED_DIR, mine, theirs, body=body), 1)
-        feed = [json.loads(l) for f in fs.FEED_DIR.glob('*.jsonl') for l in f.read_text(encoding='utf-8').splitlines()]
-        self.assertEqual([r for r in feed if r['event'] == 'dup'], [])
+        self.assertEqual([r for r in self.feed() if r['event'] == 'dup'], [])
         # a 404 is still remembered alongside
         self.assertIsNone(fs.get(self.base + '/missing', mine))
         self.assertIsNone(fs.get(self.base + '/missing', mine))
@@ -626,24 +645,107 @@ class SchedulerTest(unittest.TestCase):
         self.assertTrue((fs.SHARED_CACHE / fs._sha_url(url)).exists())
         self.assertFalse(fs._ptr(url).exists())
 
-    def test_unavoidable_copy_is_reported(self):
+    def test_dangling_pointer_is_a_clean_logged_miss(self):
+        # 1: the caller folder is cleaned after it became the only copy
+        self.fake_clock()
+        Stub.routes['/p'] = (200, {}, b'pointed body')
+        url, mine = self.base + '/p', self.t / 'mine'
+        with self.failing_links(mine):
+            fs.get(url, mine)
+        self.assertTrue(fs._ptr(url).exists())
+        target = str(wayback._cached(mine, url).resolve())
+        import shutil
+        shutil.rmtree(mine)
+        self.assertIsNone(fs.cached(url))                     # a miss, not an error
+        self.assertFalse(fs._ptr(url).exists())               # the pointer is removed
+        lost = [r for r in self.feed() if r['event'] == 'ptr_lost']
+        self.assertEqual([(r['url'], r['path']) for r in lost], [(url, target)])
+        self.assertEqual(fs.get(url), b'pointed body')        # the next caller refetches
+        self.assertEqual(len(self.hits(path='/p')), 2)
+        self.assertEqual(len([r for r in self.feed() if r['event'] == 'ptr_lost']), 1)   # logged once
+
+    def test_no_pointer_when_other_urls_share_the_body(self):
+        # 2: the object has other links, so converting frees nothing: the shared entry stays and the copy is logged
         self.fake_clock()
         Stub.routes['/x'] = Stub.routes['/y'] = (200, {}, b'same')
         fs.get(self.base + '/x')                  # the object is shared by /x and /y
-        mine, real_link = self.t / 'mine', os.link
-
-        def link(src, dst, *a, **k):
-            if str(mine) in str(dst):
-                raise OSError(18, 'not same device')
-            return real_link(src, dst, *a, **k)
-        fs.os.link = link
-        try:
+        mine = self.t / 'mine'
+        with self.failing_links(mine):
             fs.get(self.base + '/y', mine)
-        finally:
-            fs.os.link = real_link
-        feed = [json.loads(l) for f in fs.FEED_DIR.glob('*.jsonl') for l in f.read_text(encoding='utf-8').splitlines()]
-        self.assertEqual([(r['url'], r['bytes']) for r in feed if r['event'] == 'dup'], [(self.base + '/y', 4)])
+        shared = fs.SHARED_CACHE / fs._sha_url(self.base + '/y')
+        self.assertTrue(shared.exists())
+        self.assertFalse(fs._ptr(self.base + '/y').exists())
+        dup = [r for r in self.feed() if r['event'] == 'dup']
+        self.assertEqual([(r['url'], r['bytes']) for r in dup], [(self.base + '/y', 4)])
+        self.assertIn('other links', dup[0]['reason'])
         self.assertEqual(fs.get(self.base + '/y'), b'same')
+
+    def test_no_pointer_on_the_same_volume(self):
+        # 2 and 3: a link refused on the same volume (the 1023-link limit, a file in use) keeps the shared copy
+        import hashlib
+        for err in (OSError(1142, 'too many links'), PermissionError(13, 'in use')):
+            with self.subTest(err=err):
+                self.fake_clock()
+                path = f'/v{err.errno}'
+                body = b'volume body ' + path.encode()
+                Stub.routes[path] = (200, {}, body)
+                url, mine = self.base + path, self.t / f'mine{err.errno}'
+                with self.failing_links(mine, err=err, other_volume=False):
+                    self.assertEqual(fs.get(url, mine), body)
+                self.assertTrue((fs.SHARED_CACHE / fs._sha_url(url)).exists())
+                self.assertFalse(fs._ptr(url).exists())
+                self.assertTrue((fs.OBJECTS / hashlib.sha256(body).hexdigest()).exists())
+                dup = [r for r in self.feed() if r['event'] == 'dup' and r['url'] == url]
+                self.assertEqual(len(dup), 1)
+                self.assertIn('same volume', dup[0]['reason'])
+                self.assertIn(type(err).__name__, dup[0]['reason'])
+
+    def test_refresh_during_conversion_keeps_the_new_body(self):
+        # 4: another process's refresh writes a new 200 body just before the conversion removes the shared entry
+        self.fake_clock()
+        Stub.routes['/r'] = (200, {}, b'old body')
+        url, mine = self.base + '/r', self.t / 'mine'
+        shared = fs.SHARED_CACHE / fs._sha_url(url)
+
+        def refresh():                            # as host_get does: a new file replaces the entry
+            if shared.exists() and shared.read_bytes() == b'old body':
+                tmp = shared.with_suffix('.peer')
+                tmp.write_bytes(b'new body')
+                os.replace(tmp, shared)
+        with self.failing_links(mine, on_check=refresh):
+            self.assertEqual(fs.get(url, mine), b'old body')
+        self.assertEqual(shared.read_bytes(), b'new body')    # the new body survives
+        self.assertFalse(fs._ptr(url).exists())               # and nothing points at the old one
+        self.assertEqual(fs.cached(url), b'new body')
+        self.assertEqual(list(fs.SHARED_CACHE.glob('*.drop')), [])
+        dup = [r for r in self.feed() if r['event'] == 'dup']
+        self.assertEqual(len(dup), 1)
+        self.assertIn('changed', dup[0]['reason'])
+
+    def test_identity_check_cancels_on_a_different_file(self):
+        # 4, at the last moment: the entry is swapped (same size, other bytes and file id) just before the rename
+        self.fake_clock()
+        Stub.routes['/s'] = (200, {}, b'same size A')
+        url, mine = self.base + '/s', self.t / 'mine'
+        shared = fs.SHARED_CACHE / fs._sha_url(url)
+        real_rename = os.rename
+
+        def rename(a, b, *x, **k):
+            if Path(a) == shared:
+                tmp = shared.with_suffix('.peer')
+                tmp.write_bytes(b'same size B')
+                os.replace(tmp, shared)
+            return real_rename(a, b, *x, **k)
+        fs.os.rename = rename
+        try:
+            with self.failing_links(mine):
+                fs.get(url, mine)
+        finally:
+            fs.os.rename = real_rename
+        self.assertEqual(shared.read_bytes(), b'same size B')
+        self.assertFalse(fs._ptr(url).exists())
+        self.assertEqual(fs.cached(url), b'same size B')
+        self.assertEqual(list(fs.SHARED_CACHE.glob('*.drop')), [])
 
     def test_adopt_links_its_cache_file(self):
         self.fake_clock()
@@ -695,7 +797,7 @@ class SchedulerTest(unittest.TestCase):
             self.assertEqual(calls, [])                           # nothing compressed on the request path
             gate.set()
             fs.compress_pending()
-            for _ in range(100):                                  # the background thread may hold the last one
+            for _ in range(1200):                                 # the background thread (lowest priority) may hold it
                 if calls:
                     break
                 time.sleep(0.05)
