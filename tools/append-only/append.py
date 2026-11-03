@@ -49,6 +49,7 @@ import csv
 import io
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -544,7 +545,10 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     docs = B.docs_files(c, folder, raw, full_log, all_tags, docs_date)
     # Ship this script beside build.py, so the repository says how its appended commits were made.
     docs['tools/append.py'] = Path(__file__).read_text(encoding='utf-8').replace('\r\n', '\n')
-    w.commit(committer, clock.stamp(docs_date), committer,
+    # Never future-dated: a docs date of today is noon local, so before then it is capped at now (else every later
+    # append fails the future-dated check until noon).
+    ts, tz = clock.stamp(docs_date).split()
+    w.commit(committer, f'{min(int(ts), int(time.time()))} {tz}', committer,
              f'Documentation, tables, tools and REPRODUCE.md\n\nAppended {len(log)} commits to {head[:12]}'
              + (f' ({len(fixes)} of them corrections)' if fixes else '') + f'; corpus '
              f'sha256 {B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n', docs)
