@@ -61,6 +61,7 @@ sys.path.insert(0, str(HERE))
 import build as B  # noqa: E402
 import check_repo as K  # noqa: E402
 import published_parts  # noqa: E402
+import current_text as H  # noqa: E402
 
 
 def git(repo: Path, *args: str) -> str:
@@ -524,7 +525,7 @@ def check_corrected(repo: Path, c: dict, docs_date: str) -> dict:
         p = Path(tmp) / 'corpus.json'
         p.write_text(json.dumps({**c, 'country': {**c['country'], 'future_branch': '.no-future-branch'}},
                                 ensure_ascii=False), encoding='utf-8', newline='\n')
-        res = K.check(repo, p)  # main only, whatever branches the clone holds
+        res = K.check(repo, p, checked_on=docs_date)  # main only, whatever branches the clone holds
     rd = Reader(repo, [a['slug'] for a in c['acts']])
     head = git(repo, 'rev-parse', 'main').strip()
     mismatches, tip, versions, details = 0, 0, 0, []
@@ -559,7 +560,8 @@ def check_corrected(repo: Path, c: dict, docs_date: str) -> dict:
     finally:
         rd.close()
     return {**{k: res[k] for k in ('acts', 'trailer_errors', 'missing_in_force', 'merges', 'backwards', 'future_dated',
-                                  'image_errors', 'image_warnings', 'image_details')},
+                                  'image_errors', 'image_warnings', 'image_details',
+                                  'tip_errors', 'tip_warnings', 'tip_details')},
             'versions': versions, 'mismatches': mismatches, 'tip_mismatches': tip, 'details': details,
             'corrections': len(rd.fixes)}
 
@@ -698,6 +700,17 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
         planned.append({'x': x, 'day': x['day'], 'author': author, 'files': files, 'touched': touched,
                         'text': '\n'.join(msg).rstrip('\n') + '\n\n' + '\n'.join(trailers) + '\n'})
     fixes = plan_corrections(repo, c, head, state, reason) if corrections else []
+    try:
+        H.ordinary_order(repo, planned)
+    except ValueError as exc:
+        raise B.CorpusError(str(exc)) from exc
+    if planned or fixes:
+        overrides = {}
+        for entry in fixes + planned:
+            overrides.update(entry['files'])
+        tip = H.check(repo, c, docs_date, overrides)
+        if tip['tip_errors']:
+            raise B.CorpusError('check 11: append would leave stale text at HEAD:\n  ' + '\n  '.join(tip['tip_details']))
     texts = []
     for x in fixes:
         msg, trailers = correction_message(c, x)

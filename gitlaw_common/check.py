@@ -125,10 +125,15 @@ def tree_oids(cat: 'Cat', commit: str, act: str, cache: dict) -> dict[str, str]:
     return cache[key]
 
 
-def check(repo: Path, corpus: Path) -> dict:
+def check(repo: Path, corpus: Path, checked_on: str | None = None) -> dict:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from build import load  # the same corpus.json + corpus.d/ merge the build used
     c, raw = load(corpus.parent)
+    if checked_on is None:
+        descriptor = subprocess.run(['git', 'show', 'main:corpus.json'], cwd=repo, capture_output=True, text=True,
+                                    encoding='utf-8', timeout=120)
+        checked_on = json.loads(descriptor.stdout).get('checked_on') if descriptor.returncode == 0 else None
+    checked_on = checked_on or c['country'].get('checked_on') or dt.date.today().isoformat()
     future = c['country'].get('future_branch', 'futuro')
     has_future = bool(git(repo, 'branch', '--list', future).strip())
     cat = Cat(repo)
@@ -181,6 +186,8 @@ def check(repo: Path, corpus: Path) -> dict:
     import corpus_images as M
     import provision_index as I
     images = M.check(c, I.commit_records(repo, future), cat.read)
+    import current_text as H
+    tip = H.check(repo, c, checked_on)
     cat.close()
     trailer_errors, missing_in_force = 0, 0
     refs = ['main'] + ([future] if has_future else [])
@@ -205,7 +212,7 @@ def check(repo: Path, corpus: Path) -> dict:
     # a few hours ahead of now. Allow it up to two days; every law commit must be in the past.
     future_dated = sum(1 for x in cts[:-1] if x > now) + (1 if cts and cts[-1] > now + 2 * 86400 else 0)
     extra = {'corrections': len(rd.fixes)} if rd.fixes else {}  # only when there are any: unchanged output otherwise
-    return {**extra, 'image_errors': len(images['errors']), 'image_warnings': len(images['warnings']),
+    return {**extra, **tip, 'image_errors': len(images['errors']), 'image_warnings': len(images['warnings']),
             'image_details': (images['errors'] + images['warnings'])[:50],
             'acts': len(c['acts']), 'versions': versions, 'mismatches': mismatches, 'trailer_errors': trailer_errors,
             'missing_in_force': missing_in_force, 'merges': merges, 'backwards': backwards,
@@ -225,7 +232,7 @@ def main():
     res = check(Path(args.repo), Path(args.corpus))
     print(json.dumps(res, indent=1, ensure_ascii=False))
     ok = not (res['mismatches'] or res['trailer_errors'] or res['missing_in_force'] or res['merges'] or res['backwards']
-              or res['future_dated'] or res['image_errors'])
+              or res['future_dated'] or res['image_errors'] or res['tip_errors'])
     if args.write:
         p = Path(args.corpus).parent / 'verification.json'
         ver = json.loads(p.read_text(encoding='utf-8')) if p.exists() else {}

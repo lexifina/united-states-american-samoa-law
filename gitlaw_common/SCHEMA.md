@@ -99,6 +99,19 @@ the builder checks its structure and prefix, not an external ISO registry.
 
 ## corpus.json
 
+### Older versions and the current tip
+
+An older newly discovered act may be appended when its files are new. An older version of an existing file must
+be supplied as a labelled correction. Ordinary appends that move a file's in-force date backwards are refused
+before an import starts. The appender also checks the complete planned tip against the source versions in force
+on `--docs-date`; it never writes an older text and leaves HEAD there. Corrections retain their range semantics
+and restore current text before the append closes. This builder chooses refusal, rather than automatic re-apply
+commits, for an invalid ordinary append.
+
+Check 11 compares HEAD blobs directly with those source versions. It reports `tip_errors` for new law commits
+and `tip_warnings` for already-pinned history; a documentation refresh does not relabel old law as new. The
+incremental and full append gates both include the tip check.
+
 All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys and values are plain JSON.
 
 ```json

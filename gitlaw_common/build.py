@@ -1100,7 +1100,7 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
         for p in sorted(static.rglob('*')):
             if p.is_file() and '__pycache__' not in p.parts:
                 files[p.relative_to(static).as_posix()] = p.read_text(encoding='utf-8').replace('\r\n', '\n')
-    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'corpus_tables.py', 'provision_index.py', 'corpus_images.py', 'corpus_jurisdiction.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
+    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'corpus_tables.py', 'provision_index.py', 'corpus_images.py', 'corpus_jurisdiction.py', 'current_text.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
         text = (HERE / name).read_text(encoding='utf-8').replace('\r\n', '\n')
         # Passages for Lexifina's agents only (how sources are fetched, internal paths) stay out of the published copy.
         text = re.sub(r'\n?<!-- private -->.*?<!-- /private -->', '', text, flags=re.S)

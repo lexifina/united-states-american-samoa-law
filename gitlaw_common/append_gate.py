@@ -200,7 +200,7 @@ def check_main(folder: Path, repo: Path, docs_date: str, corrections: bool = Fal
     with tempfile.TemporaryDirectory() as tmp:
         p = Path(tmp) / 'corpus.json'
         p.write_text(json.dumps(c, ensure_ascii=False), encoding='utf-8', newline='\n')
-        res = K.check(repo, p)
+        res = K.check(repo, p, checked_on=docs_date)
     return {k: v for k, v in res.items() if k != 'corpus_sha256'}
 
 
@@ -342,13 +342,14 @@ def check_appended(folder: Path, repo: Path, docs_date: str, old: str, new: str)
     now = int(time.time())
     added = cts[1:]
     future_dated = sum(1 for x in added[:-1] if x > now) + (1 if added and added[-1] > now + 2 * 86400 else 0) + late
-    return {'mode': 'incremental', 'acts': len(acts), 'touched_acts': len(touched), 'versions': versions,
+    tip = AP.H.check(repo, c, docs_date)
+    return {**tip, 'mode': 'incremental', 'acts': len(acts), 'touched_acts': len(touched), 'versions': versions,
             'mismatches': mismatches, 'trailer_errors': trailer_errors, 'missing_in_force': missing_in_force,
             'merges': merges, 'backwards': backwards, 'future_dated': future_dated, 'details': details}
 
 
 FAIL_KEYS = ('mismatches', 'trailer_errors', 'missing_in_force', 'merges', 'backwards', 'future_dated',
-             'tip_mismatches', 'image_errors')  # tip_mismatches is from check_corrected()
+             'tip_mismatches', 'image_errors', 'tip_errors')  # tip_mismatches is from check_corrected()
 
 
 def repair_tags(repo: Path) -> int:
