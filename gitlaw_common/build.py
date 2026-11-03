@@ -380,7 +380,20 @@ def start_message(c: dict, x: dict) -> tuple[tuple[str, str], list[str], list[st
     msg += pre_1970(v['from'])
     trailers += [f'Act: {act["short"]}', f'Provisions: {len(v["units"])}']
     if v.get('source_url'):
-        trailers.append(f'Consolidated: {v["source_url"]}')
+        trailers.append(f'Text-source: {v["source_url"]}')
+    law = c['laws'].get(act.get('first_law'), {})
+    try:
+        trailers += S.date_trailers(c, act, v, law)
+    except ValueError as exc:
+        raise CorpusError(str(exc)) from exc
+    if not any(t.startswith('Source: ') for t in trailers):
+        source = v.get('source_url') or act.get('url') or next((s.get('url') for s in c.get('sources', []) if s.get('url')), None)
+        if source:
+            trailers.append(f'Source: {source}')
+        else:
+            raise CorpusError('new law text requires an official Source URL')
+    if not act.get('first_law') and S.text_as_of(c, act, v):
+        msg = [line.replace(f'in force from {v["from"]}', f'text as of {S.text_as_of(c, act, v)}') for line in msg]
     return author, msg, trailers
 
 
@@ -469,15 +482,40 @@ def change_message(c: dict, x: dict) -> tuple[tuple[str, str], list[str], list[s
     if concerns:
         # Provisions the source credits to this law whose words it left unchanged (e.g. a ruling that also reads one).
         trailers.append(f'Also-concerns: {concerns}')
-    trailers += sorted({f'Consolidated: {p["cur"]["source_url"]}' for p in parts if p['cur'].get('source_url')})
+    sources = sorted({p['cur']['source_url'] for p in parts if p['cur'].get('source_url')})
+    if sources:
+        trailers.append('Text-source: ' + '; '.join(sources))
+    fields = {}
+    for p in parts:
+        try:
+            values = S.date_trailers(c, p['act'], p['cur'], c['laws'].get(x.get('law'), {}))
+        except ValueError as exc:
+            raise CorpusError(str(exc)) from exc
+        for value in values:
+            key, val = value.split(': ', 1)
+            if key in fields and fields[key] != val:
+                raise CorpusError(f'conflicting {key} in one law/day commit; give consistent version metadata')
+            fields[key] = val
+    trailers += [f'{key}: {value}' for key, value in fields.items()]
+    if not any(t.startswith('Source: ') for t in trailers):
+        source = (sources or sorted({p['act']['url'] for p in parts if p['act'].get('url')})
+                  or [s['url'] for s in c.get('sources', []) if s.get('url')])
+        if source:
+            trailers.append('Source: ' + source[0])
+        else:
+            raise CorpusError('new law text requires an official Source URL')
     return author, msg, trailers
 
 
 def check_trailers(trailers: list[str]):
+    seen = set()
     for t in trailers:
         k, sep, v = t.partition(': ')
         if not sep or not re.fullmatch(r'[A-Za-z][A-Za-z0-9-]*', k) or '\n' in v:
             raise CorpusError(f'bad trailer {t!r}: keys must be ASCII and values one line')
+        if k in seen and k not in ('Files', 'Also-amended-by', 'Applies'):
+            raise CorpusError(f'duplicate trailer {k}')
+        seen.add(k)
 
 
 # ---------------------------------------------------------------- dates

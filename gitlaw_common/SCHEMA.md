@@ -109,6 +109,12 @@ All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys a
 - Normalise publisher typesetting once, when the corpus is written: NBSP becomes a space, collapse runs of spaces, use one form of quotes and dashes, and drop footnote markers.
 
 **Versions and dates**
+- `source_url` writes `Text-source:`. `consolidated`, if supplied, is an ISO date, never a URL.
+- `text_as_of` is an explicit ISO capture day. `in_force_unknown: true` uses `retrieved` (or `from`) as that capture
+  day on a baseline. Supply `in_force_basis` when `from` is a retrieval/capture day. Source commencement dates take
+  precedence; explanatory prose is never parsed to invent a capture assertion.
+- `retroactive` names the source provision authorizing a date before enactment; the trailer begins `yes;`.
+  A day before 1500 requires `country.record_note` explaining the record.
 - `versions` is ordered by `from`.
 - `from` is the day the version took effect: the in-force date, not the publication date. When the source gives only the publication date, apply the country's `default_in_force_rule`, or the law's own vigencia clause, when the corpus is written. Write that down in `decisions`.
 - Versions with `from` after the build's `--docs-date` go on `future_branch`.

@@ -135,12 +135,7 @@ def correction_metadata(act: dict, version: dict) -> dict:
     for key in ('in_force_basis', 'text_as_of'):
         if key in version:
             meta[key] = version[key]
-    # Compatibility with the delivered date corrections: this assertion explicitly
-    # identifies `from` as the retained retrieval day. metadata_only alone does not.
-    legacy = act.get('editorial_date_correction', {})
-    if ('text_as_of' not in meta and
-            'Retrieval day retained because exact commencement is unknown.' in legacy.get('in_force_basis', '')):
-        meta['text_as_of'] = version['from']
+    # New writes never infer a capture date from a sentence. Historical Text-as-of trailers remain readable.
     for key in ('reason', 'in_force_basis', 'text_as_of', 'supersedes'):
         if key in meta and (not isinstance(meta[key], str) or not meta[key].strip() or
                             '\n' in meta[key] or '\r' in meta[key]):

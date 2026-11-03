@@ -16,10 +16,10 @@ defaults. Supported fields are:
 
 Version-level `in_force_basis` and `text_as_of` are also accepted. The existing
 `editorial_date_correction` act metadata supplies defaults for the same fields.
-For the older delivery format only, the exact assertion “Retrieval day retained
-because exact commencement is unknown.” in `in_force_basis` identifies the
-version's `from` as `Text-as-of`. A metadata-only correction by itself never
-implies an unknown commencement date. New inputs should supply `text_as_of`.
+New inputs must supply `text_as_of` explicitly. Neither a metadata-only flag nor
+an explanatory sentence in `in_force_basis` supplies a capture date. Historical
+commits keep their existing `Text-as-of` trailers and remain readable. Install
+this change after the Micronesia delivery has explicit capture metadata.
 
 A `corpus_withdrawal.reason` becomes “corpus withdrawal, not legislative repeal:
 <reason>”; an explicit `correction.reason` overrides this. Withdrawal retains
