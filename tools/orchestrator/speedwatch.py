@@ -208,7 +208,7 @@ def fetch_window(since):
             e = ev.get('event', '')
             if e in ('stop', 'stopped', 'challenge'):
                 stops.add(h)
-            if e == 'cache' or ev.get('status') == 304:
+            if e in ('cache', 'hit') or ev.get('status') == 304:
                 cached += 1
             if isinstance(ev.get('status'), int) and ev['status'] >= 400:
                 errs += 1
@@ -219,13 +219,15 @@ def fetch_window(since):
             'top_hosts': sorted(hosts.items(), key=lambda kv: -kv[1])[:8]}
 
 
-OVERHEAD = ('msmpeng', 'searchindexer', 'grep', 'find', 'wmiprvse', 'dllhost', 'tail', 'vmmemwsl', 'svchost')
+OVERHEAD = ('msmpeng', 'searchindexer', 'grep', 'find', 'wmiprvse', 'dllhost', 'tail', 'svchost')
+# vmmemwsl is the WSL VM: since 2026-11-03 the builds, checks and pushes of every lane run there, so it counts as law work
+LAW_VM = ('vmmemwsl', 'vmmem')
 
 
 def cpu_effectiveness(lanes, commits, window_min):
-    """How much of the sampled CPU is law work (python and git) vs overhead (antivirus, indexing, watchers, WSL),
+    """How much of the sampled CPU is law work (python and git) vs overhead (antivirus, indexing, watchers),
     and law commits per busy core-hour for this window."""
-    law = sum(v for k, v in lanes if k.startswith(('python', 'git')))
+    law = sum(v for k, v in lanes if k.startswith(('python', 'git')) or k.split()[0] in LAW_VM)
     over = sum(v for k, v in lanes if k.split()[0] in OVERHEAD)
     total = sum(v for k, v in lanes if k not in ('system idle process',))
     per_core_h = round(commits / max(0.1, law) / max(0.1, window_min / 60)) if law else 0
@@ -306,15 +308,20 @@ def main():
     row['advice'] = advice
     LATEST.write_text(json.dumps(row, indent=1), encoding='utf-8')
 
-    # alert once per bottleneck when it starts
+    # alert once per bottleneck when it starts, and not again for the same key within 2 h (CPU near the 75% line
+    # flapped the headroom advice every other run)
     keys = sorted(a['key'] for a in advice if a['level'] == 'act')
     seen = set(state.get('advice_keys', []))
+    last = dict(state.get('advice_last', {}))
     with ALERTS.open('a', encoding='utf-8') as f:
         for a in advice:
-            if a['level'] == 'act' and a['key'] not in seen:
+            k = a['key']
+            recent = k in last and t - parse(last[k]) < dt.timedelta(hours=2)
+            if a['level'] == 'act' and k not in seen and not recent:
                 f.write(f"{iso(t)} ADVICE {a['title']}: {a['do']}\n")
-    STATE.write_text(json.dumps({'at': iso(t), 'tips': old_tips, 'total': total, 'advice_keys': keys}),
-                     encoding='utf-8')
+                last[k] = iso(t)
+    STATE.write_text(json.dumps({'at': iso(t), 'tips': old_tips, 'total': total, 'advice_keys': keys,
+                                 'advice_last': last}), encoding='utf-8')
     render(row, hist, pending, stalled, advice)
 
 
@@ -323,6 +330,25 @@ def rate(hist, minutes, key):
     rows = [h for h in hist if parse(h['at']) > t - dt.timedelta(minutes=minutes)]
     span = sum(h['window_min'] for h in rows) or 1
     return sum(h[key] for h in rows), span
+
+
+def runaway_searches(min_age_min=10):
+    """Recursive grep/find/rg left running for more than min_age_min: tree-wide searches over the scripts tree
+    cost a core each for hours (and feed Defender). Reported with PID and command so the owner can stop it."""
+    import psutil, time
+    out = []
+    for p in psutil.process_iter(['pid', 'name', 'cmdline', 'create_time']):
+        try:
+            n, cmd = (p.info['name'] or '').lower(), p.info['cmdline'] or []
+            if n not in ('grep.exe', 'rg.exe', 'find.exe') or '--line-buffered' in cmd:
+                continue
+            recursive = n in ('rg.exe', 'find.exe') or any(a.startswith('-') and not a.startswith('--') and 'r' in a for a in cmd[1:])
+            age = (time.time() - p.info['create_time']) / 60
+            if recursive and age > min_age_min:
+                out.append({'pid': p.info['pid'], 'age_min': round(age), 'cmd': ' '.join(cmd[1:])[:140]})
+        except Exception:
+            continue
+    return out
 
 
 def diagnose(row, hist, pending, stalled):
@@ -334,8 +360,13 @@ def diagnose(row, hist, pending, stalled):
     ef = row.get('effect') or {}
     if ef.get('busy_cores') and ef.get('law_share', 100) < 60:
         out.append({'key': 'cpu-ineffective', 'level': 'act', 'title': f"Only {ef['law_share']}% of busy CPU is law work",
-                    'why': f"{ef['overhead_cores']} cores go to overhead (antivirus, indexing, watchers, WSL); law work has {ef['law_cores']}.",
+                    'why': f"{ef['overhead_cores']} cores go to overhead (antivirus, indexing, watchers); law work has {ef['law_cores']}.",
                     'do': 'Cut the overhead (Defender exclusions, stray watchers, idle containers) before adding agents.'})
+    rs = runaway_searches()
+    if rs:
+        out.append({'key': 'runaway-search', 'level': 'act', 'title': f"{len(rs)} tree-wide search(es) running over 10 min",
+                    'why': '; '.join(f"PID {r['pid']} ({r['age_min']} min): {r['cmd']}" for r in rs[:4]),
+                    'do': 'The owning session should stop it and search one folder or one repo instead.'})
     if row['cpu5'] < 75:
         out.append({'key': 'cpu-headroom', 'level': 'act', 'title': f"CPU at {row['cpu5']}%",
                     'why': 'Below the 80-92% target, so there is room for more agents.',

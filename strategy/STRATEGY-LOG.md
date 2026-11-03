@@ -120,6 +120,58 @@ From 20:00 to 22:00 the rate rose about 14×, while CPU stayed the same. The gai
 - Before the breadth sweep, the build loop had already published the whole cache.
 - 165 tier-3 councils passed robots and terms but were dropped unfetched. 222 claims released.
 
+### Goal run, 2026-11-02 23:26Z → 2026-11-03 06:35Z (composer)
+
+Alan's goal: a meaningfully finished global-law as fast as possible. Progress is measured every 20 minutes by `tools/orchestrator/goal_tracker.py` (snapshots, census, steps) and shown in `~/Documents/html-reports/global-law-goal.html`.
+
+| | 23:26Z | 06:35Z | Change |
+|---|---:|---:|---|
+| Law repos holding law (>0.5 MB) | 447 | 480 | +33 |
+| Substantial repos (>5 MB) | 146 | 167 | +21 |
+| Nearly empty repos | 265 | 243 | −22 |
+| Law data (GitHub size, lags) | 7,042 MB | 8,297 MB | +1,255 MB |
+| Law commits, all repos | 642,892 | 735,908 | +93,016 |
+| Peak commits/h | 2,700 | 31,408 | ~12× |
+| Requests per 20 min | 749 | 7,849 | ~10× |
+| Request error share | 3% | 0% | |
+| Held rewrites | 7 | 1 (Chile, terms) | |
+
+**D-12. Build on WSL ext4, not NTFS.**
+- **Measured:**
+  - Japan, 500 laws: 80+ min → 2.5 min.
+  - Canada gate, 500 Acts: 100+ min → 6 min.
+  - Uruguay: 1,162 s → 140 s; Colombia 892 → 231 s; Chile 840 → 148 s.
+  - São Paulo: 279 → 87 s.
+- **Tools:**
+  - `wsl_run.py` and `wsl_exec.py` (fetching stays on Windows; `GITLAW_FETCH_DRY` makes WSL cache-only).
+  - A `.wsl-only` marker in each repo's scripts folder.
+  - The shared WSL gitconfig carries no identity (`useConfigOnly`), so a commit without an explicit identity fails instead of leaking.
+
+**D-13. In-process keep-alive HTTP in host_get (f6e812a).**
+- Each request used to start a curl process: 0.8–4 s each on this box.
+- **Measured:** e-Gov 6.1 → 0.9 s per request (with `fetch_many`, 51.7/min against 7.8–12.2), Santa Catarina 4.5×, Algeria 9×.
+
+**D-14. Correction commits (append.py --corrections, b8d0b10).**
+- **Format:** Kind, In-force, Corrects, Supersedes, Reason, Act-path, and one Files: line per path.
+- **Readers:** the MCP reader follows the same rule (global-law a9fcd6b). The shared check.py and on.py follow via reader-support-dell, under review.
+- **Effect:** Belgium (240), New Zealand (41) and Brazil (557) published, Czechia (127), and held rewrites 7 → 1.
+
+**D-15. Breadth first, everywhere (with the dating rule).**
+- An amended act's current text is dated by its latest amendment, else by the retrieval day; never by its original start.
+- **Largest gains:** Japan (~8,980 laws), Canada (all Acts plus most regulations), Colombia (1,700+), Portugal (2,098), Albania (1,004), Qatar (704), Kyrgyzstan (2,331), Croatia, Taiwan, Philippines, Vietnam, US state codes (WA 51k sections, VA 33k, MO 30k; MN, IA, GA, FL, PA, TX running), UK (685+), Sri Lanka (229) and China (173).
+
+**D-16. Cost fixes found by measuring.**
+- **Runaway tree-wide greps:** about 1.3 cores. A `grep -rx` bug in a status loop is fixed, and speedwatch now alerts on any recursive search older than 10 minutes.
+- **Wasted requests:** the India gazette guesser was 76% 404s, so it was stopped.
+- **Future-dated docs commits:** they blocked appends, so all three writers are now capped at min(build, now).
+- **Nightly-slot starvation** stalled hp-omen's loop between 01:00 and 05:00Z; fixed.
+- **Metric fix:** the WSL VM now counts as law work, so the law share reads about 35–44%, not 6%.
+
+**D-17. Blocked, not bypassed.**
+- Indonesia (BPK Cloudflare), Estonia (riigiteataja challenge), Ukraine and Iraq (geo), Myanmar, Ethiopia, Zimbabwe, Malawi, Jordan, Moldova, Morocco, Senegal, Tajikistan and seven Canadian provinces.
+- Terms holds: Austria (needs the RIS notice), Latvia, Uzbekistan, Zambia, Bahrain, Kuwait, Mauritius, Tonga, Uganda (paywall) and Iran.
+- All recorded in each repo's PROGRESS.md; the decisions are listed below.
+
 ## Hard limits (not traded for speed)
 
 - No bypassing bot challenges, CAPTCHAs, WAFs, logins or geo-blocks. Obey robots.txt and Crawl-delay, and respect publishers' terms.

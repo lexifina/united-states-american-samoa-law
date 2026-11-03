@@ -88,7 +88,7 @@ def requests_made(since):
                 nbytes += ev.get('bytes') or 0
                 s = ev.get('session') or '?'
                 by_session[s] = by_session.get(s, 0) + 1
-            if e == 'cache' or st == 304:
+            if e in ('cache', 'hit') or st == 304:
                 cached += 1
             if isinstance(st, int) and st >= 400:
                 errs += 1
@@ -189,6 +189,26 @@ def spark(snaps, get, unit):
             f'<path d="{d}" class="line"/>{dots}</svg>')
 
 
+def growth_table(top=20):
+    """Which repos grew most since the first census: where the coverage is coming from."""
+    files = sorted(sw.CENSUS_DIR.glob('census-*.tsv'))
+    if len(files) < 2:
+        return ''
+    read = lambda f: {l.split('\t')[3]: int(l.split('\t')[0]) for l in f.read_text(encoding='utf-8').splitlines() if l.count('\t') >= 3}
+    a, b = read(files[0]), read(files[-1])
+    rows = sorted(((b[k] - a.get(k, 0), a.get(k, 0), b[k], k) for k in b), reverse=True)
+    rows = [r for r in rows if r[0] > 0][:top]
+    if not rows:
+        return ''
+    body = ''.join(f"<tr><td>{html.escape(k.removesuffix('-law'))}</td><td>{fmt(round(old / 1024, 1), ' MB')}</td>"
+                   f"<td>{fmt(round(new / 1024, 1), ' MB')}</td><td>+{fmt(round(d / 1024, 1), ' MB')}</td></tr>"
+                   for d, old, new, k in rows)
+    return (f"<h2>Biggest gains since {files[0].stem[7:]} UTC</h2><p class='muted'>Repo size on GitHub (it lags "
+            f"pushes by a few minutes). {sum(1 for k in b if b[k] > a.get(k, 0))} repos grew in all.</p>"
+            f"<div class='tablewrap'><table><thead><tr><th>Jurisdiction</th><th>Then</th><th>Now</th><th>Gain</th></tr></thead>"
+            f"<tbody>{body}</tbody></table></div>")
+
+
 def render(snaps):
     last, first = snaps[-1], snaps[0]
     tiles = []
@@ -244,6 +264,7 @@ th{{color:var(--text2);font-weight:500;font-size:12px}} td ul{{margin:0;padding-
 <p class="muted">A snapshot every 20 minutes, from {first['at'][:16]}Z to {last['at'][:16]}Z ({len(snaps)} snapshots). Green means better since the first snapshot. "Holding law" means a repo over 0.5 MB.</p>
 <p class="health {hp}">{html.escape(health_txt)}</p>
 <div class="grid">{''.join(tiles)}</div>
+{growth_table()}
 <h2>Snapshots and the steps taken before each</h2>
 <div class="tablewrap"><table><thead><tr><th>Snapshot</th><th>Repos with law</th><th>Data</th><th>Law commits</th><th>Commits/h</th><th>Requests</th><th>Repo works</th><th>Steps taken</th></tr></thead>
 <tbody>{''.join(rows)}</tbody></table></div>
