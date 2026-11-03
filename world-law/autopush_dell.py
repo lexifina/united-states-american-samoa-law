@@ -122,6 +122,30 @@ def push(repo: Path, *refs: str, remote: str = 'origin', leases: dict[str, str] 
     return f'push failed: {last[:300]}'
 
 
+def push_new_tags(repo: Path, tag_refs: list[str], size: int = 1000) -> str:
+    """Push `tag_refs` ('<sha>:refs/tags/<name>', none on the remote yet) in batches through throwaway bare repos."""
+    import shutil
+    objects = Path(git(repo, 'rev-parse', '--absolute-git-dir')) / 'objects'
+    url = git(repo, 'remote', 'get-url', 'origin')
+    if '://' not in url and not Path(url).is_absolute():  # a local path relative to the repo
+        url = (repo / url).resolve().as_posix()
+    for i in range(0, len(tag_refs), size):
+        part = tag_refs[i:i + size]
+        tmp = Path(tempfile.mkdtemp(prefix='tagpush-'))
+        try:
+            git(tmp, 'init', '-q', '--bare')
+            # bytes: a text-mode write on Windows would end the path with \r
+            (tmp / 'objects' / 'info' / 'alternates').write_bytes((objects.as_posix() + '\n').encode())
+            git(tmp, 'update-ref', '--stdin', data=''.join(f'create {r.partition(":")[2]} {r.partition(":")[0]}\n'
+                                                            for r in part).encode('utf-8'))
+            r = push(tmp, 'refs/tags/*:refs/tags/*', remote=url)
+            if r.startswith('push failed'):
+                return f'{r} (tags batch {i // size})'
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+    return 'pushed'
+
+
 def push_in_steps(repo: Path, *refs: str, step: int = 300, remote: str = 'origin',
                   leases: dict[str, str] | None = None) -> str:
     """Push each branch in `refs` a few hundred first-parent commits at a time, then the tags in batches, then all the
@@ -958,6 +982,7 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
     - tags: only tags on the newly written commits are created, at their new SHAs; a tag the remote already holds is
       never moved or deleted (a name clash at another object is skipped and logged);
     - everything that would be added goes through private.audit_push() first; any finding stops the push."""
+    git(repo, 'config', 'gc.auto', '0', check=False)  # no auto-gc mid-publish (each full build re-creates the repo)
     # Only the branches the remote already holds: one missing name (a first `zukunft`/`future`) fails the whole fetch
     # and leaves origin/main stale, which made the first push of such a repo fail.
     have = {l.partition('\t')[2] for l in git(repo, 'ls-remote', '--heads', 'origin', check=False).splitlines()}
@@ -1071,6 +1096,10 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
         return f'{push(repo, *refs, leases=leases)} ({summary})'
     result = push(repo, *heads, leases={k: v for k, v in leases.items() if k.startswith('refs/heads/')}) if heads \
         else 'pushed'
+    if not leases and not result.startswith('push failed'):
+        # Only new tags (none is on the remote): a throwaway bare repo per batch of 1,000 that borrows this repo's
+        # objects and holds only that batch, pushed with one glob refspec (push_clean.fast_push_new_tags' method).
+        return f'{push_new_tags(repo, tag_refs)} ({summary}; tags in batches of 1,000)'
     for i in range(0, len(tag_refs), 60):  # each moved tag also carries a --force-with-lease argument
         if result.startswith('push failed'):
             break
