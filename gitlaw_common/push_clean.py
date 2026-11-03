@@ -23,8 +23,35 @@ OPS = 'https://github.com/lexifina/world-law-ops.git'
 BATCH = 80  # Windows caps a command line at 32,767 chars; ~80 tag refspecs plus leases fit
 
 
+# A hidden git-credential-manager prompt hung every push behind it twice on 2026-11-03: never prompt, fail instead.
+NO_PROMPT = {**os.environ, 'GIT_TERMINAL_PROMPT': '0', 'GCM_INTERACTIVE': 'never'}
+GH_HELPER = '!gh.exe auth git-credential'
+
+
 def run(*a: str, cwd: Path | None = None) -> subprocess.CompletedProcess:
-    return subprocess.run(list(a), cwd=cwd, capture_output=True, text=True, encoding='utf-8', errors='replace')
+    return subprocess.run(list(a), cwd=cwd, capture_output=True, text=True, encoding='utf-8', errors='replace',
+                          env=NO_PROMPT)
+
+
+def ensure_gh_helper(build: Path) -> None:
+    """WSL clones push with the Windows gh sign-in set in the clone's own config (never global); a clone without it
+    gets it here, and with no gh.exe the push is refused rather than left to hang on the credential manager."""
+    if os.name == 'nt':
+        return
+    # gh.exe first: a configured helper is useless without it, and the push must then be refused (review 05)
+    if subprocess.run(['sh', '-c', 'command -v gh.exe'], capture_output=True).returncode != 0:
+        sys.exit(f'{build}: no gh.exe in WSL; refusing to push through git-credential-manager (it hangs)')
+    have = run('git', 'config', '--local', '--get-all', 'credential.helper', cwd=build).stdout
+    if 'gh.exe auth git-credential' in have:
+        return
+    for args in (('--replace-all', 'credential.helper', ''), ('--add', 'credential.helper', GH_HELPER)):
+        r = run('git', 'config', '--local', *args, cwd=build)
+        if r.returncode != 0:  # e.g. a locked .git/config: refuse rather than push without the helper (review 07)
+            sys.exit(f'{build}: could not set the gh credential helper ({r.stderr.strip()[-200:]}); refusing to push')
+    have = run('git', 'config', '--local', '--get-all', 'credential.helper', cwd=build).stdout
+    if 'gh.exe auth git-credential' not in have:
+        sys.exit(f'{build}: gh credential helper not in local config after setting it; refusing to push')
+    print(f'{build}: set the per-repo gh credential helper')
 
 
 LEDGER = Path(__file__).parent / 'pushed-wip.json'   # private: every world-law-ops wip tip this machine pushed
@@ -131,6 +158,7 @@ def main() -> None:
     build, slug = Path(sys.argv[1]), sys.argv[2]
     if os.name == 'nt' and (Path(__file__).resolve().parents[1] / slug / '.wsl-only').exists():
         sys.exit(f'{slug} is WSL-only (scripts/{slug}/.wsl-only): push from ~/gitlaw-builds through wsl_exec.py')
+    ensure_gh_helper(build)
     to_main = '--main' in sys.argv
     branches = ['main'] + [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == '--branch']
     pub = f'https://github.com/lexifina/{slug}.git'
