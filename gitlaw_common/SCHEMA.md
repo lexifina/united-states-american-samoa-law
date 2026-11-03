@@ -16,6 +16,10 @@ The shared builder turns `corpus.json` into the git repository. It produces:
 - the commits, streamed through `git fast-import`
 - the tags and the future branch
 - `REPRODUCE.md` and `data/versions.json`
+- `corpus.json` at the root: the repository's description of itself for global-law's readers (ISO path, language,
+  history, record dates, citation rule; global-law MCP.md, "How a corpus describes itself"). An output, not this
+  input: every field is derived from the input and the built history, and `country` may give `corpus`, `history` or
+  `corpus_kind` itself. A `repo/corpus.json` written by hand is kept instead
 - `tools/on.py`, `tools/check_repo.py` and `tools/build.py`
 - the site data
 - the checks

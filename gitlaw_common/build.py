@@ -884,6 +884,111 @@ def reproduce(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, do
     return re.sub(r'\{\{([A-Z_]+)\}\}', lambda m: fill[m.group(1)], tpl)
 
 
+# ---------------------------------------------------------------- the root corpus.json (an OUTPUT)
+# Not the build's input (scripts/<slug>-law/corpus.json + corpus.d/): the repository's description of itself for
+# global-law's readers (its MCP server; global-law MCP.md, "How a corpus describes itself"; checked by check_corpus.py).
+# Every field comes from the input and the built history; `country` may set corpus, history or corpus_kind itself.
+
+# Countries whose slug name is more than one word: how many words to strip from a sub-national slug.
+COUNTRY_WORDS = {'us': 2, 'gb': 2, 'za': 2, 'nz': 2, 'lk': 2, 'sa': 2, 'kr': 2, 'kp': 2, 'ae': 3, 'sl': 2, 'ss': 2,
+                 'bf': 2, 'cv': 2, 'cr': 2, 'sv': 2, 'do': 2, 'pg': 3, 'tl': 2, 'ci': 2, 'cd': 2, 'cg': 3, 'cf': 3,
+                 'gq': 2, 'ba': 3, 'mk': 2, 'hk': 2, 'sb': 2, 'mh': 2, 'kn': 4, 'vc': 5, 'lc': 2, 'tt': 3, 'ag': 3,
+                 'st': 4, 'sm': 2, 'ky': 2, 'vg': 3, 'im': 3, 'pr': 2}
+# Citation rules by unit prefix and language: (cites, letter suffix allowed in the number). `cites` runs in
+# `git grep -E` (POSIX ERE: no \d, no lookaround); {n} is the number.
+CITATION = {
+    ('par', 'de'): ('§ ?{n}([^0-9a-z]|$)', True),
+    ('art', 'de'): ('Art(ikel|\\.) ?{n}([^0-9a-z]|$)', True),
+    ('art', 'pt'): ('[Aa]rt(igo|\\.)? ?{n}([^0-9]|$)', False),
+    ('art', 'es'): ('[Aa]rt(í|i)?(culo|\\.)? ?{n}([^0-9]|$)', False),
+    ('pasal', 'id'): ('Pasal {n}([^0-9a-zA-Z]|$)', True),
+    ('s', 'en'): ('([Ss]ection|s\\.|§) ?{n}([^0-9a-zA-Z]|$)', True),
+    ('sec', 'en'): ('([Ss]ection|s\\.|§) ?{n}([^0-9a-zA-Z]|$)', True),
+    ('art', 'nl'): ('[Aa]rt(ikel|\\.) ?{n}([^0-9a-z]|$)', False),
+    ('art', 'it'): ('[Aa]rt(icolo|\\.) ?{n}([^0-9]|$)', False),
+}
+UNIT = re.compile(r'([a-z]+)-0*([0-9]+)([a-z]?)$')
+
+
+def _corpus_path(co: dict) -> str:
+    if co.get('corpus'):
+        return co['corpus']
+    iso = co['code'][:2].lower()
+    if '-' not in co['code']:
+        level = 'national'
+    else:
+        words = co['slug'].split('-')
+        level = '-'.join(words[COUNTRY_WORDS.get(iso, 1):]) or 'national'
+    level = re.sub(r'[^a-z0-9-]+', '-', level.lower()).strip('-')
+    return f'{iso}/{level}/{co.get("corpus_kind", "acts")}'
+
+
+def _citation(c: dict, main_units: list[str]) -> dict | None:
+    """The rule for the corpus's dominant provision prefix (at least half of its numbered files on main, and a quarter
+    of all its files), when that prefix and language have a known way of being cited; else None (no rule rather than
+    a guess)."""
+    counts: dict[str, int] = {}
+    letters: dict[str, bool] = {}
+    for k in main_units:
+        m = UNIT.match(k)
+        if m:
+            counts[m.group(1)] = counts.get(m.group(1), 0) + 1
+            letters[m.group(1)] = letters.get(m.group(1), False) or bool(m.group(3))
+    if not counts:
+        return None
+    prefix, n = max(counts.items(), key=lambda kv: (kv[1], kv[0]))
+    rule = CITATION.get((prefix, c['country'].get('lang', '')))
+    if n * 2 < sum(counts.values()) or n * 4 < len(main_units) or not rule:
+        return None
+    cites, letter = rule
+    number = '[0-9]+[a-z]?' if letter else '[0-9]+'
+    return {'file': f'([^/]+)/{re.escape(prefix)}-0*({number})\\.md', 'cites': cites}
+
+
+def corpus_descriptor(c: dict, log: list[dict], docs_date: str) -> dict:
+    """The root corpus.json: what the record is, where it starts and ends, and how its provisions are cited."""
+    co = c['country']
+    held = [(a, [v for v in a['versions'] if v['from'] <= docs_date]) for a in c['acts']]
+    held = [(a, vs) for a, vs in held if vs]  # the acts on main, with their versions there
+    first = min((vs[0]['from'] for _, vs in held), default=docs_date)
+    retrieved = sorted(s['retrieved'] for s in c.get('sources', []) if s.get('retrieved'))
+    record_to = min(retrieved[-1], docs_date) if retrieved else docs_date
+    n_acts, n_versions = len(held), sum(len(vs) for _, vs in held)
+
+    def enacted_then(a: dict, v: dict) -> bool:  # dated from the law that made the act (within 400 days of it)
+        law = c['laws'].get(a.get('first_law') or '', {})
+        when = (law.get('published') or law.get('enacted') or '')[:10]
+        try:
+            return when <= v['from'] <= (dt.date.fromisoformat(when) + dt.timedelta(days=400)).isoformat()
+        except ValueError:  # no date, or only a year
+            return False
+    history = co.get('history')
+    if not history:
+        if any(len(vs) > 1 for _, vs in held):
+            history = 'in-force'
+        elif sum(1 for a, vs in held if enacted_then(a, vs[0])) * 10 >= n_acts * 9:
+            history = 'as-enacted'  # one version per act, each dated from the law that made it
+        # Otherwise (one version per act, its law undated): not said here; `country.history` can say it.
+    name = co['name']
+    if history == 'as-enacted':
+        coverage = f'{n_acts} acts of {name} as enacted, in force from {first} to {record_to}'
+    elif history == 'current-only':
+        coverage = f'{n_acts} acts of {name}, the current text of each as of {record_to}'
+    elif not history:
+        coverage = f'{n_acts} acts of {name}, one dated version each, in force from {first} to {record_to}'
+    else:
+        coverage = (f'{n_acts} acts of {name} with every dated version the source gives ({n_versions} versions), '
+                    f'in force from {first} to {record_to}')
+    units = [k for _, vs in held for k in vs[-1]['units']]
+    out = {'corpus': _corpus_path(co), 'name': name, 'language': co.get('lang', ''), 'coverage': coverage,
+           **({'history': history} if history else {}), 'history_from': first, 'record_to': record_to, 'checked_on': docs_date,
+           'record_note': f'Texts from {co["publisher"]["name"]}.', 'in_force_trailer': 'In-force'}
+    rule = _citation(c, units)
+    if rule:
+        out['citation'] = rule
+    return out
+
+
 def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, docs_date: str,
                part_records: dict | None = None) -> dict[str, str]:
     files: dict[str, str] = {}
@@ -924,6 +1029,8 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
         if rel.endswith('.md') and rel in files:
             files[rel] = public_readme(files[rel], keep)
     files['data/corpus.sha256'] = f'{hashlib.sha256(raw).hexdigest()}  corpus.json\n'
+    # The repository's own description (an output; the input of the same name is the line above's corpus.json).
+    files.setdefault('corpus.json', json.dumps(corpus_descriptor(c, log, docs_date), ensure_ascii=False, indent=1) + '\n')
     files.update(tables(c, log))
     if part_records is not None:
         files['data/parts.json'] = json.dumps({'schema': 1, 'parts': part_records},
