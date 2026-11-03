@@ -43,6 +43,11 @@ place slugs, keeps disambiguating `-regency`, and drops `-city` below a state. `
 `repo/corpus.json` fields are retained and augmented. `data/repo.json` is removed in that same documentation commit;
 readers still fall back to it for old commits.
 
+`data/acts.json` records each act's static facts and status. Optional act fields are `id`, `eli`, `law_kind`,
+`enacted`, `published`, `in_force`, `repealed`, `repealed_by`, `expired`, and `status`. Dates of an act's first named
+law supply missing original dates; a baseline's record-start date is never invented as the act's commencement.
+Statuses are `in force`, `repealed`, `expired`, `not yet in force`, and `as captured`.
+
 ## corpus.json
 
 All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys and values are plain JSON.

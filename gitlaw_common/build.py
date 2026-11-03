@@ -30,6 +30,7 @@ sys.path.insert(0, str(HERE))
 import publish_marker  # noqa: E402
 import corpus_standard as S  # noqa: E402
 import corpus_paths as P  # noqa: E402
+import corpus_tables as T  # noqa: E402
 try:
     import private  # noqa: E402  (Lexifina's list of what stays off shared repos)
 except ImportError:  # a published copy of this builder runs without it
@@ -678,6 +679,7 @@ def write_history(repo: Path, c: dict, docs_date: str, commits: list[dict]) -> t
 
 def tables(c: dict, log: list[dict]) -> dict[str, str]:
     out = {}
+    out['data/acts.json'] = json.dumps(T.acts_document(c, c['_docs_date']), ensure_ascii=False, indent=1) + '\n'
     buf = io.StringIO()
     wr = csv.writer(buf, lineterminator='\n')
     wr.writerow(['key', 'label', 'kind', 'title', 'enacted', 'published', 'in_force_days', 'commits', 'url'])
@@ -1073,7 +1075,7 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
         for p in sorted(static.rglob('*')):
             if p.is_file() and '__pycache__' not in p.parts:
                 files[p.relative_to(static).as_posix()] = p.read_text(encoding='utf-8').replace('\r\n', '\n')
-    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
+    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'corpus_tables.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
         text = (HERE / name).read_text(encoding='utf-8').replace('\r\n', '\n')
         # Passages for Lexifina's agents only (how sources are fetched, internal paths) stay out of the published copy.
         text = re.sub(r'\n?<!-- private -->.*?<!-- /private -->', '', text, flags=re.S)
