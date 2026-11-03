@@ -78,6 +78,31 @@ Set `GITLAW_SESSION=gitlaw-scraper-dell` (or `-hp-omen`) in the environment, so 
 - **`GITLAW_FETCH_DRY=1`:** no network at all. Cached answers are served, and anything else raises `DryMiss`, which says
   what a live run would do. Use it to check a fetcher before a live run.
 
+## Feed fields
+
+Every `get()` call writes one line to `feed\<UTC day>.jsonl`.
+
+`"event": "hit"`: answered without the network, with `cost` 0. `source` says where from:
+- `caller`: the caller's own cache;
+- `shared`: the shared cache;
+- `gone`: a remembered 404/410;
+- `peer`: another process fetched it while this one waited.
+
+`"event": "get"`: a live request, with these fields:
+- `fetch_ms` (also `ms`): the curl call, which covers process start, DNS, TLS and transfer;
+- `wait_ms`: `queue_ms` + `wait_scheduler_ms` + `wait_host_get_ms`:
+  - `queue_ms`: time in `fetch_many`'s queue;
+  - `wait_scheduler_ms`: entry to slot granted, made up of `wait_window_ms`, `wait_pace_ms` and `wait_slot_ms`;
+  - `wait_host_get_ms`: host_get's own pace and slot wait;
+- `slot_index` (0-based) and `inflight_at_start`: the requests in flight on that host, machine-wide, when this one
+  started;
+- `attempt`, `cost` (0.25 for a 304) and `retry_after`.
+
+`"event": "robots"`: the weekly robots.txt read.
+
+A serial caller (one `get()` at a time) uses one slot, whatever the host's concurrency. To use a host's slots,
+hand the URLs to `fetch_many`, or call `get()` from several threads.
+
 ## Night windows
 
 `WINDOWS` in the module holds the publishers' stated hours:

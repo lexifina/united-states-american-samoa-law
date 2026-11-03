@@ -151,6 +151,53 @@ class SchedulerTest(unittest.TestCase):
         self.assertNotIn('GPTBot', e['robots']['excerpt'])
         self.assertEqual(len(self.hits(path='/robots.txt')), 1)  # host_get does not read it a second time
 
+    # ---------------------------------------------------------------- feed timing and cache hits
+    def feed(self):
+        return [json.loads(l) for f in fs.FEED_DIR.glob('*.jsonl') for l in f.read_text(encoding='utf-8').splitlines()]
+
+    def test_feed_splits_wait_from_fetch_and_logs_hits(self):
+        self.fake_clock()
+        Stub.routes['/a'] = Stub.routes['/b'] = (200, {}, b'body')
+        fs.get(self.base + '/a')
+        fs.get(self.base + '/b')                               # waits 2 s for the host's pace (tier A interval 2)
+        fs.get(self.base + '/a')                               # the shared cache: no request
+        fs.get(self.base + '/a', self.t / 'mine')              # the shared cache again, copied to the caller's
+        fs.get(self.base + '/a', self.t / 'mine')              # the caller's own cache
+        gets = [r for r in self.feed() if r['event'] == 'get']
+        self.assertEqual(len(gets), 2)
+        for r in gets:
+            for k in ('wait_ms', 'fetch_ms', 'wait_pace_ms', 'wait_slot_ms', 'wait_window_ms', 'wait_host_get_ms',
+                      'queue_ms', 'slot_index', 'inflight_at_start'):
+                self.assertIn(k, r)
+            self.assertEqual((r['slot_index'], r['inflight_at_start']), (0, 1))
+            self.assertEqual(r['fetch_ms'], r['ms'])
+        self.assertGreaterEqual(gets[1]['wait_pace_ms'] + gets[1]['wait_host_get_ms'], 1900)   # the 2 s pace
+        hits = [(r['source'], r['cost']) for r in self.feed() if r['event'] == 'hit']
+        self.assertEqual(hits, [('shared', 0), ('shared', 0), ('caller', 0)])
+
+    def test_full_slots_do_not_park_the_host(self):
+        """All slots in use: the next request goes when one answers, not when a lease would expire (~3 min)."""
+        self.tiers({'tier': 'A', 'rate': 1000, 'concurrency': 2, 'source': 'test'})
+        fs.INFLIGHT['127.0.0.1'] = {'n': 2, 'paths': ['/api/'], 'evidence': 'test API'}
+        self.slow_routes('/api/', 6, 0.5)
+        t0 = time.time()
+        got = list(fs.fetch_many([f'{self.base}/api/{i}' for i in range(6)], workers=4))
+        self.assertTrue(all(isinstance(r, bytes) for _, r in got), got)
+        self.assertLess(time.time() - t0, 60)        # was ~150 s: busy meant "wait for the lease to expire"
+        how, at = fs._claim(self.host, 120, self.base + '/api/x')
+        self.assertEqual(how, 'go')
+
+    def test_slot_index_counts_requests_already_in_flight(self):
+        self.tiers({'tier': 'A', 'rate': 1000, 'concurrency': 4, 'source': 'test'})
+        fs.INFLIGHT['127.0.0.1'] = {'n': 4, 'paths': ['/api/'], 'evidence': 'test API'}
+        api = self.slow_routes('/api/', 6, 0.8)
+        list(fs.fetch_many([f'{self.base}/api/{i}' for i in range(6)], workers=4))
+        gets = [r for r in self.feed() if r['event'] == 'get']
+        self.assertEqual(len(gets), 6)
+        self.assertGreater(max(r['inflight_at_start'] for r in gets), 1)       # several in flight at once
+        self.assertLessEqual(max(r['inflight_at_start'] for r in gets), 4)
+        self.assertTrue(all(r['queue_ms'] >= 0 for r in gets))
+
     # ---------------------------------------------------------------- no cap of our own (2026-11-02 21:50 UTC)
     def test_scheduler_adds_no_cap(self):
         """The scheduler has no daily cap, no machine share and no worker clamp; only host_get's own cap (being
@@ -516,7 +563,9 @@ class SchedulerTest(unittest.TestCase):
         self.assertGreaterEqual(t[-1] - t[0], 3.8, t)
         self.assertTrue(all(b - a >= 0.4 for a, b in zip(t, t[1:])), t)
         slots = [json.loads(l) for f in fs.FEED_DIR.glob('*.jsonl') for l in f.read_text(encoding='utf-8').splitlines()]
-        self.assertEqual(len(slots), 5)                                            # every request in the feed
+        live = [r for r in slots if r['event'] in ('get', 'robots')]
+        self.assertEqual(len(live), 5)                                             # every request in the feed
+        self.assertEqual(len([r for r in slots if r['event'] == 'hit']), 4)       # the other process's 4: hits
 
 
 if __name__ == '__main__':

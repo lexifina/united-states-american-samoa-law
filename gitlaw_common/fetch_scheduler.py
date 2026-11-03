@@ -65,6 +65,7 @@ REGISTRY = Path(os.environ.get('GITLAW_FETCH_REGISTRY') or HERE / 'fetch_hosts.j
 SESSION = os.environ.get('GITLAW_SESSION') or os.environ.get('COMPUTERNAME', 'unknown').lower()
 DRY = os.environ.get('GITLAW_FETCH_DRY') == '1'
 LEASE_SLACK = 60.0       # a lease outlives its request's timeout by this much (a crashed holder frees it then)
+BUSY_RECHECK_S = 0.5     # every slot in use: look again this soon (a lease ends when its request answers)
 MAX_INFLIGHT_CEILING = 8 # Alan, 2026-11-02: 4-8 in flight, documented public APIs only (host_get's own maximum too)
 
 # Documented public APIs that state no limit (checked 2026-11-02). Keys: host without 'www.'; paths: the API path
@@ -514,13 +515,19 @@ def _feed(rec: dict) -> None:
         os.close(fd)
 
 
-def _feed_last(host: str, kind: str, caller: str | None = None, retry_after: float | None = None) -> None:
+def _feed_last(host: str, kind: str, caller: str | None = None, retry_after: float | None = None,
+               timing: dict | None = None) -> None:
+    """One feed line for this thread's last live response. ms = fetch_ms: the curl call (process start, DNS, TLS,
+    transfer); timing adds wait_ms and its parts (queue, window, pace, slot, host_get's own wait), slot_index and
+    inflight_at_start."""
     last = getattr(_tls, 'last', None)
     if not last:
         return
     url, code, _, size, ms = last
-    rec = {'host': host, 'url': url, 'event': kind, 'status': code, 'bytes': size, 'ms': ms, 'caller': caller,
-           'cost': wayback.HOST_304_COST if code == 304 else 1}   # a 304 is a quarter of a full request (D6)
+    rec = {'host': host, 'url': url, 'event': kind, 'status': code, 'bytes': size, 'ms': ms, 'fetch_ms': ms,
+           'caller': caller, 'cost': wayback.HOST_304_COST if code == 304 else 1}   # a 304 is a quarter (D6)
+    if timing:
+        rec.update(timing)
     if retry_after is not None:
         rec['retry_after'] = retry_after
     _feed(rec)
@@ -646,15 +653,16 @@ def _claim(host: str, timeout: float, url: str | None = None) -> tuple[str, floa
         live = _live_leases(st, now)
         live.pop(me, None)
         limit, _ = inflight_limit(host, url, st, now)
-        if len(live) >= limit:
-            return ('busy', min(live.values())), st
+        if len(live) >= limit:   # slots free up when a request answers, not when its lease expires: look again soon
+            return ('busy', min(min(live.values()), now + BUSY_RECHECK_S)), st
         ready = max(st.get('next', 0.0), st.get('pause_until', 0.0))
         if ready > now + 0.05:
             return ('wait', ready), st
         live = {k: v for k, v in (st.get('sched_leases') or {}).items() if v > now}
+        slot = len(_live_leases(st, now)) - (1 if me in _live_leases(st, now) else 0)
         live[me] = now + timeout + LEASE_SLACK
         st['sched_leases'] = live
-        return ('go', 0.0), st
+        return ('go', float(slot)), st
     return wayback._host_locked(host, f)
 
 
@@ -716,56 +724,88 @@ def check(host: str, url: str | None = None) -> float:
     return max(t, ready if ready > _now() else 0.0)
 
 
+def _hit(host: str, url: str, source: str, caller: str | None, size: int | None) -> None:
+    """A request answered without the network: source 'caller' (the caller's own cache), 'shared', 'gone' (a
+    remembered 404/410) or 'peer' (another process fetched it while this one waited). cost 0."""
+    _feed({'host': host, 'url': url, 'event': 'hit', 'source': source, 'bytes': size, 'caller': caller, 'cost': 0})
+
+
 def get(url: str, cache: Path | str | None = None, tries: int = 5, timeout: int = 90, *, refresh: bool = False,
-        wait: bool = True, caller: str | None = None) -> bytes | None:
+        wait: bool = True, caller: str | None = None, queued_at: float | None = None) -> bytes | None:
     """Drop-in for wayback.host_get (same arguments and returns) under the scheduler. Shared cache first; then the
     host's block, Retry-After pause and window; then one request through host_get while holding the host's lease.
-    wait=False raises NotNow(at) instead of sleeping for a window or a busy host."""
+    wait=False raises NotNow(at) instead of sleeping for a window or a busy host. Every call writes a feed line:
+    'hit' for an answer from a cache, 'get' (with wait_ms/fetch_ms) for a live request."""
     cache = Path(cache) if cache else None
     host = _host_of(url)
     _tls.last = None
+    t_enter = _now()
     if cache is not None and not refresh:
         hit = wayback._cached(cache, url)
         if hit.exists():
-            return hit.read_bytes()
+            body = hit.read_bytes()
+            _hit(host, url, 'caller', caller, len(body))
+            return body
     if not refresh:
         body = cached(url)
         if body is not None:
             _copy_to(cache, url, body)
+            _hit(host, url, 'shared', caller, len(body))
             return body
         if _gone(url).exists():
+            _hit(host, url, 'gone', caller, None)
             return None
     if DRY:
         raise DryMiss(f'dry run: would fetch {url} (host {host}, next allowed in {max(0, check(host) - _now()):.0f} s, '
                       f'policy {wayback.host_policy(host)})')
     scheme = url.split('://', 1)[0] if '://' in url else 'https'
+    waited = {'window': 0.0, 'pace': 0.0, 'slot': 0.0}
     while True:
         at = check(host, url)
         if at > _now():
             if not wait:
                 raise NotNow(f'{host}: next allowed {_iso(at)}', at)
+            why = 'window' if window_next_open(window_of(host)) > _now() else 'pace'
+            t = _now()
             _sleep(min(at - _now(), 60))
+            waited[why] += _now() - t
             continue
         iv = wayback._policy(host, wayback.host_status(host), _now())['interval']
         how, at = _claim(host, timeout + 30 + 2 * min(iv, 600), url)
         if how != 'go':
-            if not wait and at - _now() > 2:
+            if not wait and (how == 'busy' or at - _now() > 2):   # fetch_many: serve other hosts meanwhile
                 raise NotNow(f'{host}: {how} until {_iso(at)}', at)
+            t = _now()
             _sleep(max(0.05, min(at - _now(), 5)))
+            waited['slot' if how == 'busy' else 'pace'] += _now() - t
             continue
+        slot_index = int(at)
+        t_go = _now()
         try:
             if not refresh and cached(url) is not None:   # another process fetched it while we waited
                 body = cached(url)
                 _copy_to(cache, url, body)
+                _hit(host, url, 'peer', caller, len(body))
                 return body
             _tls.active = True
             try:
                 _ensure_robots(host, scheme)
                 for attempt in range(max(1, tries)):
                     _tls.last = None
+                    t_hg = _now()
                     body = wayback.host_get(url, SHARED_CACHE, 1, timeout, refresh=refresh)
+                    hg_ms = (_now() - t_hg) * 1000
                     code = last_status()
-                    _feed_last(host, 'get', caller, retry_after=_retry_after_seen())
+                    fetch_ms = (getattr(_tls, 'last', None) or (0, 0, 0, 0, 0))[4]
+                    ms = lambda x: int(round(x * 1000))  # noqa: E731
+                    timing = {'queue_ms': ms(max(0.0, t_enter - queued_at)) if queued_at else 0,
+                              'wait_window_ms': ms(waited['window']), 'wait_pace_ms': ms(waited['pace']),
+                              'wait_slot_ms': ms(waited['slot']),
+                              'wait_scheduler_ms': ms(t_go - t_enter) if attempt == 0 else 0,
+                              'wait_host_get_ms': max(0, int(hg_ms - fetch_ms)),
+                              'slot_index': slot_index, 'inflight_at_start': slot_index + 1, 'attempt': attempt + 1}
+                    timing['wait_ms'] = timing['queue_ms'] + timing['wait_scheduler_ms'] + timing['wait_host_get_ms']
+                    _feed_last(host, 'get', caller, retry_after=_retry_after_seen(), timing=timing)
                     if body is not None or code in (304, 403, 404, 410) or attempt + 1 >= tries:
                         break
                     if _pause_left(host) > RETRY_AFTER_MAX_WAIT:
@@ -801,8 +841,10 @@ def fetch_many(urls, cache: Path | str | None = None, workers: int | None = None
     request per host (up to 32): fetching is network-bound, and the leases keep each host to its in-flight limit."""
     import queue
     pending: dict[str, deque] = {}
+    queued: dict[str, float] = {}
     for u in urls:
         pending.setdefault(_host_of(u), deque()).append(u)
+        queued.setdefault(u, _now())
     def cap_of(h):
         spec = inflight_spec(h)
         return max(1, min(int((spec or {}).get('n') or 1), MAX_INFLIGHT_CEILING))
@@ -851,7 +893,8 @@ def fetch_many(urls, cache: Path | str | None = None, workers: int | None = None
                 continue
             try:
                 try:
-                    res = get(u, cache, timeout=timeout, refresh=refresh, wait=False, caller=caller)
+                    res = get(u, cache, timeout=timeout, refresh=refresh, wait=False, caller=caller,
+                              queued_at=queued.get(u))
                 except NotNow as e:
                     with lock:
                         pending[h].appendleft(u)
