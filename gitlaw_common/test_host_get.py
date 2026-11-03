@@ -34,11 +34,18 @@ _active_lock = threading.Lock()
 
 
 class Stub(BaseHTTPRequestHandler):
+    protocol_version = 'HTTP/1.1'   # keep-alive, so connection reuse can be counted
     routes: dict = {}
     seen: list = []
+    connections = [0]
 
     def log_message(self, *a):
         pass
+
+    def setup(self):
+        with _active_lock:
+            Stub.connections[0] += 1
+        super().setup()
 
     def do_GET(self):
         with _active_lock:
@@ -98,6 +105,15 @@ open(out, 'w').write(json.dumps(spans))
 '''
 
 
+def drop_pools() -> None:
+    with wayback._POOL_LOCK:
+        for conns in wayback._POOLS.values():
+            for c in conns:
+                c.close()
+        wayback._POOLS.clear()
+    wayback._CURL_HOSTS.clear()
+
+
 def max_overlap(spans) -> int:
     ev = sorted([(a, 1) for a, _ in spans] + [(b, -1) for _, b in spans], key=lambda e: (e[0], e[1]))
     cur = best = 0
@@ -107,10 +123,13 @@ def max_overlap(spans) -> int:
     return best
 
 
-class HostGetTest(unittest.TestCase):
+class HostGetCases:
+    transport = 'auto'
+
     @classmethod
     def setUpClass(cls):
         cls.server = ThreadingHTTPServer(('127.0.0.1', 0), Stub)
+        cls.server.handle_error = lambda request, client_address: None   # aborted on purpose by time-out tests
         cls.port = cls.server.server_address[1]
         cls.host = f'127.0.0.1:{cls.port}'
         cls.base = f'http://{cls.host}'
@@ -125,13 +144,17 @@ class HostGetTest(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         t = self.t = Path(self.tmp.name)
         self.saved = {k: getattr(wayback, k) for k in ('HOST_DIR', 'HOST_STOP_DIR', 'HOST_TIERS', '_now', '_sleep',
-                                                       '_curl_h', 'STATE', 'LOCK')}
+                                                       '_curl_h', '_curl_proc', '_py_get', 'STATE', 'LOCK',
+                                                       'TRANSPORT')}
+        wayback.TRANSPORT = self.transport
+        drop_pools()
         wayback.HOST_DIR, wayback.HOST_STOP_DIR, wayback.HOST_TIERS = t / 'rate', t / 'stops', t / 'host_tiers.json'
         wayback.STATE, wayback.LOCK = t / 'archive.json', t / 'archive.lock'
         wayback._cfg_cache['key'] = None
         self.fake_clock()
         Stub.seen.clear()
         _active[:] = [0, 0]
+        Stub.connections[0] = 0
         Stub.routes = {'/robots.txt': (200, {}, b'User-agent: *\nDisallow: /private/\n'),
                        '/page/1': (200, {}, b'one'), '/page/2': (200, {}, b'two'), '/page/3': (200, {}, b'three'),
                        '/etag': etag_route, '/slow': slow_route}
@@ -141,6 +164,7 @@ class HostGetTest(unittest.TestCase):
         for k, v in self.saved.items():
             setattr(wayback, k, v)
         wayback._cfg_cache['key'] = None
+        drop_pools()
         self.tmp.cleanup()
 
     def fake_clock(self):
@@ -463,6 +487,161 @@ class HostGetTest(unittest.TestCase):
         self.assertEqual(wayback._parse_robots('User-agent: Claude-Web\nUser-agent: GPTBot\nDisallow: /x\n')['disallow'], ['/x'])
         self.assertFalse(wayback.robots_allows('https://h/search?q=1', r['disallow']))
         self.assertTrue(wayback.robots_allows('https://h/act/1', r['disallow']))
+
+
+class HostGetCurl(HostGetCases, unittest.TestCase):
+    """Every case through a curl process per request (the old path; hosts flagged 'transport': 'curl')."""
+    transport = 'curl'
+
+
+class HostGetInProcess(HostGetCases, unittest.TestCase):
+    """Every case through the in-process keep-alive path."""
+    transport = 'python'
+
+
+def gzip_route(handler):
+    import gzip
+    body = ('Gesetz ' * 4000).encode('utf-8')
+    if 'gzip' in (handler.headers.get('Accept-Encoding') or ''):
+        return 200, {'Content-Encoding': 'gzip', 'Vary': 'Accept-Encoding'}, gzip.compress(body)
+    return 200, {}, body
+
+
+def sleep_route(handler):
+    time.sleep(3)
+    return 200, {}, b'late'
+
+
+class TransportTest(unittest.TestCase):
+    """The in-process path against curl: same status, body and headers; connections reused; SSL failure -> curl."""
+
+    @classmethod
+    def setUpClass(cls):
+        HostGetCases.setUpClass.__func__(cls)
+
+    @classmethod
+    def tearDownClass(cls):
+        HostGetCases.tearDownClass.__func__(cls)
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.saved = {k: getattr(wayback, k) for k in ('HOST_DIR', 'TRANSPORT', '_curl_proc', '_py_get')}
+        wayback.HOST_DIR = Path(self.tmp.name) / 'rate'
+        wayback.TRANSPORT = 'auto'
+        drop_pools()
+        Stub.seen.clear()
+        Stub.connections[0] = 0
+        Stub.routes = {
+            '/plain': (200, {'X-Thing': 'v1', 'Set-Cookie': ['a=1; path=/', '__utm=2; path=/']},
+                       b'plain body \x00\xff bytes'),
+            '/gz': gzip_route,
+            '/r1': (302, {'Location': '/r2'}, b'moved'),
+            '/r2': (301, {'Location': f'http://{self.host}/plain'}, b'moved again'),
+            '/loop': (302, {'Location': '/loop'}, b''),
+            '/nolocation': (307, {}, b'no location'),
+            '/etag': etag_route,
+            '/missing': (404, {}, b'not here'),
+            '/err': (500, {}, b'<h1>Web Page Blocked</h1>'),
+            '/sleep': sleep_route,
+            '/slow': slow_route,
+        }
+
+    def tearDown(self):
+        for k, v in self.saved.items():
+            setattr(wayback, k, v)
+        drop_pools()
+        self.tmp.cleanup()
+
+    @staticmethod
+    def norm(hops):
+        return [(c, [(k, v) for k, v in h if k not in ('date', 'connection', 'keep-alive')]) for c, h in hops]
+
+    def test_same_status_body_and_headers_on_both_paths(self):
+        for path, hdrs in (('/plain', []), ('/gz', []), ('/r1', []), ('/nolocation', []), ('/missing', []),
+                           ('/err', []), ('/etag', []), ('/etag', ['If-None-Match: "v1"'])):
+            url = self.base + path
+            a = wayback._curl_proc(url, 30, hdrs)
+            b = wayback._py_get(url, 30, hdrs)
+            self.assertEqual(a[0], b[0], path)
+            self.assertEqual(a[1], b[1], path)                   # byte-identical bodies
+            self.assertEqual(self.norm(a[2]), self.norm(b[2]), path)
+        code, body, hops = wayback._py_get(self.base + '/r1', 30)
+        self.assertEqual((code, body, [c for c, _ in hops]), (200, b'plain body \x00\xff bytes', [302, 301, 200]))
+        self.assertEqual([v for k, v in hops[-1][1] if k == 'set-cookie'], ['a=1; path=/', '__utm=2; path=/'])
+        self.assertEqual(wayback._py_get(self.base + '/gz', 30)[1], ('Gesetz ' * 4000).encode())
+        self.assertEqual(wayback._curl_proc(self.base + '/loop', 30)[0], 0)   # too many redirects: status 0
+        self.assertEqual(wayback._py_get(self.base + '/loop', 30)[0], 0)
+        # the same request headers reach the server, also after a redirect
+        Stub.seen.clear()
+        wayback._curl_proc(self.base + '/r1', 30, ['If-None-Match: "x"'])
+        wayback._py_get(self.base + '/r1', 30, ['If-None-Match: "x"'])
+        self.assertEqual(len(Stub.seen), 6)
+        for (p1, h1), (p2, h2) in zip(Stub.seen[:3], Stub.seen[3:]):
+            self.assertEqual(p1, p2)
+            for k in ('User-Agent', 'Accept', 'If-None-Match'):
+                self.assertEqual(h1.get(k), h2.get(k), k)
+        self.assertEqual(Stub.seen[-1][1]['User-Agent'], wayback.UA)
+        # an HTTP/1.0 server that closes every connection gives the same answers too
+        Stub.protocol_version = 'HTTP/1.0'
+        try:
+            for path in ('/plain', '/gz', '/r1', '/missing'):
+                a, b = wayback._curl_proc(self.base + path, 30), wayback._py_get(self.base + path, 30)
+                self.assertEqual((a[0], a[1], self.norm(a[2])), (b[0], b[1], self.norm(b[2])), path)
+        finally:
+            Stub.protocol_version = 'HTTP/1.1'
+
+    def test_timeout_and_refused_give_status_0(self):
+        for get in (wayback._curl_proc, wayback._py_get):
+            self.assertEqual(get(self.base + '/sleep', 1)[:2], (0, b''))
+        import socket
+        s = socket.socket()
+        s.bind(('127.0.0.1', 0))
+        dead = s.getsockname()[1]
+        s.close()
+        for get in (wayback._curl_proc, wayback._py_get):
+            self.assertEqual(get(f'http://127.0.0.1:{dead}/x', 5)[:2], (0, b''))
+
+    def test_keep_alive_connection_is_reused(self):
+        for _ in range(6):
+            self.assertEqual(wayback._curl_h(self.base + '/plain', 30)[0], 200)
+        self.assertEqual(Stub.connections[0], 1)                 # six requests, one connection
+        drop_pools()
+        Stub.connections[0] = 0
+        for _ in range(3):
+            wayback._curl_proc(self.base + '/plain', 30)
+        self.assertEqual(Stub.connections[0], 3)                 # curl: one per request
+        # two requests in flight at once each get their own connection, and both are reused afterwards
+        drop_pools()
+        Stub.connections[0] = 0
+        for _ in range(3):
+            ts = [threading.Thread(target=wayback._curl_h, args=(self.base + '/slow', 30)) for _ in range(2)]
+            [t.start() for t in ts]
+            [t.join() for t in ts]
+        self.assertEqual(Stub.connections[0], 2)
+
+    def test_ssl_failure_flips_the_host_to_curl(self):
+        calls = {'py': 0, 'curl': 0}
+        py, curl = wayback._py_get, wayback._curl_proc
+
+        def py_(*a, **k):
+            calls['py'] += 1
+            return py(*a, **k)
+
+        def curl_(*a, **k):
+            calls['curl'] += 1
+            return curl(*a, **k)
+        wayback._py_get, wayback._curl_proc = py_, curl_
+        url = f'https://{self.host}/plain'                       # TLS to a plain-HTTP server: the handshake fails
+        self.assertEqual(wayback._curl_h(url, 10)[0], 0)
+        self.assertEqual(calls, {'py': 1, 'curl': 1})            # that request is retried through curl at once
+        st = json.loads((wayback.HOST_DIR / f'127.0.0.1_{self.port}.json').read_text(encoding='utf-8'))
+        self.assertEqual(st['transport'], 'curl')
+        self.assertIn('SSL', st['transport_reason'])
+        self.assertEqual(wayback._curl_h(self.base + '/plain', 10)[0], 200)
+        self.assertEqual(calls, {'py': 1, 'curl': 2})            # the flag holds for the host from now on
+        wayback._CURL_HOSTS.clear()                              # and for a fresh process (it is in the state file)
+        wayback._curl_h(self.base + '/plain', 10)
+        self.assertEqual(calls, {'py': 1, 'curl': 3})
 
 
 if __name__ == '__main__':

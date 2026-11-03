@@ -13,7 +13,8 @@ every process on the machine, in a small state file guarded by a lock file:
   Retry-After is always honoured.
 So the machine runs at whatever archive.org will take, and backs off the moment it complains.
 
-Requests go through curl (Python's TLS fails on this machine) with --compressed. Each response is cached by the
+Requests go through curl with --compressed (host_get and fetch() run in process with keep-alive connections
+and fall back to curl for hosts whose TLS fails in Python; see _curl_h). Each response is cached by the
 sha256 of its URL in the caller's cache folder and logged to requests.jsonl there, the same layout the country
 fetchers use, so parse.py can read it unchanged. Standard library only.
 """
@@ -865,8 +866,8 @@ def _maybe_robots(host: str, url: str) -> None:
     _note_robots(host, code, _parse_robots(text)['crawl_delay'] if code == 200 else None)
 
 
-def _curl_h(url: str, timeout: int, headers: list[str] = ()) -> tuple[int, bytes, list]:
-    """Like _curl, plus request headers in and every hop's response headers out."""
+def _curl_proc(url: str, timeout: int, headers: list[str] = ()) -> tuple[int, bytes, list]:
+    """One request through a curl process: (status of the last hop or 0 on failure, body, every hop's headers)."""
     with tempfile.NamedTemporaryFile(delete=False) as f:
         tmp = f.name
     hdr = tmp + '.h'
@@ -885,6 +886,225 @@ def _curl_h(url: str, timeout: int, headers: list[str] = ()) -> tuple[int, bytes
     finally:
         Path(tmp).unlink(missing_ok=True)
         Path(hdr).unlink(missing_ok=True)
+
+
+# ---- the in-process transport (2026-11-03): keep-alive connections instead of one curl process per request.
+# A curl process costs ~0.8 s to start at Normal priority and ~4.1 s at BelowNormal on this machine, against ~0.2 s
+# for the request itself (scheduler diagnosis, world-law-ops 7d168e5). Python's TLS works for most hosts now; a host
+# whose TLS handshake fails in Python is flagged 'transport': 'curl' in its state file (for every process) and that
+# request is retried through curl. The in-process path behaves like the curl command above: GET, the same User-Agent
+# and Accept, follows up to 50 redirects (resending the request headers), decodes gzip/deflate (only those are
+# offered), returns the last hop's status and every hop's headers, status 0 and no body on any failure or after the
+# timeout (a total deadline, like --max-time). Each request takes its own connection from the host's pool (so every
+# slot in flight has its own), and a connection goes back to the pool only after its response was read in full.
+# GITLAW_FETCH_TRANSPORT=curl|python|auto (default auto) forces one path.
+TRANSPORT = os.environ.get('GITLAW_FETCH_TRANSPORT', 'auto').lower()
+MAX_REDIRS = 50
+POOL_IDLE_MAX = 8                 # idle keep-alive connections kept per scheme/host/port
+_POOLS: dict = {}
+_POOL_LOCK = threading.Lock()
+_CURL_HOSTS: dict = {}            # host -> (wants curl, checked at) from the host state file, re-read every 60 s
+_SSL_CTX = None
+
+
+class _Fallback(Exception):
+    """Something the in-process path does not do like curl (an odd URL, an encoding it did not offer): use curl."""
+
+
+def _ssl_ctx():
+    global _SSL_CTX
+    if _SSL_CTX is None:
+        import ssl
+        _SSL_CTX = ssl.create_default_context()
+    return _SSL_CTX
+
+
+def _wants_curl(host: str) -> bool:
+    if TRANSPORT == 'curl':
+        return True
+    if TRANSPORT == 'python':
+        return False
+    hit = _CURL_HOSTS.get(host)
+    if hit and time.time() - hit[1] < 60:
+        return hit[0]
+    try:
+        st = json.loads((HOST_DIR / f'{_hostfile(host)}.json').read_text(encoding='utf-8'))
+        flag = st.get('transport') == 'curl'
+    except (OSError, ValueError):
+        flag = False
+    _CURL_HOSTS[host] = (flag, time.time())
+    return flag
+
+
+def _flag_curl(host: str, why: str) -> None:
+    _CURL_HOSTS[host] = (True, time.time())
+
+    def f(st):
+        st['transport'] = 'curl'
+        st['transport_reason'] = why[:300]
+        st['transport_at'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+        return None, st
+    try:
+        _host_locked(host, f)
+    except RuntimeError:
+        pass
+
+
+def _pool_get(key):
+    with _POOL_LOCK:
+        idle = _POOLS.get(key)
+        return idle.pop() if idle else None
+
+
+def _pool_put(key, conn) -> None:
+    with _POOL_LOCK:
+        idle = _POOLS.setdefault(key, [])
+        if len(idle) < POOL_IDLE_MAX:
+            idle.append(conn)
+            return
+    conn.close()
+
+
+def _gunzip_all(body: bytes) -> bytes:
+    import zlib
+    out, rest = [], body
+    while rest:
+        d = zlib.decompressobj(16 + zlib.MAX_WBITS)
+        out.append(d.decompress(rest))
+        out.append(d.flush())
+        rest = d.unused_data
+        if not d.eof:
+            break
+    return b''.join(out)
+
+
+def _py_once(url: str, deadline: float, headers: list[str]):
+    """One hop: (status, [(lower name, value)], decoded body, location or None). Raises on network failure."""
+    import http.client
+    from urllib.parse import urlsplit
+    u = urlsplit(url)
+    if u.scheme not in ('http', 'https') or not u.hostname:
+        raise _Fallback(f'scheme {u.scheme!r}')
+    path = (u.path or '/') + (f'?{u.query}' if u.query else '')
+    if any(c in path for c in ' \t\r\n') or any(ord(c) > 126 for c in path):
+        raise _Fallback('URL with spaces or non-ASCII characters')
+    port = u.port or (443 if u.scheme == 'https' else 80)
+    key = (u.scheme, u.hostname.lower(), port)
+    for fresh in (False, True):
+        conn = None if fresh else _pool_get(key)
+        reused = conn is not None
+        if conn is None:
+            left = max(0.1, deadline - time.time())
+            if u.scheme == 'https':
+                conn = http.client.HTTPSConnection(u.hostname, port, timeout=left, context=_ssl_ctx())
+            else:
+                conn = http.client.HTTPConnection(u.hostname, port, timeout=left)
+        try:
+            if conn.sock is None:
+                conn.connect()
+            conn.sock.settimeout(max(0.1, deadline - time.time()))
+            conn.putrequest('GET', path, skip_accept_encoding=True)
+            conn.putheader('User-Agent', UA)
+            conn.putheader('Accept', '*/*')
+            conn.putheader('Accept-Encoding', 'deflate, gzip')
+            for h in headers:
+                k, _, v = h.partition(':')
+                conn.putheader(k.strip(), v.strip())
+            conn.endheaders()
+            sock = conn.sock          # getresponse() closes conn.sock when the answer closes the connection
+            resp = conn.getresponse()
+        except (http.client.RemoteDisconnected, ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
+            conn.close()
+            if reused:
+                continue          # a stale keep-alive connection: once more on a new one
+            raise
+        except BaseException:
+            conn.close()
+            raise
+        try:
+            chunks = []
+            while True:
+                if time.time() > deadline:
+                    raise TimeoutError('max-time')
+                try:
+                    sock.settimeout(max(0.1, deadline - time.time()))
+                except OSError:   # closed by getresponse() (the answer closes the connection): its timeout stands
+                    pass
+                b = resp.read(65536)
+                if not b:
+                    break
+                chunks.append(b)
+            raw = b''.join(chunks)
+        except BaseException:
+            conn.close()
+            raise
+        hdrs = [(k.strip().lower(), v.strip()) for k, v in resp.getheaders()]
+        if resp.will_close:
+            conn.close()
+        else:
+            _pool_put(key, conn)
+        enc = ', '.join(v for k, v in hdrs if k == 'content-encoding')
+        body = raw
+        if enc:
+            for e in [x.strip().lower() for x in enc.split(',') if x.strip()][::-1]:
+                import zlib
+                if e in ('gzip', 'x-gzip'):
+                    body = _gunzip_all(body)
+                elif e == 'deflate':
+                    try:
+                        body = zlib.decompress(body)
+                    except zlib.error:
+                        body = zlib.decompress(body, -zlib.MAX_WBITS)
+                elif e != 'identity':
+                    raise _Fallback(f'content-encoding {e}')
+        loc = next((v for k, v in hdrs if k == 'location'), None)
+        return resp.status, hdrs, body, loc
+    raise ConnectionError('connection closed twice')
+
+
+def _py_get(url: str, timeout: int, headers: list[str] = ()) -> tuple[int, bytes, list]:
+    """The in-process request: same result as _curl_proc. SSL errors propagate (the caller falls back to curl)."""
+    import ssl
+    from urllib.parse import urljoin
+    deadline = time.time() + timeout
+    hops = []
+    try:
+        for _ in range(MAX_REDIRS + 1):
+            code, hdrs, body, loc = _py_once(url, deadline, list(headers))
+            hops.append((code, hdrs))
+            if 300 <= code < 400 and code != 304 and loc:
+                url = urljoin(url, loc)
+                continue
+            return code, body, hops
+        return 0, b'', hops    # too many redirects (curl: exit 47)
+    except (ssl.SSLError, ssl.CertificateError, _Fallback):
+        raise
+    except (OSError, EOFError, TimeoutError, ValueError) as e:   # time-out, refused, reset, DNS, bad gzip
+        import http.client
+        if isinstance(e, http.client.InvalidURL):
+            raise _Fallback(str(e))
+        return 0, b'', hops
+    except Exception as e:   # http.client.HTTPException and the like: a broken answer, as curl would fail on it
+        import http.client
+        if isinstance(e, http.client.HTTPException):
+            return 0, b'', hops
+        raise
+
+
+def _curl_h(url: str, timeout: int, headers: list[str] = ()) -> tuple[int, bytes, list]:
+    """GET url: (status of the last hop, or 0 on failure; body; every hop's (status, [(lower name, value)])).
+    In process with keep-alive connections, or through curl for hosts flagged 'transport': 'curl'."""
+    host = _host_of(url)
+    if _wants_curl(host):
+        return _curl_proc(url, timeout, headers)
+    import ssl
+    try:
+        return _py_get(url, timeout, headers)
+    except (ssl.SSLError, ssl.CertificateError) as e:
+        _flag_curl(host, f'{type(e).__name__}: {e}')
+        return _curl_proc(url, timeout, headers)
+    except _Fallback:
+        return _curl_proc(url, timeout, headers)
 
 
 def _host_fetch(url: str, host: str, cache: Path | None, tries: int, timeout: int,
