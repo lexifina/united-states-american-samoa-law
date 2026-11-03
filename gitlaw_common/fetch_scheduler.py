@@ -603,7 +603,9 @@ def _place(dst: Path, url: str, body: bytes, caller: str | None = None) -> None:
     as a 'dup' event, never silently."""
     dst.parent.mkdir(parents=True, exist_ok=True)
     src = _body_path(url)
-    tmp = dst.with_name(dst.name + '.part')
+    # a temp name of this process and thread: a stale .part (a crash) or a peer placing the same dst makes os.link
+    # fail, which would otherwise fall through to a needless copy and turn the shared entry into a pointer
+    tmp = dst.with_name(f'{dst.name}.{os.getpid()}.{threading.get_ident()}.part')
     if src is not None:
         try:
             os.link(src, tmp)
