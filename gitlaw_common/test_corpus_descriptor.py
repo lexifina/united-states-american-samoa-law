@@ -36,9 +36,9 @@ def corpus(code='XX', slug='testland', lang='de', units=('par-001', 'par-002', '
 
 
 d = lambda c, day='2026-11-01': B.corpus_descriptor(c, [], day)  # noqa: E731
-PATH = re.compile(r'[a-z]{2}(/[a-z0-9-]+){2}')
+PATH = re.compile(r'[a-z]{2}(/[a-z0-9-]+){2,3}')
 for code, slug, want in (('XX', 'testland', 'xx/national/acts'), ('DE-HB', 'germany-bremen', 'de/bremen/acts'),
-                         ('BR-MG-MURIAE', 'brazil-muriae-city', 'br/muriae-city/acts'),
+                         ('BR-MG-MURIAE', 'brazil-muriae-city', 'br/minas-gerais/muriae/acts'),
                          ('US-AZ', 'united-states-arizona', 'us/arizona/acts'),
                          ('ID-BE', 'indonesia-bengkulu', 'id/bengkulu/acts')):
     got = d(corpus(code, slug))['corpus']
@@ -55,7 +55,7 @@ ok('the future branch is not counted', '2099' not in json.dumps(x), x['coverage'
 ok('in_force_trailer and no correction_trailer', x['in_force_trailer'] == 'In-force' and 'correction_trailer' not in x)
 ok('record_note names the publisher', x['record_note'] == 'Texts from Gazette.')
 ok('as-enacted: one version, dated from its law', d(corpus(versions=1))['history'] == 'as-enacted')
-ok('no history when one version and its law is undated', 'history' not in d(corpus(versions=1, law_dates=False)))
+ok('current-only when one version and its law is undated', d(corpus(versions=1, law_dates=False))['history'] == 'current-only')
 ok('country.history wins', d(corpus(versions=1, law_dates=False, history='current-only'))['history'] == 'current-only')
 
 cit = x['citation']

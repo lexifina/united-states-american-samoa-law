@@ -35,6 +35,14 @@ Here: build.py and check.py are in `scripts/gitlaw_common/`, the country folder 
 
 `--docs-date` is required: use the day the data was retrieved, never the run day. The builder empties the target and keeps `origin`. It refuses to run if the target holds anything other than an earlier build.
 
+The published root `corpus.json` is a descriptor, distinct from this input. Set `country.path` to the written-out
+global-law path when its hierarchy cannot be derived unambiguously from the country code and place. It uses ASCII
+place slugs, keeps disambiguating `-regency`, and drops `-city` below a state. `country.scope` is `all-acts` or
+`selected-acts` (the default). `country.history` is `in-force`, `replayed` (with `verification`), `as-enacted`,
+`current-only`, or `metadata-only`. The descriptor includes the act count, publisher, and future branch. Static
+`repo/corpus.json` fields are retained and augmented. `data/repo.json` is removed in that same documentation commit;
+readers still fall back to it for old commits.
+
 ## corpus.json
 
 All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys and values are plain JSON.

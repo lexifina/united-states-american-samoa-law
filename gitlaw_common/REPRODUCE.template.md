@@ -56,7 +56,7 @@ When a law gives no date of its own, the default rule applies: {{RULE}} {{RULE_S
 
 ## What AI did and did not do
 
-The scripts that read the sources and build this repository were written by Claude Code running Claude Opus 5.5 (`claude-opus-5-5`) under Lexifina's direction.
+The source readers and builders were developed under Lexifina's direction with coding assistants, including Claude Code and Codex.
 
 No model wrote, translated or corrected legal text. No model runs at build time. Every word of law in this repository comes from the official sources above.
 

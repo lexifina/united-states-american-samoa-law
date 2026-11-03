@@ -29,6 +29,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import publish_marker  # noqa: E402
 import corpus_standard as S  # noqa: E402
+import corpus_paths as P  # noqa: E402
 try:
     import private  # noqa: E402  (Lexifina's list of what stays off shared repos)
 except ImportError:  # a published copy of this builder runs without it
@@ -121,6 +122,7 @@ def load(folder: Path, *, part_records: dict | None = None,
     # A version may instead give only `changes`: {unit key: unit, or null to remove it}, applied to the version before
     # it. Large acts then store each version's delta, not every provision again.
     for act in c.get('acts', []):
+        act.setdefault('versions', [])
         for prev, v in zip(act.get('versions', []), act.get('versions', [])[1:]):
             if 'units' in v:
                 continue
@@ -182,7 +184,7 @@ def validate(c: dict) -> list[str]:
             if l not in laws:
                 errs.append(f'act {s}: earlier law {l!r} is not a law key')
         vs = act.get('versions', [])
-        if not vs:
+        if not vs and co.get('history') != 'metadata-only':
             errs.append(f'act {s}: no versions')
         days = [v.get('from', '') for v in vs]
         same = [i for i, v in enumerate(vs) if i and v.get('same_day')]
@@ -234,6 +236,8 @@ def plan(c: dict) -> list[dict]:
     commits = []
     for act in c['acts']:
         vs = act['versions']
+        if not vs:
+            continue
         first = vs[0]
         commits.append({'day': first['from'], 'rank': 0, 'sort': act['slug'], 'kind': 'start', 'act': act,
                         'version': first})
@@ -688,9 +692,7 @@ def tables(c: dict, log: list[dict]) -> dict[str, str]:
                      law.get('published') or '', ' '.join(ds), len(days.get(key, [])), law.get('url') or ''])
     out['data/laws.csv'] = buf.getvalue()
     co = c['country']
-    out['data/repo.json'] = json.dumps({'country': co['code'], 'name': co['name'], 'tz': co['tz'],
-                                        'future_branch': co.get('future_branch', 'futuro'),
-                                        'publisher': co['publisher']['name']}, ensure_ascii=False, indent=1) + '\n'
+    out['data/repo.json'] = None  # superseded by the root descriptor; delete in the docs commit only
     out['data/versions.json'] = json.dumps({'country': c['country']['code'], 'acts': [{
         'slug': a['slug'], 'short': a['short'], 'title': a['title'], 'url': a.get('url'),
         'versions': [{'from': v['from'], 'units': len(v['units']), 'source_url': v.get('source_url'),
@@ -703,6 +705,8 @@ def tables(c: dict, log: list[dict]) -> dict[str, str]:
         wr.writerow([e['day'], e['kind'], e['law'] or '', ' '.join(e['acts']), e['units'], e['branch']])
     out['data/commits.csv'] = buf.getvalue()
     for a in c['acts']:
+        if not a['versions']:
+            continue
         counts: dict[str, int] = {}
         last: dict[str, str] = {}
         for prev, cur in zip(a['versions'], a['versions'][1:]):
@@ -897,8 +901,9 @@ def reproduce(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, do
     n_clamped = sum(1 for e in log if e['clamped'])
     src_rows = '\n'.join(f'| {public_note(s.get("name", ""))} | <{s.get("url", "")}> | {s.get("retrieved", "")} | '
                          f'{public_note(s.get("licence", ""))} |' for s in c.get('sources', []))
-    act_rows = '\n'.join(f'| `{a["slug"]}` | {a["title"]} | {len(a["versions"])} | {a["versions"][0]["from"]} to '
-                         f'{a["versions"][-1]["from"]} |' for a in c['acts'])
+    act_rows = '\n'.join(f'| `{a["slug"]}` | {a["title"]} | {len(a["versions"])} | '
+                         + (f'{a["versions"][0]["from"]} to {a["versions"][-1]["from"]}' if a['versions'] else 'metadata only')
+                         + ' |' for a in c['acts'])
     # A check or second build counts only for the corpus it ran on: a main build (verified parts only) must not quote
     # the check of the full build, or of an earlier corpus.
     sha = hashlib.sha256(raw).hexdigest()
@@ -961,14 +966,7 @@ UNIT = re.compile(r'([a-z]+)-0*([0-9]+)([a-z]?)$')
 def _corpus_path(co: dict) -> str:
     if co.get('corpus'):
         return co['corpus']
-    iso = co['code'][:2].lower()
-    if '-' not in co['code']:
-        level = 'national'
-    else:
-        words = co['slug'].split('-')
-        level = '-'.join(words[COUNTRY_WORDS.get(iso, 1):]) or 'national'
-    level = re.sub(r'[^a-z0-9-]+', '-', level.lower()).strip('-')
-    return f'{iso}/{level}/{co.get("corpus_kind", "acts")}'
+    return co['code'][:2].lower() + '/' + P.descriptor_path(co).split('/', 1)[1]
 
 
 def _citation(c: dict, main_units: list[str]) -> dict | None:
@@ -1011,14 +1009,28 @@ def corpus_descriptor(c: dict, log: list[dict], docs_date: str) -> dict:
         except ValueError:  # no date, or only a year
             return False
     history = co.get('history')
+    if history and history not in P.HISTORIES:
+        raise CorpusError(f'unknown country.history {history!r}')
     if not history:
-        if any(len(vs) > 1 for _, vs in held):
+        if not any(v.get('units') for a in c['acts'] for v in a['versions']):
+            history = 'metadata-only'
+        elif any(len(vs) > 1 for _, vs in held):
             history = 'in-force'
         elif sum(1 for a, vs in held if enacted_then(a, vs[0])) * 10 >= n_acts * 9:
             history = 'as-enacted'  # one version per act, each dated from the law that made it
-        # Otherwise (one version per act, its law undated): not said here; `country.history` can say it.
+        else:
+            history = 'current-only'
+    if history == 'metadata-only':
+        n_acts = len(c['acts'])
+    scope = co.get('scope', 'selected-acts')
+    if scope not in ('all-acts', 'selected-acts'):
+        raise CorpusError('country.scope must be all-acts or selected-acts')
+    if history == 'replayed' and not co.get('verification'):
+        raise CorpusError('replayed history requires country.verification')
     name = co['name']
-    if history == 'as-enacted':
+    if history == 'metadata-only':
+        coverage = f'{n_acts} catalogue records of {name}; no law text'
+    elif history == 'as-enacted':
         coverage = f'{n_acts} acts of {name} as enacted, in force from {first} to {record_to}'
     elif history == 'current-only':
         coverage = f'{n_acts} acts of {name}, the current text of each as of {record_to}'
@@ -1028,9 +1040,16 @@ def corpus_descriptor(c: dict, log: list[dict], docs_date: str) -> dict:
         coverage = (f'{n_acts} acts of {name} with every dated version the source gives ({n_versions} versions), '
                     f'in force from {first} to {record_to}')
     units = [k for _, vs in held for k in vs[-1]['units']]
-    out = {'corpus': _corpus_path(co), 'name': name, 'language': co.get('lang', ''), 'coverage': coverage,
+    out = {'corpus': _corpus_path(co), 'path': P.descriptor_path(co),
+           'scope': scope, 'acts': n_acts, 'future_branch': S.future_branch(co), 'publisher': co['publisher']['name'],
+           'name': name, 'language': co.get('lang', ''), 'coverage': coverage,
            **({'history': history} if history else {}), 'history_from': first, 'record_to': record_to, 'checked_on': docs_date,
-           'record_note': f'Texts from {co["publisher"]["name"]}.', 'in_force_trailer': 'In-force'}
+           'record_note': co.get('record_note') or f'Texts from {co["publisher"]["name"]}.', 'in_force_trailer': 'In-force'}
+    for field in ('history_from', 'record_to', 'checked_on', 'verification'):
+        if field in co:
+            out[field] = co[field]
+    if not held and 'history_from' not in co:
+        out['history_from'] = None
     rule = _citation(c, units)
     if rule:
         out['citation'] = rule
@@ -1054,7 +1073,7 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
         for p in sorted(static.rglob('*')):
             if p.is_file() and '__pycache__' not in p.parts:
                 files[p.relative_to(static).as_posix()] = p.read_text(encoding='utf-8').replace('\r\n', '\n')
-    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
+    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
         text = (HERE / name).read_text(encoding='utf-8').replace('\r\n', '\n')
         # Passages for Lexifina's agents only (how sources are fetched, internal paths) stay out of the published copy.
         text = re.sub(r'\n?<!-- private -->.*?<!-- /private -->', '', text, flags=re.S)
@@ -1087,7 +1106,11 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
             files[rel] = public_readme(files[rel], keep)
     files['data/corpus.sha256'] = f'{hashlib.sha256(raw).hexdigest()}  corpus.json\n'
     # The repository's own description (an output; the input of the same name is the line above's corpus.json).
-    files.setdefault('corpus.json', json.dumps(corpus_descriptor(c, log, docs_date), ensure_ascii=False, indent=1) + '\n')
+    generated = corpus_descriptor(c, log, docs_date)
+    supplied = json.loads(files.get('corpus.json', '{}'))
+    descriptor = generated | supplied
+    descriptor['acts'] = generated['acts']
+    files['corpus.json'] = json.dumps(descriptor, ensure_ascii=False, indent=1) + '\n'
     files.update(tables(c, log))
     if part_records is not None:
         files['data/parts.json'] = json.dumps({'schema': 1, 'parts': part_records},
@@ -1178,7 +1201,7 @@ def site_data(c: dict, docs_date: str) -> dict:
                             'future': v['from'] > docs_date})
             prev = cur
         acts.append({'slug': a['slug'], 'short': a['short'], 'title': a['title'], 'url': a.get('url'),
-                     'first': a['versions'][0]['from'], 'first_law': a.get('first_law'),
+                     'first': a['versions'][0]['from'] if a['versions'] else None, 'first_law': a.get('first_law'),
                      'earlier_laws': a.get('earlier_laws', []), 'versions': [v['from'] for v in a['versions']],
                      'changes': changes, 'units': [units[k] for k in order if k in units]})
     co = c['country']
@@ -1189,7 +1212,7 @@ def site_data(c: dict, docs_date: str) -> dict:
 
 def hashes(repo: Path) -> tuple[list[str], dict[str, str], dict[str, str]]:
     log = git(repo, 'log', '--format=%H', 'main').split()
-    tags = dict(l.split(' ', 1)[::-1] for l in git(repo, 'show-ref', '--tags').split('\n') if l)
+    tags = dict(l.split(' ', 1)[::-1] for l in git(repo, 'for-each-ref', '--format=%(objectname) %(refname)', 'refs/tags').split('\n') if l)
     heads = dict(l.split(' ', 1)[::-1] for l in git(repo, 'show-ref', '--heads').split('\n') if l)
     return log, tags, heads
 

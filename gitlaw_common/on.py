@@ -23,12 +23,17 @@ def git(*args: str) -> str:
 
 
 def branches() -> tuple[str, str | None]:
-    """main, and the future branch named in data/repo.json (local or origin/), if it exists."""
+    """main and the descriptor's future branch, with the old data/repo.json as a read-only fallback."""
     import json
     try:
-        name = json.loads(git('show', 'main:data/repo.json')).get('future_branch')
+        name = json.loads(git('show', 'main:corpus.json')).get('future_branch')
     except (subprocess.CalledProcessError, ValueError):
         name = None
+    if not name:
+        try:
+            name = json.loads(git('show', 'main:data/repo.json')).get('future_branch')
+        except (subprocess.CalledProcessError, ValueError):
+            name = None
     if not name:
         return 'main', None
     for ref in (name, f'origin/{name}'):

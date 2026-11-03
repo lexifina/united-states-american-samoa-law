@@ -163,7 +163,7 @@ def docs_only(folder: Path, repo: Path, docs_date: str) -> bool:
     for line in g(repo, 'ls-tree', '-r', 'main').splitlines():
         meta, _, path = line.partition('\t')
         have[path] = meta.split()[2]
-    changed = {p: t for p, t in docs.items() if have.get(p) != K.blob_oid(t)}
+    changed = {p: t for p, t in docs.items() if (p in have if t is None else have.get(p) != K.blob_oid(t))}
     if not changed:
         return False
     head = g(repo, 'rev-parse', 'main')
