@@ -48,6 +48,7 @@ sys.path.insert(0, str(HERE))
 import append as AP  # noqa: E402
 import check as K  # noqa: E402
 import publish_marker  # noqa: E402
+import published_parts  # noqa: E402
 
 B = AP.B
 NO_FILES = '/.gitlaw-append-no-files\n'
@@ -60,22 +61,29 @@ class Frozen(type(Path())):
     docs and check in one gate run all see one corpus: a PUBLISH that lands mid-run goes out on the next run."""
     snap: dict[str, bytes] | None = None
     parts_dir = ''
+    selected: set[str] | None = None
 
     def glob(self, pattern, *a, **k):
         if Frozen.snap is not None and str(self) == Frozen.parts_dir and pattern == '*.json':
             return iter(sorted(self / Path(p).name for p in Frozen.snap
-                               if os.path.dirname(p) == Frozen.parts_dir and p.endswith('.json')))
+                               if os.path.dirname(p) == Frozen.parts_dir and p.endswith('.json')
+                               and (Frozen.selected is None or p in Frozen.selected)))
         return super().glob(pattern, *a, **k)
+
+    def publication_parts(self):
+        return sorted(Frozen(p) for p in (Frozen.snap or {})
+                      if os.path.dirname(p) == Frozen.parts_dir and p.endswith('.json'))
 
     def exists(self, *a, **k):
         s = str(self)
         if Frozen.snap is not None and os.path.dirname(s) == Frozen.parts_dir and s.endswith('.PUBLISH'):
-            return s in Frozen.snap
+            return s in Frozen.snap and (Frozen.selected is None
+                                         or str(self.with_suffix('.json')) in Frozen.selected)
         return super().exists(*a, **k)
 
     def read_bytes(self):
         if (Frozen.snap is not None and os.path.dirname(str(self)) == Frozen.parts_dir
-                and self.suffix == '.PUBLISH' and str(self) not in Frozen.snap):
+                and self.suffix in ('.PUBLISH', '.json') and str(self) not in Frozen.snap):
             raise FileNotFoundError(str(self))
         b = Frozen.snap.get(str(self)) if Frozen.snap is not None else None
         return b if b is not None else super().read_bytes()
@@ -95,18 +103,19 @@ def freeze(folder: Path) -> Path:
             try:
                 snap[str(marker)] = marker.read_bytes()
             except FileNotFoundError:
-                if os.environ.get('GITLAW_VERIFIED_PARTS_ONLY') == '1':
-                    continue
+                pass
             snap[str(p)] = p.read_bytes()
-    Frozen.snap, Frozen.parts_dir = snap, str(parts)
+    Frozen.snap, Frozen.parts_dir, Frozen.selected = snap, str(parts), None
+    selected = set()
     if os.environ.get('GITLAW_VERIFIED_PARTS_ONLY') == '1':
         for p in list((Frozen(folder) / 'corpus.d').glob('*.json')):
             state, detail = publish_marker.status(p)
             if state not in ('legacy', 'match'):
                 if state == 'mismatch':
                     print(f'UNVERIFIED: {detail}', file=sys.stderr)
-                del snap[str(p)]
-                snap.pop(str(p.with_suffix('.PUBLISH')), None)
+            else:
+                selected.add(str(p))
+        Frozen.selected = selected
     return Frozen(folder)
 
 
@@ -142,11 +151,13 @@ def sync(repo: Path, url: str, seed: Path | None) -> str | None:
 
 def docs_only(folder: Path, repo: Path, docs_date: str) -> bool:
     """One documentation commit on main when the docs differ from main's and there is no new law commit."""
-    c, raw = B.load(folder)
+    required = published_parts.required(repo, folder)
+    part_records = {}
+    c, raw = B.load(folder, part_records=part_records, required_parts=required)
     c['_docs_date'] = docs_date
     log = AP.published_log(repo)
     tags = {t: 0 for t in g(repo, 'tag', '--list').split()}
-    docs = B.docs_files(c, folder, raw, log, tags, docs_date)
+    docs = B.docs_files(c, folder, raw, log, tags, docs_date, part_records=part_records)
     docs['tools/append.py'] = (HERE / 'append.py').read_text(encoding='utf-8').replace('\r\n', '\n')
     have = {}
     for line in g(repo, 'ls-tree', '-r', 'main').splitlines():
@@ -378,6 +389,10 @@ def full_check(folder: Path, repo: Path, url: str, docs_date: str, seed: Path | 
     head = sync(repo, url, seed)
     if head is None:
         return {'result': 'error', 'reason': 'the remote has no main to check'}
+    try:
+        published_parts.required(repo, folder, head)
+    except published_parts.PublishedPartError as exc:
+        return {'head': head, 'result': 'error', 'reason': str(exc)}
     # Only what the published head already holds (published_state(), as append reads it; it refuses a held version
     # whose text differs from the corpus unless main carries correction commits, which check_corrected() then reads).
     try:
@@ -397,6 +412,10 @@ def run(folder: Path, repo: Path, url: str, docs_date: str, seed: Path | None, i
     if old is None:
         return {'result': 'error', 'reason': 'the remote has no main to append to'}
     out = {'old': old}
+    try:
+        published_parts.required(repo, folder, old)
+    except published_parts.PublishedPartError as exc:
+        return {**out, 'result': 'error', 'reason': str(exc)}
     try:
         res = AP.append(folder, repo, docs_date, corrections=True) if corrections else AP.append(folder, repo, docs_date)
     except SystemExit as e:  # B.CorpusError

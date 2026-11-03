@@ -147,7 +147,8 @@ def main():
                 meta, path = line.split('\t', 1)
                 files[path] = meta
         differences = sorted(p for p in set(before_files) | set(after_files) if before_files.get(p) != after_files.get(p))
-        assert set(differences) <= {'tools/build.py', 'tools/publish_marker.py', 'tools/SCHEMA.md', 'REPRODUCE.md'}, differences
+        assert set(differences) <= {'tools/build.py', 'tools/publish_marker.py', 'tools/published_parts.py',
+                                    'data/parts.json', 'tools/SCHEMA.md', 'REPRODUCE.md'}, differences
         check = json.loads(outputs['after-check'])
         for field in ('mismatches', 'trailer_errors', 'missing_in_force', 'merges', 'backwards', 'future_dated'):
             assert check[field] == 0, check
