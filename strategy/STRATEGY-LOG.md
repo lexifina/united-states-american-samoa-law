@@ -139,6 +139,17 @@ From 20:00 to 22:00 the rate rose about 14×, while CPU stayed the same. The gai
 6. California: fill 2019–2024 by in-force date with correction commits (recommended), or use a side branch.
 7. Chile (LeyChile terms), Italy (IPZS WAF, email), Lithuania (FortiWeb), law.resource.org (robots names ClaudeBot; Alan: no permanent stop).
 
+### gitlaw-scraper-hp-omen, 2026-11-03 01:30Z: breadth first, WSL, future branches
+
+- **Canada federal.** The pipeline moved to WSL ext4 and switched to breadth first (current-text acts, 500 per push). The repo had 147 commits, then C-46 with full history (ba44487); now +482 Acts (1536829, 822 tags), 46 of them single-file and 18 held on parser mismatches. Timing per 500-act block: NTFS check_xml was still only half done after 100 min; WSL takes 6 min 14 s for the whole block (C-46 check alone: 7:55 on NTFS against 1:50 on WSL). Next: about 470 more Acts, then 4,897 regulations.
+- **Norway.** Breadth from the cached Lovdata NLOD dumps. Repo went from 29 acts to 590 by append (bc84ad0, 561 acts in one append); a further 2,821 central regulations plus 592 more acts (322 single-file) are verified, for 4,004 acts and 4,608 versions in the staged build. 167 are held on undated in-force days. The detached runner (run_bulk.py) adds only new acts.
+- **Japan.** Batch 1 (the six codes with full e-Gov history, 130 commits plus 16 future) went from 9d587c5 to 959dcff, with tags 66 to 198. The first 1,000-law breadth append is running.
+- **Netherlands.** BWB per-act zips through fetch_many with 6 slots; credits taken from amendment-record labels cut requests from about 690 to 60–100 per 50 laws. Parts 66–68 (98 formal laws, full history) are published, and breadth parts 001–002 (990 current-text acts) are verified. About 500 zips per 12.5 min.
+- **Uruguay.** Went from 262 to 269 acts. 303 more cached Leyes are being re-dated by in-force day before they go out.
+- **Future branches.** append_future (Dell's append_onto, vendored) was switched on 01:05Z. Dry runs: colombia futuro +16, norway fremtidig +4,013, uruguay futuro +24, all fast-forward, check 0.
+- **host_get.** Own caps removed, and concurrency 6 for documented APIs (ab5429e). The in-process keep-alive path is in progress.
+- **Held for Alan.** Chile: BCN LeyChile terms forbid bulk replication (CC BY-NC-ND), so it is on hold. Uruguay: IMPO open-data licence read as governing the JSON route (to confirm).
+
 ## Next census
 
 Re-run the census command (see `strategy/README.md`) every 6 h. Add a dated row to the table below and a delta for each wave.
