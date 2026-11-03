@@ -33,6 +33,7 @@ import corpus_paths as P  # noqa: E402
 import corpus_tables as T  # noqa: E402
 import provision_index as I  # noqa: E402
 import corpus_images as M  # noqa: E402
+import corpus_jurisdiction as J  # noqa: E402
 try:
     import private  # noqa: E402  (Lexifina's list of what stays off shared repos)
 except ImportError:  # a published copy of this builder runs without it
@@ -1099,7 +1100,7 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
         for p in sorted(static.rglob('*')):
             if p.is_file() and '__pycache__' not in p.parts:
                 files[p.relative_to(static).as_posix()] = p.read_text(encoding='utf-8').replace('\r\n', '\n')
-    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'corpus_tables.py', 'provision_index.py', 'corpus_images.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
+    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'corpus_tables.py', 'provision_index.py', 'corpus_images.py', 'corpus_jurisdiction.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
         text = (HERE / name).read_text(encoding='utf-8').replace('\r\n', '\n')
         # Passages for Lexifina's agents only (how sources are fetched, internal paths) stay out of the published copy.
         text = re.sub(r'\n?<!-- private -->.*?<!-- /private -->', '', text, flags=re.S)
@@ -1137,6 +1138,11 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
     descriptor = generated | supplied
     descriptor['acts'] = generated['acts']
     files['corpus.json'] = json.dumps(descriptor, ensure_ascii=False, indent=1) + '\n'
+    try:
+        jurisdiction = J.document(c['country'], descriptor['path'], json.loads(files.get('jurisdiction.json', '{}')))
+    except ValueError as exc:
+        raise CorpusError(str(exc)) from exc
+    files['jurisdiction.json'] = json.dumps(jurisdiction, ensure_ascii=False, indent=1) + '\n'
     files.update(tables(c, log))
     if part_records is not None:
         files['data/parts.json'] = json.dumps({'schema': 1, 'parts': part_records},

@@ -82,6 +82,21 @@ metadata includes referenced and omitted counts, source count (null if unknown),
 image accounting alone does not prove that all of an act's text was captured. Existing text
 gets a missing image through a labelled correction with `Reason: image restored`, never a history rewrite.
 
+## Jurisdiction hierarchy
+
+The same documentation commit regenerates `jurisdiction.json` from the descriptor path, preserving unrelated
+static fields. Levels are `country` (the EU: `supranational`) only at the top; `national`, `federal`, `bund`, `union`, or `uk` for a whole
+jurisdiction; `state`, `province`, `region`, `canton`, `entity`, `territory`, `district`, `autonomous city`, or
+`autonomous community` for first-level units; and `municipality` or `regency` below them. A place name is never a
+level. Set `country.jurisdiction_level` to the source's type; without one, use `subdivision`, as global-law's
+`tools/describe.py` does. The parity fixture retains that upstream file at commit `95b8164` unchanged.
+
+Countries and their whole-jurisdiction folders use alpha-2 codes. First-level units require country-prefixed
+ISO 3166-2 codes (`subdivision_code` may override `country.code`). Below that, the code is `parent_code` plus the
+uppercased place slug; this intentionally identifies a non-ISO local code. `parent` is the written-out parent
+path, not a guess from the repository name. ISO code membership must be supplied correctly by the source metadata;
+the builder checks its structure and prefix, not an external ISO registry.
+
 ## corpus.json
 
 All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys and values are plain JSON.
