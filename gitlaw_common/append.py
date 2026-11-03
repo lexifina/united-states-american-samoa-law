@@ -587,10 +587,11 @@ def published_log(repo: Path) -> list[dict]:
 class Appender:
     """`git fast-import` onto an existing main; separate author and committer dates."""
 
-    def __init__(self, repo: Path, head: str, head_ct: int, head_tz: str):
+    def __init__(self, repo: Path, head: str, head_ct: int, head_tz: str, branch: str = 'main'):
         self.p = subprocess.Popen(['git', 'fast-import', '--quiet', '--done', '--date-format=raw'], cwd=repo,
                                   stdin=subprocess.PIPE)
         self.mark, self.parent, self.ct, self.tz = 0, head, head_ct, head_tz
+        self.branch = branch
 
     def _w(self, b: bytes):
         self.p.stdin.write(b)
@@ -603,7 +604,7 @@ class Appender:
                files: dict[str, str | None]) -> int:
         self.mark += 1
         self.ct += 1
-        self._w(f'commit refs/heads/main\nmark :{self.mark}\n'.encode())
+        self._w(f'commit refs/heads/{self.branch}\nmark :{self.mark}\n'.encode())
         self._w(f'author {author[0]} <{author[1]}> {when}\n'.encode('utf-8'))
         self._w(f'committer {committer[0]} <{committer[1]}> {self.ct} {self.tz}\n'.encode('utf-8'))
         self._data(message)
@@ -649,6 +650,8 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     head_ct, head_tz = git(repo, 'log', '-1', '--format=%ct %ci', 'main').split()[0::3]
     head_ct = int(head_ct)
     state = published_state(repo, c, verify=not corrections)
+    if any(day > docs_date for day in state.values()):
+        raise B.CorpusError('published main already has future versions; a docs update cannot move or rewrite them')
     sub, based = to_append(c, state, docs_date)
     commits = B.plan(sub) if sub['acts'] else []
     commits = [x for x in commits if not (x['kind'] == 'start' and x['act']['slug'] in based)]
@@ -685,6 +688,8 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
                                 for s in sorted({x['act']['slug'] for x in fixes})}
     if dry_run or not (planned or fixes or refresh_docs):
         summary['main'] = head
+        if not dry_run:
+            summary['future_commits'] = append_future(repo, c, docs_date)
         return summary
     w = Appender(repo, head, head_ct, head_tz)
     tags: dict[str, int] = {}
@@ -727,7 +732,61 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     if subprocess.run(['git', 'merge-base', '--is-ancestor', head, new_head], cwd=repo).returncode:
         raise B.CorpusError('internal: the published head is not an ancestor of the new main')
     summary.update({'main': new_head, 'tags_added': sum(1 for t in tags if t not in existing_tags)})
+    summary['future_commits'] = append_future(repo, c, docs_date)
     return summary
+
+
+def append_future(repo: Path, c: dict, docs_date: str) -> int:
+    """Grow the future branch without moving any previous commit or tag."""
+    if not any(v['from'] > docs_date for a in c['acts'] for v in a['versions']):
+        return 0
+    branch = B.S.future_branch(c['country'])
+    exists = bool(git(repo, 'branch', '--list', branch).strip())
+    ref = branch if exists else 'main'
+    head = git(repo, 'rev-parse', ref).strip()
+    rows = K.all_commits_by_act(repo, ref, [a['slug'] for a in c['acts']])
+    state = {a: max(d for _, d in values) for a, values in rows.items() if values}
+    # Already published future text is immutable too.
+    for act in c['acts']:
+        last = state.get(act['slug'])
+        if last and last > docs_date:
+            v = corpus_on(act['versions'], last)
+            have = _ls(repo, head, act['slug'])
+            want = unit_oids(act['slug'], v)
+            if {p: oid for p, oid in have.items() if p.endswith('.md') and not p.endswith('/README.md')} != want:
+                raise B.CorpusError(f'{act["slug"]}: existing future text differs; correction review is required')
+    sub, based = to_append(c, state, '9999-12-31')
+    planned = [x for x in B.plan(sub) if not (x['kind'] == 'start' and x['act']['slug'] in based)]
+    if not planned:
+        return 0
+    head_ct, head_tz = git(repo, 'log', '-1', '--format=%ct %ci', ref).split()[0::3]
+    committer = ('Lexifina', f'{c["country"]["slug"]}-law@lexifina.com')
+    clock = B.Clock(c['country']['tz'])
+    messages = []
+    for x in planned:
+        if x['kind'] == 'start':
+            author, msg, trailers = B.start_message(c, x)
+            files = B.act_files(x['act'], x['version']['units'], None)
+            acts = [x['act']['slug']]
+        else:
+            author, msg, trailers = B.change_message(c, x)
+            files = {}
+            for part in x['parts']:
+                files.update(B.act_files(part['act'], part['cur']['units'], part['prev']['units'], part['keys']))
+            acts = [p['act']['slug'] for p in x['parts']]
+        B.check_trailers(trailers)
+        messages.append((x, author, '\n'.join(msg).rstrip() + '\n\n' + '\n'.join(trailers) + '\n', files, acts))
+    w = Appender(repo, head, int(head_ct), head_tz, branch)
+    existing = set(git(repo, 'tag', '--list').split())
+    for x, author, message, files, acts in messages:
+        mark = w.commit(author, clock.stamp(x['day']), committer, message, files)
+        for act in acts:
+            tag = f'{act}/{x["day"]}'
+            if tag not in existing:
+                w.tag(tag, mark)
+                existing.add(tag)
+    w.finish()
+    return len(planned)
 
 
 def main():

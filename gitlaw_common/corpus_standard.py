@@ -107,3 +107,11 @@ def date_trailers(corpus, act, version, law=None):
 def legacy_text_source(trailers):
     value = trailers.get('Text-source') or trailers.get('Consolidated')
     return value if value and not iso_day(value) else None
+
+
+def future_branch(country):
+    name = country.get('future_branch', 'futuro')
+    if (not isinstance(name, str) or name in ('main', 'HEAD') or not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9/_-]*', name)
+            or '//' in name or name.endswith('/') or any(p.startswith('-') for p in name.split('/'))):
+        raise ValueError('future_branch must be a valid branch distinct from main')
+    return name

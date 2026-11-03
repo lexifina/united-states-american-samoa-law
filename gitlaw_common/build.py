@@ -138,6 +138,10 @@ def validate(c: dict) -> list[str]:
     """Every rule in SCHEMA.md the builder relies on. Returns the problems; the build stops if there are any."""
     errs = []
     co = c.get('country', {})
+    try:
+        S.future_branch(co)
+    except ValueError as exc:
+        errs.append(str(exc))
     for k in ('code', 'name', 'slug', 'lang', 'tz', 'publisher'):
         if not co.get(k):
             errs.append(f'country.{k} is missing')
@@ -1111,8 +1115,7 @@ def build(folder: Path, repo: Path, docs_date: str) -> dict:
     # The documentation commit goes on main, dated the day the data was retrieved, so a rebuild on any later day from
     # the same corpus gives the same hashes. The future branch keeps only laws; tools read it for later dates.
     future = co.get('future_branch', 'futuro')
-    if 'main' not in w.heads:
-        raise CorpusError(f'nothing is in force on {docs_date}: every version is later than --docs-date')
+    # An all-future corpus has a documentation-only main. Its law text remains exclusively on the future branch.
     w.commit('main', committer, committer, clock.stamp(docs_date),
                         f'Documentation, tables, tools and REPRODUCE.md\n\nBuilt from corpus.json '
                         f'(sha256 {hashlib.sha256(raw).hexdigest()}), data retrieved {docs_date}.\n\nKind: documentation\n',
