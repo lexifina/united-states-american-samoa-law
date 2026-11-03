@@ -67,8 +67,20 @@ def read_text(p):
 
 
 def token():
-    out = subprocess.run(['git', 'credential', 'fill'], input='protocol=https\nhost=github.com\n\n',
-                         capture_output=True, text=True).stdout
+    # gh's keyring token first: `git credential fill` can block forever on a hidden credential-manager prompt
+    # (it did after a Claude relaunch on 2026-11-03, stalling every snapshot for 90 min).
+    try:
+        t = subprocess.run(['gh', 'auth', 'token'], capture_output=True, text=True, timeout=30).stdout.strip()
+        if t:
+            return t
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    try:
+        out = subprocess.run(['git', 'credential', 'fill'], input='protocol=https\nhost=github.com\n\n',
+                             capture_output=True, text=True, timeout=30,
+                             env={**os.environ, 'GIT_TERMINAL_PROMPT': '0', 'GCM_INTERACTIVE': 'never'}).stdout
+    except subprocess.TimeoutExpired:
+        return ''
     return next((l.split('=', 1)[1] for l in out.splitlines() if l.startswith('password=')), '')
 
 
@@ -298,6 +310,11 @@ def main():
            'cpu5': cpu5, 'ram': ram, 'rewrites_seen': rewrites, 'pending': len(pending), 'stalled_2h': len(stalled),
            'skipped_compares': skipped, 'scrapers': scr, 'cpu_lanes': cpu_by_lane(), 'fetch': fetch_window(prev_t),
            'top': sorted(moved + new_repos, key=lambda x: -x[1])[:12]}
+    # repos whose claim file names a GPT-6 worker (hp-omen's Azure lanes): their commits, tracked separately
+    claims = Path(r'C:\Users\alany\Documents\lexifina\scripts\world-law\claims')
+    wl = {c.stem for c in claims.glob('*.txt') if 'gpt-worker' in read_text(c)}
+    row['worker_repos'] = len(wl)
+    row['worker_commits'] = sum(n for r, n in moved + new_repos if r in wl or f'{r}-law' in wl)
     # effect and coverage go into the history row too, so the strategy log can chart them over time
     row['effect'] = cpu_effectiveness(row.get('cpu_lanes', []), added, window_min)
     row['coverage'] = coverage_census(t)
@@ -329,7 +346,29 @@ def rate(hist, minutes, key):
     t = parse(hist[-1]['at'])
     rows = [h for h in hist if parse(h['at']) > t - dt.timedelta(minutes=minutes)]
     span = sum(h['window_min'] for h in rows) or 1
-    return sum(h[key] for h in rows), span
+    return sum(h.get(key, 0) for h in rows), span
+
+
+def stuck_pushes(push_min=5, prompt_min=2):
+    """git push processes older than push_min minutes and credential-manager prompts older than prompt_min (reported only)."""
+    import time
+    try:
+        import psutil
+    except ImportError:
+        return []
+    out, t = [], time.time()
+    for p in psutil.process_iter(['pid', 'name', 'cmdline', 'create_time']):
+        try:
+            name = (p.info['name'] or '').lower()
+            cmd = ' '.join(p.info['cmdline'] or [])
+            age = (t - p.info['create_time']) / 60
+            if 'credential-manager' in name and age > prompt_min:
+                out.append(f'pid {p.info["pid"]} credential prompt {age:.0f} min')
+            elif name.startswith('git') and ' push' in cmd and age > push_min:
+                out.append(f'pid {p.info["pid"]} git push {age:.0f} min')
+        except (psutil.Error, TypeError):
+            continue
+    return out
 
 
 def runaway_searches(min_age_min=10):
@@ -362,6 +401,18 @@ def diagnose(row, hist, pending, stalled):
         out.append({'key': 'cpu-ineffective', 'level': 'act', 'title': f"Only {ef['law_share']}% of busy CPU is law work",
                     'why': f"{ef['overhead_cores']} cores go to overhead (antivirus, indexing, watchers); law work has {ef['law_cores']}.",
                     'do': 'Cut the overhead (Defender exclusions, stray watchers, idle containers) before adding agents.'})
+    import shutil
+    free_gb = shutil.disk_usage('C:/').free / 1e9
+    if free_gb < 40:
+        out.append({'key': 'disk-low', 'level': 'act', 'title': f"Only {free_gb:.0f} GB free on C:",
+                    'why': 'A full C: crashes WSL and Docker and stops every lane (it hit 0 B at 10:00Z on 2026-11-03).',
+                    'do': 'Pause writers and clear caches of finished lanes before it reaches 0.'})
+    stuck = stuck_pushes()
+    if stuck:
+        out.append({'key': 'push-stuck', 'level': 'act', 'title': f'{len(stuck)} git push or credential prompt stuck over 5 min',
+                    'why': 'A hung git-credential-manager prompt blocks every push behind it (it did twice on 2026-11-03).',
+                    'do': 'Give that clone the per-repo gh helper (ensure_gh_helper.sh) and stop only your own stuck PID: '
+                          + '; '.join(stuck[:6])})
     rs = runaway_searches()
     if rs:
         out.append({'key': 'runaway-search', 'level': 'act', 'title': f"{len(rs)} tree-wide search(es) running over 10 min",
@@ -449,6 +500,7 @@ def render(row, hist, pending, stalled, advice):
              ('Held rewrites', f"{row['pending']}", 'REWRITE-PENDING.json'),
              ('CPU on law work', f"{(row.get('effect') or {}).get('law_share', 0)}%", f"{(row.get('effect') or {}).get('law_cores', 0)} of {(row.get('effect') or {}).get('busy_cores', 0)} busy cores"),
              ('Commits per law core-hour', f"{(row.get('effect') or {}).get('commits_per_law_core_h', 0):,}", 'this run'),
+             ('GPT-6 worker-lane commits/h', f"{round(rate(hist, 60, 'worker_commits')[0] * 60 / (s60 or 1)):,}", f"{row.get('worker_repos', 0)} repos with a gpt-worker claim"),
              ('Stalled, 2 h', f"{row['stalled_2h']}", 'STALLED.txt')]
     tile_html = ''.join(f'<div class="tile"><div class="k">{e(a)}</div><div class="v">{e(b)}</div>'
                         f'<div class="s">{e(c)}</div></div>' for a, b, c in tiles)

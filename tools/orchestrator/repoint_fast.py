@@ -34,9 +34,8 @@ def org_law_repos():
     reused and PUSHED_AT stays empty, so every known repo is checked with git ls-remote, which the quota does not
     cover: global-law keeps repinning while the API is down."""
     import json, urllib.request
-    tok = subprocess.run(['git', 'credential', 'fill'], input='protocol=https\nhost=github.com\n\n',
-                         capture_output=True, text=True).stdout
-    tok = next((l.split('=', 1)[1] for l in tok.splitlines() if l.startswith('password=')), '')
+    from speedwatch import token as _gh_token  # gh keyring first; git credential fill can hang on a hidden prompt
+    tok = _gh_token()
     names, page, pushed = [], 1, {}
     try:
         while True:
@@ -101,9 +100,8 @@ def main(push):
         return repo, sha
     # The GitHub API gives each main's tip and subject in one call per repo, in parallel (no git fetch needed).
     import json, urllib.request
-    tok = subprocess.run(['git', 'credential', 'fill'], input='protocol=https\nhost=github.com\n\n',
-                         capture_output=True, text=True).stdout
-    tok = next((l.split('=', 1)[1] for l in tok.splitlines() if l.startswith('password=')), '')
+    from speedwatch import token as _gh_token  # gh keyring first; git credential fill can hang on a hidden prompt
+    tok = _gh_token()
 
     def api_tip(repo):
         try:
@@ -217,8 +215,13 @@ def main(push):
             r = subprocess.run(['git', 'push', '-q', 'origin', f'{c}:refs/heads/{br}'], cwd=w, capture_output=True, text=True)
             summary[br]['pushed'] = c[:9] if r.returncode == 0 else f'FAILED {r.stderr[-200:]}'
     print(summary, flush=True)
+    return summary
 
 
 if __name__ == '__main__':
     sys.stdout.reconfigure(encoding='utf-8')
-    main('--push' in sys.argv)
+    summary = main('--push' in sys.argv)
+    # Another writer (e.g. gitlaw-mcp's tools commits) pushed global-law between our fetch and push: refetch and redo
+    # the pass once now instead of waiting a whole loop interval. Fast-forward only, as always.
+    if '--push' in sys.argv and any('FAILED' in str(v.get('pushed', '')) for v in (summary or {}).values()):
+        main(True)

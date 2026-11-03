@@ -129,9 +129,11 @@ def health(tok):
     loop_age = (now() - dt.datetime.fromtimestamp((HOME / 'repoint_loop.log').stat().st_mtime, dt.timezone.utc)).total_seconds() / 60
     # the loop may have pushed since its last fetch: then the remote is ahead, which is fine
     ahead = subprocess.run(['git', 'merge-base', '--is-ancestor', local, remote], cwd=sw.GL).returncode in (0, 128)
-    checks = {'pushed': bool(remote) and (remote == local or ahead), 'pointers_resolve': not bad, 'loop_fresh': loop_age < 20}
+    import shutil
+    free_gb = round(shutil.disk_usage('C:/').free / 1e9, 1)
+    checks = {'disk_ok': free_gb >= 20, 'pushed': bool(remote) and (remote == local or ahead), 'pointers_resolve': not bad, 'loop_fresh': loop_age < 20}
     return {'ok': all(checks.values()), **checks, 'gitlinks': len(links), 'sampled': len(sample),
-            'unresolved': bad, 'loop_age_min': round(loop_age), 'tip': remote[:9]}
+            'unresolved': bad, 'free_gb': free_gb, 'loop_age_min': round(loop_age), 'tip': remote[:9]}
 
 
 def snapshot():
@@ -142,6 +144,13 @@ def snapshot():
     snap = {'at': sw.iso(t), 'held': data_held(t), 'commits': commits(t, since), 'requests': requests_made(since),
             'health': health(tok),
             'steps': [s for s in jl(STEPS) if sw.parse(s['at']) > since]}
+    try:  # finish line from the shared job queue (refreshed from the census each snapshot)
+        import jobqueue as jq
+        qc = jq.connect()
+        jq.seed(qc)
+        snap['queue'] = {k: v for k, v in jq.summary(qc).items() if k != 'leases'}
+    except Exception as e:  # never let the queue stop a snapshot
+        snap['queue'] = {'error': str(e)[:200]}
     with SNAPS.open('a', encoding='utf-8') as f:
         f.write(json.dumps(snap) + '\n')
     render(jl(SNAPS))
@@ -150,7 +159,12 @@ def snapshot():
 
 # ---------- page ----------
 
-SERIES = [  # (label, getter, unit, higher_is_better)
+Q = lambda s, k: (s.get('queue') or {}).get(k)
+SERIES = [  # (label, getter, unit, higher_is_better); the first four are the finish line
+    ('Open repos (work left)', lambda s: Q(s, 'open'), '', False),
+    ('National repos finished', lambda s: Q(s, 'national_finished'), '', True),
+    ('Jobs queued', lambda s: (Q(s, 'jobs') or {}).get('queued'), '', False),
+    ('Hours to empty the queue', lambda s: Q(s, 'eta_hours'), ' h', False),
     ('Law repos holding law', lambda s: s['held'].get('with_law'), '', True),
     ('Law data held', lambda s: s['held'].get('data_mb'), ' MB', True),
     ('Law commits, all repos', lambda s: s['commits'].get('total'), '', True),
@@ -219,6 +233,26 @@ def growth_table(top=20):
             f"<tbody>{body}</tbody></table></div>")
 
 
+def finish_block(snap):
+    """Where every repo stands, from the job queue: the finish line is 'open' reaching zero."""
+    q = snap.get('queue') or {}
+    if not q.get('status'):
+        return f"<p class='muted'>Job queue unavailable: {html.escape(q.get('error', 'no data yet'))}</p>"
+    st, jobs = q['status'], q.get('jobs') or {}
+    names = [('open', 'Open: work left'), ('complete', 'Complete'), ('exhausted', 'Exhausted: all lawful text published'),
+             ('blocked', 'Blocked: robots, terms, challenge, scans or unreachable'), ('held', 'Held: waiting on you')]
+    cells = ''.join(f"<tr><td>{html.escape(n)}</td><td>{fmt(st.get(k, 0))}</td></tr>" for k, n in names)
+    eta = q.get('eta_hours')
+    return (f"<h2>Finish line</h2><p class='muted'>Every repo ends in one final status. {fmt(q.get('open'))} of {fmt(q.get('repos'))} "
+            f"repos are open; {fmt(q.get('national_finished'))} of {fmt(q.get('national_total'))} national repos are finished. "
+            f"{fmt(q.get('complete_by_size'))} were marked complete from their size (5 MB or more) and still need the 95% "
+            f"listing check. Jobs: {fmt(jobs.get('queued', 0))} queued, {fmt(jobs.get('leased', 0))} leased, "
+            f"{fmt(jobs.get('done', 0))} done, {fmt(jobs.get('failed', 0))} failed; "
+            f"{fmt(q.get('jobs_done_6h'))} done in the last 6 h"
+            + (f", so about {eta} h to empty the queue at that rate." if eta else '; an estimate appears once jobs finish.')
+            + f"</p><div class='tablewrap'><table><tbody>{cells}</tbody></table></div>")
+
+
 def render(snaps):
     last, first = snaps[-1], snaps[0]
     tiles = []
@@ -273,6 +307,7 @@ th{{color:var(--text2);font-weight:500;font-size:12px}} td ul{{margin:0;padding-
 <h1>Global law: progress to a finished repo</h1>
 <p class="muted">A snapshot every 20 minutes, from {first['at'][:16]}Z to {last['at'][:16]}Z ({len(snaps)} snapshots). Green means better since the first snapshot. "Holding law" means a repo over 0.5 MB.</p>
 <p class="health {hp}">{html.escape(health_txt)}</p>
+{finish_block(last)}
 <div class="grid">{''.join(tiles)}</div>
 {growth_table()}
 {decisions_block()}
