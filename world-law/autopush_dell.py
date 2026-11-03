@@ -89,6 +89,33 @@ OPS_URL = 'https://github.com/lexifina/world-law-ops.git'
 APPROVED = ROOT / 'scripts' / 'world-law' / 'REWRITE-APPROVED.txt'
 PENDING = ROOT / 'scripts' / 'world-law' / 'REWRITE-PENDING.json'
 PENDING_LOCK = threading.Lock()
+# Set in the WSL child (see "WSL ext4" below): this process builds and publishes one repo on ext4.
+IN_WSL = os.environ.get('GITLAW_AUTOPUSH_WSL') == '1'
+
+
+class _file_lock:
+    """A lock file next to `path` (O_EXCL create), shared by the Windows loop and its WSL children. A lock older than
+    `stale` seconds is taken over (its holder died)."""
+
+    def __init__(self, path: Path, stale: float = 120):
+        self.lock, self.stale = path.with_name(path.name + '.lock'), stale
+
+    def __enter__(self):
+        while True:
+            try:
+                os.close(os.open(self.lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+                return self
+            except FileExistsError:
+                try:
+                    if time.time() - self.lock.stat().st_mtime > self.stale:
+                        self.lock.unlink(missing_ok=True)
+                        continue
+                except OSError:
+                    continue
+                time.sleep(0.2)
+
+    def __exit__(self, *exc):
+        self.lock.unlink(missing_ok=True)
 
 
 def git(repo: Path, *args: str, env: dict | None = None, data: bytes | None = None, check: bool = True) -> str:
@@ -203,7 +230,7 @@ def approved_rewrites() -> set[tuple[str, str, str, str]]:
 
 def note_pending(slug: str, entry: dict | None) -> None:
     """Record (or clear, with None) a rewrite awaiting the user's approval in world-law/REWRITE-PENDING.json."""
-    with PENDING_LOCK:
+    with PENDING_LOCK, _file_lock(PENDING):  # the file lock: WSL children write it from other processes
         cur = json.loads(PENDING.read_text(encoding='utf-8')) if PENDING.exists() else {}
         if entry is None:
             if cur.pop(slug, None) is None:
@@ -436,7 +463,7 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
     prev_ct = _ident(_field(_read_commits(repo, [parent])[parent], b'committer'))[2]
     tip = parent
 
-    def committer(raw: bytes | None) -> tuple[bytes, int]:
+    def committer(raw: bytes | None, cap: bool = False) -> tuple[bytes, int]:
         nonlocal prev_ct
         if raw is None:  # a correction commit: dated now, never before the commit it follows
             prev_ct = max(int(time.time()), prev_ct + 1)
@@ -444,8 +471,16 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
         c = _field(raw, b'committer')
         gt = c.rindex(b'>')
         ts, tz = c[gt + 1:].split()
-        prev_ct = max(int(ts), prev_ct + 1)
+        # cap (docs commits): min(build date, now), never before the head, so a docs commit built after midnight UTC
+        # (noon local on its docs date) does not leave the next append "future-dated" for hours (2026-11-03).
+        prev_ct = max(min(int(ts), int(time.time())) if cap else int(ts), prev_ct + 1)
         return c[:gt + 1] + f' {prev_ct} '.encode() + tz, prev_ct
+
+    def capped_author(line: bytes, ct: int) -> bytes:
+        """The docs commit's author line, dated no later than its (capped) committer date."""
+        gt = line.rindex(b'>')
+        ts, tz = line[gt + 1:].split()
+        return line[:gt + 1] + f' {min(int(ts), ct)} '.encode() + tz
 
     added_items: list[str] = []
     if items:
@@ -485,7 +520,8 @@ def append_onto(repo: Path, remote: str | None, built: str, base: dict[str, str]
     for s in tail:  # the build's documentation commit, with its exact tree, on top
         lines, msg = _split(raws[s])
         body = [l for l in lines if l.startswith(b'tree ')] + [b'parent ' + tip.encode()]
-        body += [l for l in lines if l.startswith(b'author ')] + [b'committer ' + committer(raws[s])[0]]
+        cline, ct = committer(raws[s], cap=True)
+        body += [capped_author(l, ct) for l in lines if l.startswith(b'author ')] + [b'committer ' + cline]
         body += [l for l in lines if not l.startswith((b'tree ', b'parent ', b'author ', b'committer '))]
         tip = _write_object(repo, 'commit', b'\n'.join(body) + b'\n\n' + msg)
         mapping[s] = tip
@@ -534,6 +570,27 @@ def _in_force(raw: bytes) -> str | None:
     return None
 
 
+CORRECTION_KEYS = ('Kind', 'In-force', 'Corrects', 'Supersedes', 'Reason', 'Act-path', 'Files')
+
+
+def correction_trailers(act: str, day: str, to: str, supersedes: str | None, reason: str, files: list[bytes]) -> str:
+    """The agreed correction trailers (world-law, 2026-11-03), in this order:
+        Kind: correction
+        In-force: <first day>
+        Corrects: <act> <from>..<to>     (open "<from>.." = the newest version)
+        Supersedes: <sha|none>           (the published commit that carried the wrong text on that day)
+        Reason: <one line>
+        Act-path: <corpus-relative folder of the act>
+        Files: <path>                    (one line per corrected path, corpus-relative)
+    Reading rule: the In-force commit for the day, then each correction whose range covers the day, applied per file; an
+    open range ends the day before the act's next ordinary commit touching Act-path."""
+    reason = ' '.join(reason.split())
+    lines = ['Kind: correction', f'In-force: {day}', f'Corrects: {act} {day}..{to}', f'Supersedes: {supersedes or "none"}',
+             f'Reason: {reason}', f'Act-path: {act}']
+    lines += [f'Files: {p.decode("utf-8")}' for p in files]
+    return '\n'.join(lines) + '\n'
+
+
 def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law: list[str], n_delta: dict,
                  email: str) -> tuple:
     """What to append so that every act reads, on every date, as the build says (Alan, 2026-11-02: "bust the held
@@ -545,8 +602,8 @@ def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law
     - Versions after everything published (newer versions, or a new act's whole history, older laws found late
       included: D12): the build's own commits are appended, each carrying only its files for such acts.
     - Otherwise (a published version's text, date or order differs): correction commits at the tip, one per build
-      version from the first one that reads differently, "Kind: correction" with In-force, Corrects, Supersedes and
-      Reason trailers, each setting the act to that version's text.
+      version from the first one that reads differently, with the agreed trailers (correction_trailers(): Kind,
+      In-force, Corrects, Supersedes, Reason, Act-path, Files), each setting the act to that version's text.
     Returns (items to append in order, number of corrections, reasons) or (reason string, 0, []) to hold."""
     def rows(seq: list[str], deltas: dict) -> tuple[dict, dict]:
         """{act: [(in-force day, state, commit)]} in history order, and each act's final state."""
@@ -554,12 +611,15 @@ def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law
         state: dict[bytes, dict] = {}
         for s in seq:
             ld = _law_delta(deltas[s])
-            if not ld:
-                continue
             day = _in_force(raws[s])
             if day is None:
-                raise ValueError(f'{_describe(raws[s])} changes provisions but has no In-force trailer')
-            for f in {p.partition(b'/')[0] for p in ld}:
+                if ld:
+                    raise ValueError(f'{_describe(raws[s])} changes provisions but has no In-force trailer')
+                continue
+            # As check.py and tools/on.py read it: a commit with an In-force trailer belongs to every act folder it
+            # touches, even when no provision file changes (a correction that only re-dates a version's text).
+            touched = {p.partition(b'/')[0] for p in deltas[s] if b'/' in p} - {b'data', b'tools'}
+            for f in touched:
                 cur = state.setdefault(f, {})
                 for p, v in ld.items():
                     if p.partition(b'/')[0] == f:
@@ -580,7 +640,7 @@ def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law
         return (dt.date.fromisoformat(day) - dt.timedelta(days=1)).isoformat() if day > '0001-01-01' else day
 
     try:
-        r_rows, _ = rows(r_list, r_delta)
+        r_rows, r_state = rows(r_list, r_delta)
         n_rows, n_state = rows(n_law, n_delta)
     except ValueError as e:
         return str(e), 0, []
@@ -630,18 +690,31 @@ def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law
         versions = ns[first:] if first < len(ns) else []
         if not versions:  # removed from the build: one correction that empties the act from its last published day
             versions = [(max(d for d, _, _ in rs), frozenset(), None)]
+        tip_state = frozenset(r_state.get(f, {}).items())  # the act's provision files at the published tip
+        # Every provision path the act has had (published or built): each correction sets the whole act, so its Files
+        # trailer names them all (a path its tree lacks is removed), and a reader applying it file by file gets
+        # exactly this version.
+        ever = {p for _, sts, _ in rs + ns for p, _ in sts}
         for j, (d, st, s) in enumerate(versions):
             nxt = versions[j + 1][0] if j + 1 < len(versions) else None
             _, sup = read(rs, d)
-            sup = sup or rs[0][2]
             to = before(nxt) if nxt else ''
+            files = sorted(ever | {p for p, _ in st})
             msg = (f'Correction: {name} as in force from {d}\n\n'
                    f'The published text of {name} differs from the corrected build ({why}). This commit sets it to the '
                    f'build\'s text for {d}..{to}; the published commits stay as they were.\n\n'
-                   f'Kind: correction\nIn-force: {d}\nCorrects: {name} {d}..{to}\nSupersedes: {sup}\n'
-                   f'Reason: {why}\n').encode()
+                   + correction_trailers(name, d, to, sup, why, files)).encode()
+            delta = {p: (b'100644', o) for p, o in st}
+            if st == tip_state:
+                # Same provision text, another day (an earlier version found, h2 2026-11-03): without a file change
+                # the commit would not touch the act, and check.py and tools/on.py, which read an act's history by the
+                # commits touching its folder, would never see it (on futuro, which has no act READMEs, it was empty).
+                # A note outside the provision files (.txt: not read as law) makes it touch the act; the next docs
+                # commit drops it, and history keeps it.
+                delta[f + b'/CORRECTIONS.txt'] = (b'100644', _write_object(repo, 'blob', msg))
+            tip_state = st
             items.append({'src': None, 'author': None, 'committer': None, 'msg': msg, 'correction': True,
-                          'clear': [f], 'delta': {p: (b'100644', o) for p, o in st}})
+                          'clear': [f], 'delta': delta})
         reasons.append(f'{name}: {why}')
     return items, len(items) - sum(1 for it in items if it.get('src')), reasons
 
@@ -782,11 +855,15 @@ def _fast_import(repo: Path, start: str, commits: list[dict], tz_of=None) -> lis
     buf = bytearray()
     for i, x in enumerate(commits, 1):
         ts, tz = x['when'].split()
-        prev_ct = max(int(ts), prev_ct + 1)
+        # cap (the docs commit): min(build date, now), never before the head, author no later; as append_onto() dates
+        # the docs commit, so an incremental publish equals full build + append_onto() and is never future-dated
+        # (2026-11-03: São Paulo's head was pushed dated noon local of its docs date, hours ahead).
+        prev_ct = max(min(int(ts), int(time.time())) if x.get('cap') else int(ts), prev_ct + 1)
+        when = f'{min(int(ts), prev_ct)} {tz}' if x.get('cap') else x['when']
         a, cm = x['author'], x['committer']
         msg = x['message'].encode('utf-8')
         buf += f'commit {ref}\nmark :{i}\n'.encode()
-        buf += f'author {a[0]} <{a[1]}> {x["when"]}\n'.encode('utf-8')
+        buf += f'author {a[0]} <{a[1]}> {when}\n'.encode('utf-8')
         buf += f'committer {cm[0]} <{cm[1]}> {prev_ct} {tz}\n'.encode('utf-8')
         buf += f'data {len(msg)}\n'.encode() + msg + b'\n'
         if i == 1:
@@ -956,7 +1033,7 @@ def incremental(slug: str, folder: Path, repo: Path, state: dict, day: str) -> d
     docs = {'author': committer, 'committer': committer, 'when': B.Clock(co['tz']).stamp(day),
             'message': f'Documentation, tables, tools and REPRODUCE.md\n\nBuilt from corpus.json '
                        f'(sha256 {hashlib.sha256(raw).hexdigest()}), data retrieved {day}.\n',
-            'files': files, 'deleteall': True,
+            'files': files, 'deleteall': True, 'cap': True,
             'keep': {p: o for p, o in _law_files(repo, law_tip).items() if p.decode('utf-8') not in files}}
     tip = _fast_import(repo, law_tip, [docs])[0]
     git(repo, 'update-ref', 'refs/heads/main', tip)
@@ -967,6 +1044,23 @@ def incremental(slug: str, folder: Path, repo: Path, state: dict, day: str) -> d
     if lines:
         git(repo, 'update-ref', '--stdin', data=''.join(lines).encode('utf-8'))
     return {'ok': True, 'tip': tip, 'parts': parts, 'check': record, 'new_acts': len(new_acts), 'commits': len(new)}
+
+
+def _future_branch(repo: Path) -> str | None:
+    """The corpus's future branch name, from the build's data/repo.json on main."""
+    try:
+        return json.loads(git(repo, 'show', 'refs/heads/main:data/repo.json')).get('future_branch') or None
+    except (RuntimeError, ValueError):
+        return None
+
+
+def _build_law_tip(repo: Path, ref: str) -> str | None:
+    """The newest first-parent commit of `ref` not authored by 'Lexifina' (the build's last law commit)."""
+    for line in git(repo, 'log', '--first-parent', '--format=%H%x1f%an', ref, check=False).splitlines():
+        sha, _, author = line.partition('\x1f')
+        if author != 'Lexifina':
+            return sha
+    return None
 
 
 def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, check=None) -> str:
@@ -986,6 +1080,19 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
     # Only the branches the remote already holds: one missing name (a first `zukunft`/`future`) fails the whole fetch
     # and leaves origin/main stale, which made the first push of such a repo fail.
     have = {l.partition('\t')[2] for l in git(repo, 'ls-remote', '--heads', 'origin', check=False).splitlines()}
+    # The future branch the remote holds although this build has none (no version in force after the docs date any
+    # more, e.g. the future act was withdrawn): it is published too, as the build's law tip appended onto the remote
+    # one, so corrections reach it. Left out, the remote future branch kept the old text while check.py, run here on a
+    # repo without that branch, read only main and passed (h2 in test_append_dell.py, 2026-11-03). check.py reads the
+    # future branch whenever one exists, so every branch it would read on the remote is now checked before the push.
+    future = _future_branch(repo)
+    if future and 'main' in branches and future not in branches and f'refs/heads/{future}' in have:
+        if not git(repo, 'rev-parse', '-q', '--verify', f'refs/heads/{future}', check=False):
+            law_tip = _build_law_tip(repo, 'refs/heads/main')
+            if not law_tip:
+                return f'NOT pushed: the remote has {future} but the build has no law commit to keep it in step'
+            git(repo, 'update-ref', f'refs/heads/{future}', law_tip)
+        branches = [*branches, future]
     there = [b for b in branches if f'refs/heads/{b}' in have]
     if there:
         git(repo, 'fetch', '-q', '--no-tags', 'origin', *[f'+refs/heads/{b}:refs/remotes/origin/{b}' for b in there],
@@ -1087,6 +1194,9 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
         (f'; {kept} remote-only tags left alone' if kept else '')
     if not refs:
         return f'nothing to push ({summary})'
+    bad = push_identities(repo, [r.partition(':')[0] for r in refs])
+    if bad:
+        return f'NOT pushed: {bad}'
     if dry_run:
         return f'dry run, would push: {summary}'
     # Windows caps a command line at about 32k characters: push the branches first, then the tags in batches.
@@ -1107,6 +1217,25 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
         dsts = [t.partition(':')[2] for t in batch]
         result = push(repo, *batch, leases={t: leases[t] for t in dsts if t in leases})
     return f'{result} ({summary}; in batches)'
+
+
+def push_identities(repo: Path, srcs: list[str]) -> str:
+    """The identity check run just before every push (on top of audit_push): `git log <what is pushed> --not
+    --remotes=origin --format='%ae %ce'`, i.e. origin/main..HEAD for each pushed ref. Every author and committer must be
+    a lexifina.com or .invalid address and never the personal one; in WSL (whose git config deliberately has no
+    identity) the personal address must also be known, or nothing is pushed. '' when clean, else why not."""
+    personal = private._personal_emails()
+    if IN_WSL and not personal:
+        return 'personal address unknown in WSL (GITLAW_PERSONAL_GITCONFIG); the identity check cannot run'
+    out = subprocess.run(['git', 'log', '--format=%ae %ce', *dict.fromkeys(srcs), '--not', '--remotes=origin', '--'],
+                         cwd=repo, capture_output=True, text=True, encoding='utf-8')
+    if out.returncode:
+        return f'identity check failed: {out.stderr.strip()[:200]}'
+    bad = sorted({e for line in out.stdout.splitlines() for e in line.split()
+                  if e.lower() in personal or not e.lower().endswith(('lexifina.com', '.invalid'))})
+    # The personal address itself is never written into a status or log line.
+    return (f'commit identity outside lexifina.com in what would be pushed: '
+            f'{", ".join("<personal address>" if e.lower() in personal else e for e in bad)}') if bad else ''
 
 
 CREDENTIAL = re.compile(r'(code|key|token|sig|apikey)=[A-Za-z0-9_%=-]{20,}')
@@ -1172,6 +1301,9 @@ def docs_date(corpus: dict) -> str:
 
 
 def main_build(slug: str, folder: Path, repo: Path, state: dict, dry_run: bool = False) -> dict:
+    if not IN_WSL and not dry_run and wsl_migrated(slug, state):
+        # Its docs commit names the WSL toolchain: an NTFS build would flip it back (see "WSL ext4").
+        return {'main': 'NOT built: this repo builds in WSL only (WSL-MIGRATED.txt / .autopush.json wsl)'}
     corpus_path = folder / 'corpus.json'
     if not corpus_path.exists() and not list((folder / 'corpus.d').glob('*.json')):
         return {'main': 'no corpus.json yet'}
@@ -1511,9 +1643,181 @@ def unchanged(slug: str) -> bool:
         return False
 
 
-def one(slug: str, dry_run: bool = False, work: Path | None = None) -> str:
+# ---------------------------------------------------------------- WSL ext4 (2026-11-03)
+# A repo's whole build/append/publish path (fetch of the published main, full or incremental build, append_onto,
+# check.py, audit_push, the identity check and the push) runs inside WSL with the repository on ext4
+# (~/gitlaw-builds/autopush-dell/<slug>-law), the same code in a child process (--wsl-child). Builds there skip the
+# NTFS/Defender cost (Japan: 80+ min -> 2.5 min per 500-law batch). Inputs (the country folder, the shared builder)
+# are read from /mnt/c; the wip snapshot, the change test and fetching stay on Windows.
+#
+# REPRODUCE.md names the toolchain that built a repo, so the first WSL build appends one ordinary fast-forward docs
+# commit (append_onto re-commits the build's docs commit on the published head). That stays a single change only if
+# every later build of the repo, nightly full builds included, also runs in WSL: once a repo has moved it is marked in
+# its .autopush.json ('wsl') and in world-law/WSL-MIGRATED.txt (either one is enough), and it never builds on NTFS
+# again. If WSL is unavailable the visit fails and retries; it never falls back to NTFS.
+#
+# Which repos move: world-law/WSL-REPOS.txt, one slug per line, or '*' for every repo this coordinator publishes. A
+# selected repo moves at its next visit with real work, one repo at a time.
+#
+# Identity: the child's git reads its own global config (credential helper only, no user.*, user.useConfigOnly), with
+# no system config, and every git process it starts carries GIT_AUTHOR_*/GIT_COMMITTER_* = WIP_AUTHOR (the commits
+# themselves carry the builder's explicit identities, as on Windows). Push auth: the Windows Git Credential Manager,
+# the helper the Windows clones use (credential.helper=manager), run from /mnt/c; no token is copied or printed.
+WSL_REPOS = ROOT / 'scripts' / 'world-law' / 'WSL-REPOS.txt'
+WSL_MIGRATED = ROOT / 'scripts' / 'world-law' / 'WSL-MIGRATED.txt'
+WSL_DISTRO = os.environ.get('GITLAW_WSL_DISTRO', 'Ubuntu')
+WSL_GCM = '/mnt/c/Program Files/Git/mingw64/bin/git-credential-manager.exe'
+WSL_BASE = 'gitlaw-builds/autopush-dell'  # under the WSL home
+WSL_VENV_PY = 'gitlaw-builds/.venv/bin/python'  # wsl_run.py setup's venv (Python 3.14, tzdata 2026.6)
+
+
+def _to_wsl(p: Path | str) -> str:
+    """C:\\Users\\x -> /mnt/c/Users/x."""
+    m = re.match(r'^([A-Za-z]):[\\/](.*)$', str(p))
+    if not m:
+        raise ValueError(f'not an absolute Windows path: {p}')
+    return f'/mnt/{m.group(1).lower()}/' + m.group(2).replace('\\', '/')
+
+
+def _slug_list(path: Path) -> set[str]:
+    try:
+        return {l.split('#', 1)[0].strip() for l in path.read_text(encoding='utf-8').splitlines()} - {''}
+    except OSError:
+        return set()
+
+
+def wsl_migrated(slug: str, state: dict) -> bool:
+    """True once a repo has built in WSL: it must never build on NTFS again."""
+    return bool(state.get('wsl')) or slug in _slug_list(WSL_MIGRATED)
+
+
+def wsl_selected(slug: str, state: dict) -> bool:
+    """Whether this repo's build/publish runs in WSL: already moved, or listed in WSL-REPOS.txt ('*' = all)."""
+    if wsl_migrated(slug, state):
+        return True
+    sel = _slug_list(WSL_REPOS)
+    return '*' in sel or slug in sel
+
+
+def _mark_migrated(slug: str, state: dict) -> None:
+    """Record the move before the first WSL build (a build that started in WSL may already have published there)."""
+    state.setdefault('wsl', {'since': _now(), 'repo': f'~/{WSL_BASE}/{slug}-law'})
+    with _file_lock(WSL_MIGRATED):
+        if slug not in _slug_list(WSL_MIGRATED):
+            with open(WSL_MIGRATED, 'a', encoding='utf-8', newline='\n') as f:
+                f.write(f'{slug}  # {_now()}\n')
+
+
+def _wip_repo(slug: str) -> Path:
+    """A Windows repo for the wip snapshot of a moved repo that has no Windows clone (objects and the ops remote only;
+    never built or pushed to the public repo)."""
+    r = DOCS / '.gitlaw-wip' / f'{slug}-law'
+    if not (r / '.git').exists():
+        r.mkdir(parents=True, exist_ok=True)
+        git(r, 'init', '-q', '-b', 'main')
+        git(r, 'config', 'gc.auto', '0')
+    return r
+
+
+def main_build_wsl(slug: str, folder: Path, state: dict, dry_run: bool = False, repo: str | None = None) -> dict:
+    """main_build() for `slug` in a WSL child process, on ext4. `state` is updated in place from the child's.
+    `repo`: a WSL path for scratch runs (default ~/gitlaw-builds/autopush-dell/<slug>-law)."""
+    if not dry_run:
+        _mark_migrated(slug, state)
+    with tempfile.TemporaryDirectory() as tmp:
+        sin, sout = Path(tmp) / 'state.json', Path(tmp) / 'result.json'
+        sin.write_text(json.dumps(state), encoding='utf-8')
+        args = ['--wsl-child', slug, '--folder', _to_wsl(folder), '--state-in', _to_wsl(sin), '--result-out', _to_wsl(sout)]
+        if repo:
+            args += ['--repo', repo]
+        if dry_run:
+            args.append('--dry-run')
+        env = {'GITLAW_AUTOPUSH_WSL': '1', 'PYTHONTZPATH': '', 'PYTHONUTF8': '1', 'PYTHONDONTWRITEBYTECODE': '1',
+               'LC_ALL': 'C.UTF-8', 'GITLAW_PERSONAL_GITCONFIG': _to_wsl(Path.home() / '.gitconfig')}
+        if os.environ.get('GITLAW_AUTOPUSH_SCRATCH'):  # tests: side files (pending, approvals, logs) go there
+            env['GITLAW_AUTOPUSH_SCRATCH'] = _to_wsl(os.environ['GITLAW_AUTOPUSH_SCRATCH'])
+        # --exec: no shell between, arguments arrive as given; nice 10 ~ BelowNormal (and wsl.exe itself BelowNormal).
+        cmd = ['wsl.exe', '-d', WSL_DISTRO, '--cd', '~', '--exec', '/usr/bin/env', *[f'{k}={v}' for k, v in env.items()],
+               '/usr/bin/nice', '-n', '10', '/bin/sh', '-c', f'exec "$HOME/{WSL_VENV_PY}" -X utf8 "$@"', 'sh',
+               _to_wsl(Path(__file__).resolve()), *args]
+        low = {'creationflags': 0x00004000} if os.name == 'nt' else {}
+        t0 = time.time()
+        p = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace', **low)
+        if p.returncode or not sout.exists():
+            return {'main': f'WSL build failed (exit {p.returncode}); not built on NTFS, retried next pass',
+                    'error': private.scrub((p.stderr or p.stdout)[-1500:])}
+        res = json.loads(sout.read_text(encoding='utf-8'))
+    wsl_mark = state.get('wsl')
+    state.clear()
+    state.update(res['state'])
+    if wsl_mark and not dry_run:
+        state['wsl'] = wsl_mark
+    return {**res['status'], 'wsl': f'ext4, {time.time() - t0:.0f} s'}
+
+
+def _wsl_child_setup() -> None:
+    """In the WSL child: git's global config is our own file (credential helper only, no identity), no system config,
+    and an explicit identity on every git process."""
+    base = Path.home() / WSL_BASE
+    base.mkdir(parents=True, exist_ok=True)
+    cfg = base / 'gitconfig'
+    gcm = WSL_GCM.replace(' ', '\\\\ ')
+    want = ('# autopush_dell (WSL child): no user.name/user.email here on purpose; identities are explicit.\n'
+            f'[credential]\n\thelper =\n\thelper = {gcm}\n[core]\n\tautocrlf = false\n[gc]\n\tauto = 0\n'
+            '[user]\n\tuseConfigOnly = true\n')
+    if not cfg.exists() or cfg.read_text(encoding='utf-8') != want:
+        tmp = cfg.with_name(f'.gitconfig.{os.getpid()}')
+        tmp.write_text(want, encoding='utf-8')
+        os.replace(tmp, cfg)
+    os.environ.update(GIT_CONFIG_GLOBAL=str(cfg), GIT_CONFIG_NOSYSTEM='1', GIT_TERMINAL_PROMPT='0', **WIP_AUTHOR)
+    if not Path(WSL_GCM).exists():
+        raise SystemExit(f'Git Credential Manager not found at {WSL_GCM}')
+
+
+def wsl_child(args) -> int:
+    """--wsl-child: main_build() for one repo, here in WSL; state in and (state, status) out as JSON files."""
+    _wsl_child_setup()
+    scratch = os.environ.get('GITLAW_AUTOPUSH_SCRATCH')
+    if scratch:  # tests: pending rewrites, approvals and push/tag logs stay in the scratch folder
+        global PENDING, APPROVED, __file__
+        s = Path(scratch)
+        (s / 'fake' / 'logs').mkdir(parents=True, exist_ok=True)
+        PENDING, APPROVED, __file__ = s / 'REWRITE-PENDING.json', s / 'REWRITE-APPROVED.txt', str(s / 'fake' / 'x.py')
+    slug = args.wsl_child
+    folder = Path(args.folder)
+    repo = Path(os.path.expanduser(args.repo)) if args.repo else Path.home() / WSL_BASE / f'{slug}-law'
+    if str(repo).startswith('/mnt/'):
+        raise SystemExit(f'{repo} is on a Windows drive, not ext4')
+    state = json.loads(Path(args.state_in).read_text(encoding='utf-8'))
+    if not (repo / '.git').exists():
+        # No clone: remote_main_owner() fetches the published main in full, and a full build re-creates the repo.
+        repo.mkdir(parents=True, exist_ok=True)
+        git(repo, 'init', '-q', '-b', 'main')
+        git(repo, 'remote', 'add', 'origin', f'https://github.com/lexifina/{slug}-law.git')
+    git(repo, 'config', 'gc.auto', '0')
+    try:
+        status = main_build(slug, folder, repo, state, dry_run=args.dry_run)
+    except Exception as e:
+        status = {'error': private.scrub(str(e))[:500]}
+    Path(args.result_out).write_text(json.dumps({'state': state, 'status': status}, ensure_ascii=False),
+                                     encoding='utf-8')
+    return 0
+
+
+def one(slug: str, dry_run: bool = False, work: Path | None = None, where: str | None = None) -> str:
+    """One visit of one repo. `where` ('wsl' or 'ntfs') only for scratch dry runs; otherwise wsl_selected() decides."""
     folder = ROOT / 'scripts' / f'{slug}-law'
     repo = DOCS / f'{slug}-law'
+    try:
+        live_state = json.loads((folder / '.autopush.json').read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        live_state = {}
+    in_wsl = wsl_selected(slug, live_state)
+    if where is not None:
+        if not (dry_run and work is not None):
+            raise ValueError('where= is only for scratch dry runs (--dry-run --work)')
+        in_wsl = where == 'wsl'
+    wsl_repo = None
     if work is not None:
         # A dry run in a scratch folder: a copy of the country folder (no caches) and a scratch repo, so neither the
         # live clone nor the country folder (verification.json) is touched; no wip snapshot.
@@ -1524,7 +1828,8 @@ def one(slug: str, dry_run: bool = False, work: Path | None = None) -> str:
         shutil.copytree(folder, dst, ignore=lambda d, names: [n for n in names if n in SKIP_DIRS or n.startswith('.tmp')
                                                                or n in ('.git', 'logs', '.autopush.json')])
         folder, repo = dst, work / f'{slug}-law'
-        if not (repo / '.git').exists():
+        wsl_repo = f'~/{WSL_BASE}/.scratch/{work.name}/{slug}-law'
+        if not in_wsl and not (repo / '.git').exists():
             repo.mkdir(parents=True, exist_ok=True)
             git(repo, 'init', '-q', '-b', 'main')
             git(repo, 'remote', 'add', 'origin', f'https://github.com/lexifina/{slug}-law.git')
@@ -1538,14 +1843,24 @@ def one(slug: str, dry_run: bool = False, work: Path | None = None) -> str:
             and not _retry_due(state)):
         return f'{slug:10} {"no file changed":28} | {str(state.get("result", ""))[:80]}'
     try:
-        if not (repo / '.git').exists():
-            # A claimed repo whose builder has not created it on GitHub yet: skip quietly, no failed clone each pass.
-            if subprocess.run(['git', 'ls-remote', '-h', f'https://github.com/lexifina/{slug}-law.git'],
-                              capture_output=True).returncode:
+        if in_wsl:
+            # Built and published in WSL (main_build_wsl); never on NTFS again once moved. The wip snapshot stays on
+            # Windows, in the old clone when there is one, else in a small objects-only repo.
+            if work is None and not (repo / '.git').exists() and subprocess.run(
+                    ['git', 'ls-remote', '-h', f'https://github.com/lexifina/{slug}-law.git'], capture_output=True).returncode:
                 return f'{slug:10} {"no GitHub repo yet":28} | waiting for its builder to create it'
-            subprocess.run(['git', 'clone', '-q', f'https://github.com/lexifina/{slug}-law.git', str(repo)], check=True)
-        status['wip'] = 'skipped (scratch dry run)' if work is not None else wip(slug, folder, repo, dry_run=dry_run)
-        status.update(main_build(slug, folder, repo, state, dry_run=dry_run))
+            status['wip'] = 'skipped (scratch dry run)' if work is not None else wip(
+                slug, folder, repo if (repo / '.git').exists() else _wip_repo(slug), dry_run=dry_run)
+            status.update(main_build_wsl(slug, folder, state, dry_run=dry_run, repo=wsl_repo))
+        else:
+            if not (repo / '.git').exists():
+                # A claimed repo whose builder has not created it on GitHub yet: skip quietly, no failed clone each pass.
+                if subprocess.run(['git', 'ls-remote', '-h', f'https://github.com/lexifina/{slug}-law.git'],
+                                  capture_output=True).returncode:
+                    return f'{slug:10} {"no GitHub repo yet":28} | waiting for its builder to create it'
+                subprocess.run(['git', 'clone', '-q', f'https://github.com/lexifina/{slug}-law.git', str(repo)], check=True)
+            status['wip'] = 'skipped (scratch dry run)' if work is not None else wip(slug, folder, repo, dry_run=dry_run)
+            status.update(main_build(slug, folder, repo, state, dry_run=dry_run))
     except Exception as e:  # one country's failure never stops the others
         status['error'] = str(e)[:500]
     if dry_run:
@@ -1568,11 +1883,24 @@ def main():
                     help='build, check and audit the --only countries, print what would be pushed, push nothing')
     ap.add_argument('--work', help='with --dry-run: build in this scratch folder (copies of the country folders and '
                                    'repos), leaving the live clones and country folders alone')
+    ap.add_argument('--where', choices=('wsl', 'ntfs'),
+                    help='with --dry-run --work: build there regardless of WSL-REPOS.txt (comparisons)')
+    # The WSL child (started by main_build_wsl, never by hand).
+    ap.add_argument('--wsl-child', help=argparse.SUPPRESS)
+    ap.add_argument('--folder', help=argparse.SUPPRESS)
+    ap.add_argument('--repo', help=argparse.SUPPRESS)
+    ap.add_argument('--state-in', help=argparse.SUPPRESS)
+    ap.add_argument('--result-out', help=argparse.SUPPRESS)
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding='utf-8')
+    if args.wsl_child:
+        if not IN_WSL:
+            sys.exit('--wsl-child runs only inside WSL (started by main_build_wsl)')
+        sys.exit(wsl_child(args))
     if args.dry_run:
         for s in args.only or []:
-            print(one(s, dry_run=True, work=Path(args.work).resolve() if args.work else None), flush=True)
+            print(one(s, dry_run=True, work=Path(args.work).resolve() if args.work else None, where=args.where),
+                  flush=True)
         return
     # Only countries that have started (their folder exists), so an empty folder never becomes an empty wip commit.
     countries = [s for s in (args.only or COUNTRIES) if (ROOT / 'scripts' / f'{s}-law').is_dir()]

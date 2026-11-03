@@ -1,0 +1,3 @@
+# Repos whose build/append/publish runs in WSL ext4 (autopush_dell.py, "WSL ext4"): one slug per line, or * for all.
+# A listed repo moves at its next visit with work and is then recorded in WSL-MIGRATED.txt; it never goes back.
+*

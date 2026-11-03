@@ -6,6 +6,7 @@ these files and scrubs this machine's home path from what it does publish. Befor
 autopush runs audit_push() over exactly the objects being pushed, with the same names and markers as the final privacy
 audit of every lexifina repo, so a push can never add a finding that audit would report.
 """
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -22,13 +23,19 @@ SPEED_MARK = re.compile(rb'host_get|cc_get|cc_captures|import wayback|wayback\.|
 FETCH_USE = re.compile(rb'^[ \t]*(?:import|from)[ \t]+(?:fetch|wayback|lii|peachjam|download|crawl|harvest|grab)\w*\b|'
                        rb'\b(?:fetch|wayback|lii|peachjam)\w*\.\w+\(|\bload_cached\b|\burlopen\(|urllib\.request|'
                        rb'\brequests\.(?:get|post|Session)\b|\.cache/|requests\.jsonl', re.M)
-HOME = re.compile(r'(?i)(?:[A-Z]:[\\/]+Users[\\/]+alany|/c/Users/alany|/home/alany)')
+# This machine's home as Windows, Git Bash and WSL write it: C:\Users\alany, /c/Users/alany, /mnt/c/Users/alany (WSL's
+# view of the Windows drive), /home/alany (the WSL home, where the ext4 builds live), and \\wsl.localhost\<distro>\home\
+# alany or \\wsl$\<distro>\home\alany (the WSL home seen from Windows). Longest forms first, so scrub() leaves just ~.
+HOME = re.compile(r'(?i)(?:\\\\wsl(?:\.localhost|\$)\\[^\\/\s]+\\home\\+alany|/mnt/[a-z]/+Users/+alany|'
+                  r'[A-Z]:[\\/]+Users[\\/]+alany|/c/Users/alany|[\\/]home[\\/]+alany)')
 # The final privacy audit's content markers, checked in every text blob a push would add.
 AUDIT_MARKS = {
     'speed tooling': re.compile(rb'host_get|cc_get\b|cc_captures|import wayback|wayback\.(get|captures|fetch)|'
                                 rb'ThreadPoolExecutor|requests a second(?! (?:evaluation|opinion|hearing|review|examination))|adaptive rate', re.I),  # law text: "requests a second evaluation" (C.R.S. 16-8.5-103)
     'common crawl / archive tactics': re.compile(rb'data\.commoncrawl\.org|index\.commoncrawl\.org|cluster\.idx', re.I),
-    'home path': re.compile(rb'(?i)(?:[A-Z]:(?:\\\\|\\|/)+Users(?:\\\\|\\|/)+alany|/c/Users/alany)'),
+    # Windows and Git Bash forms (/mnt/c/Users/alany included), and the WSL home: /home/alany, \\wsl.localhost\...\home\alany.
+    'home path': re.compile(rb'(?i)(?:[A-Z]:(?:\\\\|\\|/)+Users(?:\\\\|\\|/)+alany|/c/Users/alany|/mnt/[a-z]/+Users/+alany|'
+                            rb'(?:\\\\|\\|/)home(?:\\\\|\\|/)+alany)'),
     'bot-challenge notes': re.compile(rb'(?i)cloudflare|bot challenge|captcha|firewall page'),
     # How the work is run (shared with gitlaw-scraper-dell's audit): session names, subagents, client identification.
     'agent workflow': re.compile(rb'\bgitlaw-[a-z]|\bsubagents?\b|\buser-agent\b|\bMozilla/\d', re.I),
@@ -57,8 +64,15 @@ def is_private(path: Path) -> bool:
 
 def _personal_emails() -> set[str]:
     """This machine's global git email is personal (never published); read it rather than writing it down here."""
-    out = subprocess.run(['git', 'config', '--global', 'user.email'], capture_output=True, text=True).stdout.strip()
-    return {out.lower()} if out and not out.lower().endswith('lexifina.com') else set()
+    found = set()
+    # GITLAW_PERSONAL_GITCONFIG names the Windows .gitconfig, for runs (autopush in WSL) whose own global git config
+    # deliberately carries no identity.
+    other = os.environ.get('GITLAW_PERSONAL_GITCONFIG')
+    for cmd in (['git', 'config', '--global', 'user.email'], *([['git', 'config', '-f', other, 'user.email']] if other else [])):
+        out = subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
+        if out and not out.lower().endswith('lexifina.com'):
+            found.add(out.lower())
+    return found
 
 
 # In a law file the bare word "CAPTCHA" is law (accessibility rules quoting WCAG: BremBITV Anlage 1 "alternative

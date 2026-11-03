@@ -83,3 +83,43 @@ on ext4 that goes away. check.py is mostly Python work, so it gains less.
 Notes: the wrapper's PID is `wsl.exe`; stopping it stops the WSL side. The CPU-load pause rule
 (`%LOCALAPPDATA%\gitlaw-cpu.log`) still applies to the caller. Free space: `df -h ~` in WSL (the ext4 VHD grows on
 demand and does not shrink by itself).
+
+## autopush_dell on WSL (2026-11-03)
+
+`world-law/autopush_dell.py` runs a repo's whole publish path in WSL once the repo is selected: the fetch of the
+published main, the full or incremental build, append_onto, check.py, audit_push, the identity check and the push all
+run in a child process (`--wsl-child`, the same code, venv Python under nice 10) with the repo at
+`~/gitlaw-builds/autopush-dell/<slug>-law`. The wip snapshot and the change test stay on Windows.
+
+- Selection: `world-law/WSL-REPOS.txt`, one slug per line or `*`. A selected repo moves at its next visit with work.
+- Never back: a moved repo is marked in its `.autopush.json` (`wsl`) and in `world-law/WSL-MIGRATED.txt`; either one
+  keeps every later build (nightly full builds included) in WSL, and `main_build` refuses it on NTFS. Its first WSL
+  publish appends one ordinary docs commit (the toolchain line in REPRODUCE.md); nothing is rewritten.
+- Identity: the child's git reads `~/gitlaw-builds/autopush-dell/gitconfig` (credential helper only, no user.*,
+  `user.useConfigOnly`), no system config, and runs with `GIT_AUTHOR_*`/`GIT_COMMITTER_*` = Lexifina
+  <world-law@lexifina.com>; the builder's commits keep their own explicit identities. The personal address that
+  audit_push and the identity check keep out comes from the Windows `.gitconfig` (`GITLAW_PERSONAL_GITCONFIG`); if it
+  cannot be read, nothing is pushed. Before every push, `git log <pushed> --not --remotes=origin --format='%ae %ce'`
+  must show only lexifina.com / .invalid addresses.
+- Auth: the Windows Git Credential Manager from `/mnt/c` (the helper the Windows clones use); no token in WSL.
+- Tests: `world-law/test_autopush_dell_wsl.py` (end to end through WSL to a scratch bare repo) and
+  `gitlaw_common/test_private_wsl.py` (WSL home paths in scrub/audit_push).
+
+## Publish loops (wsl_exec.py, 2026-11-03)
+
+`wsl_exec.py` moves the publish side of a detached loop to WSL while fetching stays on Windows (fetch_scheduler's
+leases and host state live under `%LOCALAPPDATA%`). `W.fresh(slug, name=...)` keeps `~/gitlaw-builds/<name>` at the
+published main and tags; `W.run`/`W.popen`/`W.git` run git or the venv python there under nice 10 (Windows paths
+become `/mnt/c/...`); `W.push(slug, repo, env)` runs `gate()` (every commit in origin/main..main authored and
+committed by lexifina.com / .invalid, none dated after now) and then `push_clean.py --main`. Every WSL process gets
+`GITLAW_FETCH_DRY=1`: fetch_scheduler, `wayback.host_get` and saudi-arabia-law's `source.fetch` serve cached pages
+only and raise on a miss. `W.detach()` starts a whole loop in WSL (croatia-law). The same calls work from inside WSL.
+
+- `.wsl-only` in `scripts/<slug>/` marks a moved repo; `push_clean.py` refuses that slug on Windows.
+- append.py / append_gate.py publish clones are `~/gitlaw-builds/<slug>-pub`, never `~/gitlaw-builds/<slug>`
+  (`wsl_run.py build` empties that one). Repos with their own builders (taiwan-law, croatia-law,
+  saudi-arabia-law) use `~/gitlaw-builds/<slug>`.
+- Moved 2026-11-03: taiwan-law (moj_breadth.py, ly_loop.py), croatia-law (nn/loop.py, whole loop in WSL),
+  sri-lanka-law and ghana-law (world-law/cl_acts/publish_loop.py), algeria-law (journal/loop_dz.py),
+  philippines-law (publish_loop.py), vietnam-law (run_loop.py), saudi-arabia-law (work/loop_sa.py).
+- The WSL venv also holds lxml 6.1.3 (croatia-law) and hijridate 2.5.0 (saudi-arabia-law), as on Windows.
