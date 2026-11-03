@@ -49,7 +49,15 @@ for day, want in (('2005-06-01', 'Old.\n'), ('2012-06-01', 'Fixed.\n'), ('2016-0
 o = run(common / 'on.py', '2016-06-01', 'title-11/363.md', cwd=repo)
 print(f'{"PASS" if o.stdout == "Sibling, amended.\n" else "FAIL"} shared folder sibling: {o.stdout!r}')
 fail += [] if o.stdout == 'Sibling, amended.\n' else ['sibling']
-o = run(common / 'on.py', '2012-06-01', cwd=repo)
-print('listing on 2012-06-01:', o.stdout.strip().replace('\n', ' | '), o.stderr[-200:])
+# The all-acts listing marks the shared folder while the one-file act's correction holds (2010-01-01 until the day
+# before the act's own 2020 commit), and only then.
+fix = subprocess.run(['git', 'log', '--format=%H', '--grep=^Kind: correction'], cwd=repo, capture_output=True,
+                     text=True).stdout.split()[0][:10]
+for day, marked in (('2005-06-01', False), ('2012-06-01', True), ('2016-06-01', True), ('2021-06-01', False)):
+    o = run(common / 'on.py', day, cwd=repo)
+    line = next((l for l in o.stdout.splitlines() if l.startswith('title-11\t')), '')
+    ok = o.returncode == 0 and line and (f'corrected by {fix}' in line) == marked
+    print(f'{"PASS" if ok else "FAIL"} listing on {day}: {line!r} (marked expected: {marked}) {o.stderr[-200:]}')
+    fail += [] if ok else [f'listing {day}']
 print('ALL OK' if not fail else f'FAILED: {fail}')
 sys.exit(1 if fail else 0)

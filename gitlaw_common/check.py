@@ -170,7 +170,7 @@ def check(repo: Path, corpus: Path) -> dict:
                     continue
                 if not rd.fixes:
                     files = tree_oids(cat, h, slug, trees)
-                expect ={f'{slug}/{k}.md': blob_oid(u['text']) for k, u in want['units'].items()}
+                expect = {f'{slug}/{k}.md': blob_oid(u['text']) for k, u in want['units'].items()}
                 for f in sorted(set(files) | set(expect)):
                     if files.get(f) != expect.get(f):
                         mismatches += 1
