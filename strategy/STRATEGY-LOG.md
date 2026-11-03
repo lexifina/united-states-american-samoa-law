@@ -107,6 +107,19 @@ From 20:00 to 22:00 the rate rose about 14×, while CPU stayed the same. The gai
 - **South Australia (data.sa.gov.au XML):** before, partial main c974b4b (about 360 of 1,390 Acts).
 - **Claims janitor:** restart or release the about 38 stalled dell claims. Before: autopush_dell showed "waiting 38"; the after count goes in this entry when it reports.
 
+**D-11 (Dell). Scheduler stall fix and time split (7d168e5, 00:2xZ 11-03).**
+- **What:** when every slot was busy, `fetch_many` had parked the host until the earliest lease expired (about 3 min). It now rechecks within 0.5 s and serves other hosts meanwhile. The feed now splits `wait_ms` (queue, scheduler, host_get) from `fetch_ms`, records slot and attempt, and logs cache hits as `event: hit`.
+- **Before and after:** e-Gov through `fetch_many` went from 5.1/min (with a 3-min stall) to 21.5/min. Serial callers stay at about 6/min, because they use 1 of 6 slots.
+- **Remaining limits, outside the scheduler:**
+  - host_get starts a curl process per request: about 4.1 s at BelowNormal on the loaded machine, against 0.22 s server time;
+  - hp-omen's serial e-Gov fetcher;
+  - no refetches, so D6 304s don't happen; e-Gov sends no validators.
+
+**D-10 update (Dell), SAPL lane closed (low yield, D-8 rule).**
+- 38 cities on main: about 2,680 laws plus 16 dated Lei Orgânica histories. The largest are Campinas 361, Divinópolis 346 and Muriaé 329.
+- Before the breadth sweep, the build loop had already published the whole cache.
+- 165 tier-3 councils passed robots and terms but were dropped unfetched. 222 claims released.
+
 ## Hard limits (not traded for speed)
 
 - No bypassing bot challenges, CAPTCHAs, WAFs, logins or geo-blocks. Obey robots.txt and Crawl-delay, and respect publishers' terms.
