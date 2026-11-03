@@ -47,6 +47,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import append as AP  # noqa: E402
 import check as K  # noqa: E402
+import publish_marker  # noqa: E402
 
 B = AP.B
 NO_FILES = '/.gitlaw-append-no-files\n'
@@ -54,24 +55,28 @@ NO_FILES = '/.gitlaw-append-no-files\n'
 
 class Frozen(type(Path())):
     """The corpus folder as it was when freeze() ran: corpus.d/*.json lists only the parts that were verified then (had
-    their .PUBLISH, under GITLAW_VERIFIED_PARTS_ONLY=1; else every part), a later .PUBLISH reads as absent, and
-    corpus.json and those parts read back the bytes read then. build.load() (unchanged) reads through it, so append,
+    a valid .PUBLISH, under GITLAW_VERIFIED_PARTS_ONLY=1; else every part), a later .PUBLISH reads as absent, and
+    corpus.json, those parts and their markers read back the bytes read then. build.load() reads through it, so append,
     docs and check in one gate run all see one corpus: a PUBLISH that lands mid-run goes out on the next run."""
     snap: dict[str, bytes] | None = None
     parts_dir = ''
 
     def glob(self, pattern, *a, **k):
         if Frozen.snap is not None and str(self) == Frozen.parts_dir and pattern == '*.json':
-            return iter(sorted(self / Path(p).name for p in Frozen.snap if os.path.dirname(p) == Frozen.parts_dir))
+            return iter(sorted(self / Path(p).name for p in Frozen.snap
+                               if os.path.dirname(p) == Frozen.parts_dir and p.endswith('.json')))
         return super().glob(pattern, *a, **k)
 
     def exists(self, *a, **k):
         s = str(self)
         if Frozen.snap is not None and os.path.dirname(s) == Frozen.parts_dir and s.endswith('.PUBLISH'):
-            return s[:-len('.PUBLISH')] + '.json' in Frozen.snap
+            return s in Frozen.snap
         return super().exists(*a, **k)
 
     def read_bytes(self):
+        if (Frozen.snap is not None and os.path.dirname(str(self)) == Frozen.parts_dir
+                and self.suffix == '.PUBLISH' and str(self) not in Frozen.snap):
+            raise FileNotFoundError(str(self))
         b = Frozen.snap.get(str(self)) if Frozen.snap is not None else None
         return b if b is not None else super().read_bytes()
 
@@ -85,11 +90,23 @@ def freeze(folder: Path) -> Path:
     if (folder / 'corpus.json').exists():
         snap[str(folder / 'corpus.json')] = (folder / 'corpus.json').read_bytes()
     if parts.is_dir():
-        only = os.environ.get('GITLAW_VERIFIED_PARTS_ONLY') == '1'
         for p in sorted(parts.glob('*.json')):
-            if not only or p.with_suffix('.PUBLISH').exists():
-                snap[str(p)] = p.read_bytes()
+            marker = p.with_suffix('.PUBLISH')
+            try:
+                snap[str(marker)] = marker.read_bytes()
+            except FileNotFoundError:
+                if os.environ.get('GITLAW_VERIFIED_PARTS_ONLY') == '1':
+                    continue
+            snap[str(p)] = p.read_bytes()
     Frozen.snap, Frozen.parts_dir = snap, str(parts)
+    if os.environ.get('GITLAW_VERIFIED_PARTS_ONLY') == '1':
+        for p in list((Frozen(folder) / 'corpus.d').glob('*.json')):
+            state, detail = publish_marker.status(p)
+            if state not in ('legacy', 'match'):
+                if state == 'mismatch':
+                    print(f'UNVERIFIED: {detail}', file=sys.stderr)
+                del snap[str(p)]
+                snap.pop(str(p.with_suffix('.PUBLISH')), None)
     return Frozen(folder)
 
 

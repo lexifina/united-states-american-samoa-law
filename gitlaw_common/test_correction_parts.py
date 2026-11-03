@@ -146,13 +146,17 @@ class CorrectionParts(unittest.TestCase):
     def test_verified_filter_excludes_correction_and_requires_target(self):
         self.correction()
         # Model marker presence without writing any publication marker.
-        exists = Path.exists
+        read_bytes = Path.read_bytes
         verified = {Path(n).with_suffix('.PUBLISH').name for n in ORIGINALS}
 
-        def marker_exists(path):
-            return path.name in verified if path.suffix == '.PUBLISH' else exists(path)
+        def marker_bytes(path):
+            if path.suffix == '.PUBLISH':
+                if path.name in verified:
+                    return b'verified\n'
+                raise FileNotFoundError(path)
+            return read_bytes(path)
 
-        with patch.dict(os.environ, {'GITLAW_VERIFIED_PARTS_ONLY': '1'}), patch.object(Path, 'exists', marker_exists):
+        with patch.dict(os.environ, {'GITLAW_VERIFIED_PARTS_ONLY': '1'}), patch.object(Path, 'read_bytes', marker_bytes):
             self.assertEqual(load(self.folder)[0]['acts'], self.originals)
             verified.add('zz-correction.PUBLISH')
             self.assertEqual(validate(load(self.folder)[0]), [])

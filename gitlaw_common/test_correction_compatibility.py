@@ -70,13 +70,14 @@ def main():
     parser.add_argument('--corpus', type=Path, action='append', required=True)
     parser.add_argument('--scratch', type=Path, required=True)
     parser.add_argument('--strict-stdout', action='store_true', help='also fail on any full stdout difference')
+    parser.add_argument('--verified-parts-only', action='store_true', help='exercise the main-branch part filter')
     args = parser.parse_args()
     if len(args.corpus) < 3:
         parser.error('at least three unchanged corpus copies are required')
     root = args.scratch.resolve()
     root.mkdir(parents=True, exist_ok=False)
     os.environ['GITLAW_NO_CHECKOUT'] = '1'
-    os.environ['GITLAW_VERIFIED_PARTS_ONLY'] = '0'
+    os.environ['GITLAW_VERIFIED_PARTS_ONLY'] = '1' if args.verified_parts_only else '0'
     results = []
     for folder in map(Path.resolve, args.corpus):
         work = root / folder.name
@@ -128,13 +129,25 @@ def main():
         assert snapshots['before']['history'] == snapshots['after']['history']
         assert snapshots['before']['tags'] == snapshots['after']['tags']
         assert outputs['before-check'] == outputs['after-check']
+        # Updated shipped tools change the docs SHA and --compare's main_identical.
+        # Keep those differences visible; require all law comparison fields equal.
+        comparison_tails = []
+        for output in (outputs['before-compare'], outputs['after']):
+            text = output.decode('utf-8')
+            _, end = json.JSONDecoder().raw_decode(text)
+            comparison_tails.append(text[end:].encode('utf-8'))
+        records = [objects(output) for output in (outputs['before-compare'], outputs['after'])]
+        assert {k: v for k, v in records[0][0].items() if k != 'main'} == {
+            k: v for k, v in records[1][0].items() if k != 'main'}
+        assert {k: v for k, v in records[0][1].items() if k != 'main_identical'} == {
+            k: v for k, v in records[1][1].items() if k != 'main_identical'}
         before_files, after_files = {}, {}
         for phase, files in [('before', before_files), ('after', after_files)]:
             for line in snapshots[phase]['tree'].decode('utf-8').splitlines():
                 meta, path = line.split('\t', 1)
                 files[path] = meta
         differences = sorted(p for p in set(before_files) | set(after_files) if before_files.get(p) != after_files.get(p))
-        assert set(differences) <= {'tools/build.py', 'tools/SCHEMA.md', 'REPRODUCE.md'}, differences
+        assert set(differences) <= {'tools/build.py', 'tools/publish_marker.py', 'tools/SCHEMA.md', 'REPRODUCE.md'}, differences
         check = json.loads(outputs['after-check'])
         for field in ('mismatches', 'trailer_errors', 'missing_in_force', 'merges', 'backwards', 'future_dated'):
             assert check[field] == 0, check
@@ -147,6 +160,9 @@ def main():
             'before_compare_stdout_sha256': sha(outputs['before-compare']),
             'after_compare_stdout_sha256': sha(outputs['after']),
             'build_compare_stdout_bytes_identical': outputs['before-compare'] == outputs['after'],
+            'compare_result_identical': objects(outputs['before-compare'])[1:] == objects(outputs['after'])[1:],
+            'compare_stdout_bytes_identical': comparison_tails[0] == comparison_tails[1],
+            'compare_stdout_sha256': sha(comparison_tails[0]),
             'before_compare': objects(outputs['before-compare']), 'after_compare': objects(outputs['after']),
             'changed_tip_files': differences,
         }
