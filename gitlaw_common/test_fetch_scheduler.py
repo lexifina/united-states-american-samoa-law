@@ -567,6 +567,156 @@ class SchedulerTest(unittest.TestCase):
         self.assertEqual(len(live), 5)                                             # every request in the feed
         self.assertEqual(len([r for r in slots if r['event'] == 'hit']), 4)       # the other process's 4: hits
 
+    # ---------------------------------------------------------------- disk: one copy, compressed text
+    def data_files(self, *roots, body):
+        """Distinct on-disk files (by inode) holding body under roots: the number of data copies."""
+        seen = set()
+        for root in roots:
+            for p in Path(root).rglob('*'):
+                if p.is_file() and p.stat().st_size == len(body) and p.read_bytes() == body:
+                    st = p.stat()
+                    seen.add((st.st_dev, st.st_ino))
+        return len(seen)
+
+    def test_cache_folder_gets_a_link_not_a_copy(self):
+        self.fake_clock()
+        Stub.routes['/one'] = (200, {}, b'one body')
+        url, mine = self.base + '/one', self.t / 'mine'
+        self.assertEqual(fs.get(url, mine), b'one body')
+        self.assertEqual(self.data_files(fs.SCHED_DIR, mine, body=b'one body'), 1)
+        self.assertTrue(os.path.samefile(wayback._cached(mine, url), fs.SHARED_CACHE / fs._sha_url(url)))
+
+    def test_failed_link_leaves_one_copy_and_every_hit_still_works(self):
+        self.fake_clock()
+        Stub.routes['/e'] = etag_route
+        url, mine, theirs = self.base + '/e', self.t / 'mine', self.t / 'theirs'
+        real_link = os.link
+
+        def link(src, dst, *a, **k):          # links into mine fail, as across volumes
+            if str(mine) in str(dst):
+                raise OSError(18, 'not same device')
+            return real_link(src, dst, *a, **k)
+        fs.os.link = link
+        try:
+            self.assertEqual(fs.get(url, mine), b'versioned body')
+        finally:
+            fs.os.link = real_link
+        body = b'versioned body'
+        self.assertEqual(self.data_files(fs.SCHED_DIR, mine, body=body), 1)          # exactly one data copy
+        self.assertTrue(wayback._cached(mine, url).exists())
+        self.assertFalse((fs.SHARED_CACHE / fs._sha_url(url)).exists())
+        self.assertEqual(fs._body_path(url).resolve(), wayback._cached(mine, url).resolve())
+        self.assertTrue(wayback._meta_file(mine, url).exists())                      # .http-meta kept
+        self.assertTrue((fs.SHARED_CACHE / 'requests.jsonl').exists())
+        # every kind of hit, no new request: the same caller, no cache, another caller (now linked to mine)
+        self.assertEqual(fs.get(url, mine), body)
+        self.assertEqual(fs.get(url), body)
+        self.assertEqual(fs.get(url, theirs), body)
+        self.assertTrue(os.path.samefile(wayback._cached(theirs, url), wayback._cached(mine, url)))
+        self.assertEqual(len(self.hits(path='/e')), 1)
+        self.assertEqual(self.data_files(fs.SCHED_DIR, mine, theirs, body=body), 1)
+        feed = [json.loads(l) for f in fs.FEED_DIR.glob('*.jsonl') for l in f.read_text(encoding='utf-8').splitlines()]
+        self.assertEqual([r for r in feed if r['event'] == 'dup'], [])
+        # a 404 is still remembered alongside
+        self.assertIsNone(fs.get(self.base + '/missing', mine))
+        self.assertIsNone(fs.get(self.base + '/missing', mine))
+        self.assertEqual(len(self.hits(path='/missing')), 1)
+        # refresh: a full GET (the shared entry is a pointer), the shared file is back and the pointer gone
+        self.assertEqual(fs.get(url, refresh=True), body)
+        self.assertTrue((fs.SHARED_CACHE / fs._sha_url(url)).exists())
+        self.assertFalse(fs._ptr(url).exists())
+
+    def test_unavoidable_copy_is_reported(self):
+        self.fake_clock()
+        Stub.routes['/x'] = Stub.routes['/y'] = (200, {}, b'same')
+        fs.get(self.base + '/x')                  # the object is shared by /x and /y
+        mine, real_link = self.t / 'mine', os.link
+
+        def link(src, dst, *a, **k):
+            if str(mine) in str(dst):
+                raise OSError(18, 'not same device')
+            return real_link(src, dst, *a, **k)
+        fs.os.link = link
+        try:
+            fs.get(self.base + '/y', mine)
+        finally:
+            fs.os.link = real_link
+        feed = [json.loads(l) for f in fs.FEED_DIR.glob('*.jsonl') for l in f.read_text(encoding='utf-8').splitlines()]
+        self.assertEqual([(r['url'], r['bytes']) for r in feed if r['event'] == 'dup'], [(self.base + '/y', 4)])
+        self.assertEqual(fs.get(self.base + '/y'), b'same')
+
+    def test_adopt_links_its_cache_file(self):
+        self.fake_clock()
+        from br_city_get import Host
+        Stub.routes['/law'] = (200, {}, b'lei')
+        H = fs.adopt(Host(self.t / 'city', self.host, delay=0))
+        self.assertEqual(H.get(self.base + '/law'), b'lei')
+        self.assertEqual(self.data_files(fs.SCHED_DIR, H.dir, body=b'lei'), 1)
+
+    def test_text_detection(self):
+        for b in (b'<?xml ?><a/>', b'  \r\n<html>', b'\xef\xbb\xbf<law/>', b'{"a": 1}', b'\n[1, 2]',
+                  '﻿<x/>'.encode('utf-16-le'), '﻿<x/>'.encode('utf-16-be')):
+            self.assertTrue(fs.looks_text(b), b)
+        for b in (b'%PDF-1.7 <<', b'PK\x03\x04<x>', b'\x1f\x8b<', b'plain text', b''):
+            self.assertFalse(fs.looks_text(b), b)
+
+    @unittest.skipUnless(os.name == 'nt', 'NTFS compression is Windows only')
+    def test_text_bodies_are_compressed_off_the_request_path(self):
+        import ctypes
+        from ctypes import wintypes
+        k32 = ctypes.WinDLL('kernel32')
+        k32.GetCompressedFileSizeW.restype = wintypes.DWORD
+        k32.GetCompressedFileSizeW.argtypes = [wintypes.LPCWSTR, ctypes.POINTER(wintypes.DWORD)]
+
+        def on_disk(p):
+            hi = wintypes.DWORD(0)
+            lo = k32.GetCompressedFileSizeW(str(p), ctypes.byref(hi))
+            return (hi.value << 32) + lo
+        xml = b'\xef\xbb\xbf <?xml version="1.0"?><law>' + b''.join(
+            f'<art n="{i}">Article {i} text, see article {i - 1}.</art>'.encode() for i in range(4000)) + b'</law>'
+        pdf = b'%PDF-1.7\n' + xml
+        small = b'<a>' + b'x' * 1000 + b'</a>'
+        Stub.routes.update({'/law.xml': (200, {}, xml), '/law.pdf': (200, {}, pdf), '/small': (200, {}, small),
+                            '/off.xml': (200, {}, xml + b' ')})
+        self.fake_clock()
+        gate, calls, real = threading.Event(), [], fs.wof_compress
+
+        def slow(path):                         # compression waits for the gate: get() must not wait for it
+            gate.wait(10)
+            ok = real(path)
+            calls.append(Path(path).name)
+            return ok
+        fs.wof_compress, saved = slow, fs.COMPRESS
+        fs.COMPRESS = True
+        mine = self.t / 'mine'
+        try:
+            for path in ('/law.xml', '/law.pdf', '/small'):
+                self.assertIsNotNone(fs.get(self.base + path, mine))
+            self.assertEqual(calls, [])                           # nothing compressed on the request path
+            gate.set()
+            fs.compress_pending()
+            for _ in range(100):                                  # the background thread may hold the last one
+                if calls:
+                    break
+                time.sleep(0.05)
+            fs.COMPRESS = False                                   # GITLAW_FETCH_COMPRESS=0
+            fs.get(self.base + '/off.xml')
+            fs.compress_pending()
+        finally:
+            fs.wof_compress, fs.COMPRESS = real, saved
+        sha = lambda u: fs.SHARED_CACHE / fs._sha_url(self.base + u)  # noqa: E731
+        self.assertEqual(calls, [sha('/law.xml').name])
+        self.assertLess(on_disk(sha('/law.xml')), len(xml) // 4)
+        self.assertLess(on_disk(wayback._cached(mine, self.base + '/law.xml')), len(xml) // 4)   # the link too
+        for u, b in (('/law.pdf', pdf), ('/small', small), ('/off.xml', xml + b' ')):
+            self.assertGreaterEqual(on_disk(sha(u)), len(b), u)
+        # readers see identical bytes: shared file, object, caller link and get()
+        self.assertEqual(sha('/law.xml').read_bytes(), xml)
+        self.assertEqual(wayback._cached(mine, self.base + '/law.xml').read_bytes(), xml)
+        self.assertEqual((fs.OBJECTS / __import__('hashlib').sha256(xml).hexdigest()).read_bytes(), xml)
+        self.assertEqual(fs.get(self.base + '/law.xml'), xml)
+        self.assertEqual(len(self.hits(path='/law.xml')), 1)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -19,7 +19,9 @@ It adds:
   window get() waits, or with wait=False raises NotNow(next_open).
 - one shared cache for both scrapers: host_get's URL-keyed cache with ETag/Last-Modified in SHARED_CACHE, each body
   hard-linked to a content-addressed object (objects/<sha256 of the body>), and 404/410 remembered. A URL that either
-  scraper fetched is never fetched again; refresh=True revalidates with a conditional request.
+  scraper fetched is never fetched again; refresh=True revalidates with a conditional request. A caller's own
+  cache= folder gets a hard link, never a silent second copy (_place); text bodies of 16 KB or more are stored
+  NTFS LZX-compressed on Windows, off the request path (GITLAW_FETCH_COMPRESS=0 turns it off).
 - the hosts registry (REGISTRY, JSON): each host's tier, pace, daily cap and the evidence for them (headers and
   bot-management signs seen, a robots.txt excerpt), its window and any block.
 - extra stop-for-good rules on top of host_get's challenge markers: a 403 or 429 on robots.txt, a redirect with no
@@ -543,11 +545,31 @@ def _gone(url: str) -> Path:
     return SHARED_CACHE / '.gone' / _sha_url(url)
 
 
+def _ptr(url: str) -> Path:
+    return SHARED_CACHE / '.ptr' / _sha_url(url)
+
+
+def _body_path(url: str) -> Path | None:
+    """Where url's shared body is on disk: the shared cache file or, when a caller's cache holds the only copy (see
+    _place), the caller file that .ptr/<sha256(url)> names. A pointer whose file has gone is dropped."""
+    p = SHARED_CACHE / _sha_url(url)
+    if p.exists():
+        return p
+    try:
+        t = Path(_ptr(url).read_text(encoding='utf-8').strip())
+    except OSError:
+        return None
+    if t.is_file():
+        return t
+    _ptr(url).unlink(missing_ok=True)
+    return None
+
+
 def cached(url: str) -> bytes | None:
     """The shared cache's body for url, or None."""
-    p = SHARED_CACHE / _sha_url(url)
+    p = _body_path(url)
     try:
-        return p.read_bytes()
+        return p.read_bytes() if p is not None else None
     except OSError:
         return None
 
@@ -572,25 +594,169 @@ def _to_object(url: str) -> None:
         pass
 
 
-def _copy_to(cache: Path | None, url: str, body: bytes) -> None:
-    """Also give the caller its own copy (host_get layout), so callers that read their cache folder keep working."""
+def _place(dst: Path, url: str, body: bytes, caller: str | None = None) -> None:
+    """Put url's body at dst (a caller's own cache file) without a second copy on disk: a hard link to the shared
+    body. When the link fails (another volume, a file system without links, NTFS's 1023 links per file), dst gets
+    the bytes and becomes the only copy: the shared entry is replaced by a pointer to dst (.ptr/<sha256(url)>, which
+    cached() follows) and its object is dropped when no other URL links to it. A copy that cannot be avoided (the
+    object is shared with other URLs, or the body already lives in another caller's folder) is written to the feed
+    as a 'dup' event, never silently."""
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    src = _body_path(url)
+    tmp = dst.with_name(dst.name + '.part')
+    if src is not None:
+        try:
+            os.link(src, tmp)
+            _replace(tmp, dst)
+            return
+        except OSError:
+            tmp.unlink(missing_ok=True)
+    tmp.write_bytes(body)
+    _replace(tmp, dst)
+    _compress_later(dst, body)
+    shared = SHARED_CACHE / _sha_url(url)
+    dup = src is not None
+    if shared.exists():
+        try:
+            if os.path.samefile(shared, dst):
+                return
+            ptr = _ptr(url)
+            ptr.parent.mkdir(parents=True, exist_ok=True)
+            part = ptr.with_suffix('.part')
+            part.write_text(str(dst.resolve()), encoding='utf-8')
+            _replace(part, ptr)                       # pointer first: cached() never misses meanwhile
+            shared.unlink()
+            obj = OBJECTS / hashlib.sha256(body).hexdigest()
+            if not obj.exists():
+                dup = False
+            elif os.stat(obj).st_nlink == 1:          # no other URL has this body: dst is now its only copy
+                obj.unlink()
+                dup = False
+        except OSError:
+            pass
+    if dup:
+        _feed({'host': _host_of(url), 'url': url, 'event': 'dup', 'bytes': len(body), 'path': str(dst),
+               'caller': caller, 'cost': 0})
+
+
+def _copy_to(cache: Path | None, url: str, body: bytes, caller: str | None = None) -> None:
+    """Also give the caller its own entry (host_get layout), so callers that read their cache folder keep working.
+    The entry is a hard link to the shared body (see _place), never a silent second copy."""
     if cache is None:
         return
     hit = wayback._cached(cache, url)
     if hit is None or hit.exists():
         return
-    src = SHARED_CACHE / _sha_url(url)
-    tmp = hit.with_suffix('.part')
-    try:
-        os.link(src, tmp)
-    except OSError:
-        tmp.write_bytes(body)
-    _replace(tmp, hit)
+    _place(hit, url, body, caller)
     meta = wayback._meta_file(SHARED_CACHE, url)
     if meta.exists():
         dst = wayback._meta_file(cache, url)
         dst.parent.mkdir(exist_ok=True)
         dst.write_bytes(meta.read_bytes())
+
+
+# ---------------------------------------------------------------- NTFS compression of text bodies
+
+# Text bodies (XML, JSON, HTML) of COMPRESS_MIN bytes or more are compressed in place with NTFS's WOF LZX
+# compression (what `compact /c /exe:lzx` does): readers see the same bytes, the disk holds a fraction of them. PDFs,
+# zips and other binary bodies are left alone. A background thread does it, off the request path; a body still
+# queued when the process exits stays uncompressed (harmless: `compact /exe:lzx` can be run over the cache later).
+# Windows only; GITLAW_FETCH_COMPRESS=0 turns it off.
+COMPRESS = os.name == 'nt' and os.environ.get('GITLAW_FETCH_COMPRESS', '1') != '0'
+COMPRESS_MIN = 16 * 1024
+_cq: deque = deque()
+_cq_lock = threading.Lock()
+_cq_event = threading.Event()
+_cq_thread: list = []
+
+
+def looks_text(body: bytes) -> bool:
+    """XML/JSON/HTML: after a BOM and whitespace the body starts with '<', '{' or '['. A PDF ('%PDF') or a zip
+    ('PK') never does."""
+    head = body[:4096]
+    if head[:2] in (b'\xff\xfe', b'\xfe\xff'):
+        head = head[2:].decode('utf-16-le' if head[:2] == b'\xff\xfe' else 'utf-16-be', 'ignore').encode('utf-8')
+    elif head.startswith(b'\xef\xbb\xbf'):
+        head = head[3:]
+    head = head.lstrip(b' \t\r\n\x0b\x0c')
+    return head[:1] in (b'<', b'{', b'[')
+
+
+def should_compress(body: bytes | None) -> bool:
+    return bool(COMPRESS and body is not None and len(body) >= COMPRESS_MIN and looks_text(body))
+
+
+def wof_compress(path: Path | str) -> bool:
+    """Compress one file in place with WOF LZX (FSCTL_SET_EXTERNAL_BACKING, what compact /c /exe:lzx does); True
+    when done. Every hard link to the file shares it. Reads return the same bytes; a later write stores the file
+    plainly again."""
+    if os.name != 'nt':
+        return False
+    import ctypes
+    import struct
+    from ctypes import wintypes
+    k32 = ctypes.WinDLL('kernel32', use_last_error=True)
+    k32.CreateFileW.restype = wintypes.HANDLE
+    k32.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID, wintypes.DWORD,
+                                wintypes.DWORD, wintypes.HANDLE]
+    k32.DeviceIoControl.restype = wintypes.BOOL
+    k32.DeviceIoControl.argtypes = [wintypes.HANDLE, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD, ctypes.c_void_p,
+                                    wintypes.DWORD, ctypes.POINTER(wintypes.DWORD), wintypes.LPVOID]
+    k32.CloseHandle.argtypes = [wintypes.HANDLE]
+    h = k32.CreateFileW(str(path), 0x80000000, 0x7, None, 3, 0, None)   # GENERIC_READ, share all, OPEN_EXISTING
+    if h is None or h == wintypes.HANDLE(-1).value:
+        return False
+    try:
+        # WOF_EXTERNAL_INFO {Version 1, Provider WOF_PROVIDER_FILE (2)} + FILE_PROVIDER_EXTERNAL_INFO_V1 {Version 1,
+        # Algorithm FILE_PROVIDER_COMPRESSION_LZX (1), Flags 0}
+        buf = ctypes.create_string_buffer(struct.pack('<5L', 1, 2, 1, 1, 0))
+        n = wintypes.DWORD(0)
+        return bool(k32.DeviceIoControl(h, 0x9030C, buf, 20, None, 0, ctypes.byref(n), None))
+    finally:
+        k32.CloseHandle(h)
+
+
+def _compress_worker() -> None:
+    try:                                     # yield the CPU to fetching and parsing: THREAD_PRIORITY_LOWEST
+        import ctypes
+        k32 = ctypes.WinDLL('kernel32')
+        k32.GetCurrentThread.restype = ctypes.c_void_p
+        k32.SetThreadPriority.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        k32.SetThreadPriority(k32.GetCurrentThread(), -2)
+    except Exception:  # noqa: BLE001
+        pass
+    while True:
+        _cq_event.wait(5)
+        _cq_event.clear()
+        compress_pending()
+
+
+def _compress_later(path: Path, body: bytes | None) -> None:
+    """Queue path for LZX compression (background thread) when its body is text of COMPRESS_MIN bytes or more."""
+    if not should_compress(body):
+        return
+    with _cq_lock:
+        _cq.append(Path(path))
+        if not _cq_thread:
+            t = threading.Thread(target=_compress_worker, name='fetch-scheduler-compress', daemon=True)
+            _cq_thread.append(t)
+            t.start()
+    _cq_event.set()
+
+
+def compress_pending() -> int:
+    """Compress whatever is queued, now (the background thread, tests, or a caller about to exit). Returns how many
+    were compressed."""
+    n = 0
+    while True:
+        with _cq_lock:
+            if not _cq:
+                return n
+            path = _cq.popleft()
+        try:
+            n += bool(wof_compress(path))
+        except Exception:  # noqa: BLE001  (best effort: an uncompressed body is still a correct body)
+            pass
 
 
 # ---------------------------------------------------------------- per-host leases (requests in flight)
@@ -749,7 +915,7 @@ def get(url: str, cache: Path | str | None = None, tries: int = 5, timeout: int 
     if not refresh:
         body = cached(url)
         if body is not None:
-            _copy_to(cache, url, body)
+            _copy_to(cache, url, body, caller)
             _hit(host, url, 'shared', caller, len(body))
             return body
         if _gone(url).exists():
@@ -784,7 +950,7 @@ def get(url: str, cache: Path | str | None = None, tries: int = 5, timeout: int 
         try:
             if not refresh and cached(url) is not None:   # another process fetched it while we waited
                 body = cached(url)
-                _copy_to(cache, url, body)
+                _copy_to(cache, url, body, caller)
                 _hit(host, url, 'peer', caller, len(body))
                 return body
             _tls.active = True
@@ -821,8 +987,11 @@ def get(url: str, cache: Path | str | None = None, tries: int = 5, timeout: int 
         finally:
             _release(host)
         if body is not None:
+            if code == 200:                           # host_get wrote the shared file afresh
+                _ptr(url).unlink(missing_ok=True)
+                _compress_later(SHARED_CACHE / _sha_url(url), body)
             _to_object(url)
-            _copy_to(cache, url, body)
+            _copy_to(cache, url, body, caller)
         elif code in (404, 410):
             _gone(url).parent.mkdir(parents=True, exist_ok=True)
             _gone(url).write_text(str(code), encoding='utf-8')
@@ -978,9 +1147,7 @@ def adopt(H, caller: str | None = None, tries: int = 1):
                 return None
             (H.dir / 'STOP').write_text(f'{code} on {url} at {time.ctime()} (fetch_scheduler)', encoding='utf-8')
             raise Stop(f'{H.name}: HTTP {code} on {url}')
-        tmp = Path(str(p) + '.tmp')
-        tmp.write_bytes(body)
-        _replace(tmp, p)
+        _place(p, url, body, caller)      # a hard link to the shared body, not a second copy
         return body
 
     H.get = get_
