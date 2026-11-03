@@ -447,6 +447,14 @@ def plan_corrections(repo: Path, c: dict, head: str, state: dict[str, str], reas
 def correction_message(c: dict, x: dict) -> tuple[list[str], list[str]]:
     """Subject and body, and trailers, of one correction commit (see the module doc)."""
     act, v, have, want = x['act'], x['version'], x['have'], x['want']
+    try:
+        B.M.require(act, v)
+        assets = B.M.files(act, x['files'])
+    except ValueError as exc:
+        raise B.CorpusError(str(exc)) from exc
+    if assets:
+        x['files'].update(assets)
+        x['reason'] = 'image restored'
     s, a = act['slug'], v['from']
     start = x.get('range_from', a)
     span = f'from {start} to {x["to"]}' if x['to'] else f'from {start} on'
@@ -491,8 +499,9 @@ def correction_message(c: dict, x: dict) -> tuple[list[str], list[str]]:
     msg += B.pre_1970(a)
     trailers = ['Kind: correction', f'In-force: {a}', f'Corrects: {s} {start}..{x["to"] or ""}',
                 f'Supersedes: {x["supersedes"]}', f'Reason: {x["reason"]}', f'Act-path: {s}']
-    trailers += [f'Files: {f}' for f in sorted(x['files'])]
+    trailers += [f'Files: {f}' for f in sorted(x['files']) if f.endswith('.md')]
     trailers += [f'{key}: {value}' for key, value in metadata_trailers(act, v, x.get('metadata', {})).items()]
+    trailers.append('Corpus-standard: 1')
     return msg, trailers
 
 
@@ -549,7 +558,8 @@ def check_corrected(repo: Path, c: dict, docs_date: str) -> dict:
                 details.append(f'{s} at the tip: {len(bad)} file(s) differ from the corpus, e.g. {bad[:3]}')
     finally:
         rd.close()
-    return {**{k: res[k] for k in ('acts', 'trailer_errors', 'missing_in_force', 'merges', 'backwards', 'future_dated')},
+    return {**{k: res[k] for k in ('acts', 'trailer_errors', 'missing_in_force', 'merges', 'backwards', 'future_dated',
+                                  'image_errors', 'image_warnings', 'image_details')},
             'versions': versions, 'mismatches': mismatches, 'tip_mismatches': tip, 'details': details,
             'corrections': len(rd.fixes)}
 
@@ -597,7 +607,7 @@ class Appender:
         self.p.stdin.write(b)
 
     def _data(self, s: str):
-        b = s.encode('utf-8')
+        b = s if isinstance(s, bytes) else s.encode('utf-8')
         self._w(f'data {len(b)}\n'.encode() + b + b'\n')
 
     def commit(self, author: tuple[str, str], when: str, committer: tuple[str, str], message: str,
@@ -648,6 +658,10 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
         raise B.CorpusError('corpus has problems:\n  ' + '\n  '.join(errs[:60]))
     c['_docs_date'] = docs_date
     c['_repo'] = str(repo)
+    try:
+        B.M.load(c, folder, repo)
+    except ValueError as exc:
+        raise B.CorpusError(str(exc)) from exc
     if git(repo, 'status', '--porcelain', '--untracked-files=no').strip():
         raise B.CorpusError(f'{repo} has uncommitted changes; refusing')
     head = git(repo, 'rev-parse', 'main').strip()
@@ -679,6 +693,7 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
             for p in x['parts']:
                 files.update(B.act_files(p['act'], p['cur']['units'], p['prev']['units'], p['keys']))
             touched = [p['act']['slug'] for p in x['parts']]
+        trailers.append('Corpus-standard: 1')
         B.check_trailers(trailers)
         planned.append({'x': x, 'day': x['day'], 'author': author, 'files': files, 'touched': touched,
                         'text': '\n'.join(msg).rstrip('\n') + '\n\n' + '\n'.join(trailers) + '\n'})
@@ -787,6 +802,7 @@ def append_future(repo: Path, c: dict, docs_date: str) -> int:
             for part in x['parts']:
                 files.update(B.act_files(part['act'], part['cur']['units'], part['prev']['units'], part['keys']))
             acts = [p['act']['slug'] for p in x['parts']]
+        trailers.append('Corpus-standard: 1')
         B.check_trailers(trailers)
         messages.append((x, author, '\n'.join(msg).rstrip() + '\n\n' + '\n'.join(trailers) + '\n', files, acts))
     w = Appender(repo, head, int(head_ct), head_tz, branch)

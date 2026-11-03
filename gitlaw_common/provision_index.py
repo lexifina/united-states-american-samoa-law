@@ -27,7 +27,7 @@ def commit_records(repo, future='futuro'):
         return []
     main_commits = set(git('rev-list', 'main').split()) if 'refs/heads/main' in refs else set()
     fmt = '%x00%H%x1f%s%x1f%an'
-    keys = ('In-force', 'Kind', 'Law', 'Text-as-of', 'Text-source', 'Consolidated', 'Corrects', 'Files', 'Words-changed')
+    keys = ('In-force', 'Kind', 'Law', 'Text-as-of', 'Text-source', 'Consolidated', 'Corrects', 'Files', 'Words-changed', 'Corpus-standard')
     fmt += ''.join(f'%x1f%(trailers:key={key},valueonly,separator=%x1e)' for key in keys)
     out = git('log', '--reverse', '--no-merges', '--no-renames', '--name-only', '--format=' + fmt, *refs)
     records = []
@@ -55,6 +55,7 @@ def commit_records(repo, future='futuro'):
                 ranges.append((bits[0], lo, hi))
         records.append({'commit': sha, 'day': day, 'kind': kind, 'law': trailers['Law'], 'files': files,
                         'branch': 'main' if sha in main_commits else future,
+                        'all_files': names.splitlines(), 'standard': trailers['Corpus-standard'],
                         'text_as_of': trailers['Text-as-of'], 'text_source': S.legacy_text_source(trailers) or '',
                         'ranges': ranges})
     return records
@@ -144,8 +145,9 @@ def provision_rows(c, records):
     return sorted(rows, key=lambda r: (r['path'], r['from']))
 
 
-def document(c, repo):
-    records = commit_records(repo, c['country'].get('future_branch', 'futuro')) if repo else []
+def document(c, repo, records=None):
+    if records is None:
+        records = commit_records(repo, c['country'].get('future_branch', 'futuro')) if repo else []
     rows = provision_rows(c, records) if repo else []
     buf = io.StringIO()
     writer = csv.DictWriter(buf, fieldnames=FIELDS, delimiter='\t', lineterminator='\n')

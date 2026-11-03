@@ -45,6 +45,7 @@ class Cat:
     def close(self):
         self.p.stdin.close()
         self.p.wait()
+        self.p.stdout.close()
 
 
 def commits_by_act(repo: Path, branch: str, act: str) -> list[tuple[str, str]]:
@@ -177,6 +178,9 @@ def check(repo: Path, corpus: Path) -> dict:
                         if len(details) < 50:
                             details.append(f'{slug} on {day}: {f} differs from version {want["from"]}')
             prev = v
+    import corpus_images as M
+    import provision_index as I
+    images = M.check(c, I.commit_records(repo, future), cat.read)
     cat.close()
     trailer_errors, missing_in_force = 0, 0
     refs = ['main'] + ([future] if has_future else [])
@@ -201,7 +205,9 @@ def check(repo: Path, corpus: Path) -> dict:
     # a few hours ahead of now. Allow it up to two days; every law commit must be in the past.
     future_dated = sum(1 for x in cts[:-1] if x > now) + (1 if cts and cts[-1] > now + 2 * 86400 else 0)
     extra = {'corrections': len(rd.fixes)} if rd.fixes else {}  # only when there are any: unchanged output otherwise
-    return {**extra, 'acts': len(c['acts']), 'versions': versions, 'mismatches': mismatches, 'trailer_errors': trailer_errors,
+    return {**extra, 'image_errors': len(images['errors']), 'image_warnings': len(images['warnings']),
+            'image_details': (images['errors'] + images['warnings'])[:50],
+            'acts': len(c['acts']), 'versions': versions, 'mismatches': mismatches, 'trailer_errors': trailer_errors,
             'missing_in_force': missing_in_force, 'merges': merges, 'backwards': backwards,
             'future_dated': future_dated, 'details': details,
             # Which corpus this check read (a main build reads only the verified parts), so REPRODUCE.md quotes a check
@@ -219,7 +225,7 @@ def main():
     res = check(Path(args.repo), Path(args.corpus))
     print(json.dumps(res, indent=1, ensure_ascii=False))
     ok = not (res['mismatches'] or res['trailer_errors'] or res['missing_in_force'] or res['merges'] or res['backwards']
-              or res['future_dated'])
+              or res['future_dated'] or res['image_errors'])
     if args.write:
         p = Path(args.corpus).parent / 'verification.json'
         ver = json.loads(p.read_text(encoding='utf-8')) if p.exists() else {}

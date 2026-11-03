@@ -24,7 +24,7 @@ def corpus() -> dict:
     v6 = {**v5, 'art-001': u('Art. 1', '# Art. 1\nLa República es democrática, social y federal.\n')}
     cc1 = {'art-001': u('Art. 1', '# Art. 1\nLas leyes obligan.\n')}
     cc2 = {'art-001': u('Art. 1', '# Art. 1\nLas leyes obligan a todos.\n')}
-    return {
+    data = {
         'country': {'code': 'XX', 'name': 'Testland', 'slug': 'testland', 'lang': 'es', 'tz': 'America/Santiago',
                     'future_branch': 'futuro', 'publisher': {'name': 'Boletín (test)', 'email': 'boletin@test.invalid'},
                     'default_in_force_rule': {'text': 'from publication', 'source': 'https://example.invalid/rule'}},
@@ -63,6 +63,11 @@ def corpus() -> dict:
                      'groups': [{'conditions': [{'kind': 'commenced_on_or_after', 'date': '2001-03-12'}], 'set_by': 'Ley 200, art. 2 transitorio'}]}],
         'decisions': ['Test decision.'], 'ai_use': ['none'],
     }
+    # These invented test texts have no source images.
+    for act in data['acts']:
+        for version in act['versions']:
+            version['source_images'] = 0
+    return data
 
 
 def run(*args, cwd=None):

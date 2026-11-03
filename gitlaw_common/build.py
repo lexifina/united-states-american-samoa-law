@@ -32,6 +32,7 @@ import corpus_standard as S  # noqa: E402
 import corpus_paths as P  # noqa: E402
 import corpus_tables as T  # noqa: E402
 import provision_index as I  # noqa: E402
+import corpus_images as M  # noqa: E402
 try:
     import private  # noqa: E402  (Lexifina's list of what stays off shared repos)
 except ImportError:  # a published copy of this builder runs without it
@@ -366,6 +367,10 @@ def pre_1970(day: str) -> list[str]:
 
 def start_message(c: dict, x: dict) -> tuple[tuple[str, str], list[str], list[str]]:
     act, v = x['act'], x['version']
+    try:
+        M.require(act, v)
+    except ValueError as exc:
+        raise CorpusError(str(exc)) from exc
     pub = act.get('publisher') or c['country']['publisher']
     labels = []
     if act.get('first_law'):
@@ -410,6 +415,11 @@ def start_message(c: dict, x: dict) -> tuple[tuple[str, str], list[str], list[st
 def change_message(c: dict, x: dict) -> tuple[tuple[str, str], list[str], list[str]]:
     day = x['day']
     parts = x['parts']
+    for p in parts:
+        try:
+            M.require(p['act'], p['cur'])
+        except ValueError as exc:
+            raise CorpusError(str(exc)) from exc
     # An act may name its own publisher (its text comes from a different source than the country's); a commit that
     # spans acts with different publishers uses the country's.
     pubs = {json.dumps(p['act'].get('publisher') or c['country']['publisher'], sort_keys=True) for p in parts}
@@ -562,7 +572,7 @@ class Writer:
         self.p.stdin.write(b)
 
     def _data(self, s: str):
-        b = s.encode('utf-8')
+        b = s if isinstance(s, bytes) else s.encode('utf-8')
         self._w(f'data {len(b)}\n'.encode() + b + b'\n')
 
     def commit(self, branch: str, author: tuple[str, str], committer: tuple[str, str], when: str, message: str,
@@ -640,6 +650,10 @@ def act_files(act: dict, units: dict, prev: dict | None, keys: list[str] | None 
         if prev is not None and prev.get(k, {}).get('text') == (u or {}).get('text'):
             continue
         files[f'{act["slug"]}/{k}.md'] = u['text'] if u else None
+    try:
+        files.update(M.files(act, files))
+    except ValueError as exc:
+        raise CorpusError(str(exc)) from exc
     return files
 
 
@@ -669,6 +683,7 @@ def write_history(repo: Path, c: dict, docs_date: str, commits: list[dict]) -> t
             for p in x['parts']:
                 files.update(act_files(p['act'], p['cur']['units'], p['prev']['units'], p['keys']))
             touched = [p['act']['slug'] for p in x['parts']]
+        trailers.append('Corpus-standard: 1')
         check_trailers(trailers)
         text = '\n'.join(msg).rstrip('\n') + '\n\n' + '\n'.join(trailers) + '\n'
         mark = w.commit(branch, author, committer, clock.stamp(x['day']), text, files)
@@ -688,7 +703,9 @@ def write_history(repo: Path, c: dict, docs_date: str, commits: list[dict]) -> t
 def tables(c: dict, log: list[dict]) -> dict[str, str]:
     out = {}
     out['data/acts.json'] = json.dumps(T.acts_document(c, c['_docs_date']), ensure_ascii=False, indent=1) + '\n'
-    out['data/provisions.tsv'] = I.document(c, c.get('_repo'))
+    records = I.commit_records(c['_repo'], c['country'].get('future_branch', 'futuro')) if c.get('_repo') else []
+    out['data/provisions.tsv'] = I.document(c, c.get('_repo'), records=records)
+    out['data/assets.tsv'] = M.assets_document(c, records)
     buf = io.StringIO()
     wr = csv.writer(buf, lineterminator='\n')
     wr.writerow(['key', 'label', 'kind', 'law_kind', 'title', 'enacted', 'published', 'in_force_days', 'commits', 'url'])
@@ -1082,7 +1099,7 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
         for p in sorted(static.rglob('*')):
             if p.is_file() and '__pycache__' not in p.parts:
                 files[p.relative_to(static).as_posix()] = p.read_text(encoding='utf-8').replace('\r\n', '\n')
-    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'corpus_tables.py', 'provision_index.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
+    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'corpus_tables.py', 'provision_index.py', 'corpus_images.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
         text = (HERE / name).read_text(encoding='utf-8').replace('\r\n', '\n')
         # Passages for Lexifina's agents only (how sources are fetched, internal paths) stay out of the published copy.
         text = re.sub(r'\n?<!-- private -->.*?<!-- /private -->', '', text, flags=re.S)
@@ -1139,6 +1156,13 @@ def build(folder: Path, repo: Path, docs_date: str) -> dict:
         raise CorpusError('corpus.json has problems:\n  ' + '\n  '.join(errs[:60]) + (f'\n  … {len(errs) - 60} more' if len(errs) > 60 else ''))
     c['_docs_date'] = docs_date
     c['_repo'] = str(repo)
+    try:
+        M.load(c, folder, repo if (repo / '.git').exists() else None)
+        for act in c['acts']:
+            for version in act['versions']:
+                M.require(act, version)
+    except ValueError as exc:
+        raise CorpusError(str(exc)) from exc
     commits = plan(c)
     prepare(repo)
     w, tags, log, clock = write_history(repo, c, docs_date, commits)

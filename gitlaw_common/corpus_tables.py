@@ -1,6 +1,7 @@
 """Public corpus indexes derived from source facts and committed versions."""
 import datetime as dt
 import corpus_standard as S
+import corpus_images as M
 
 ACT_STATUSES = {'in force', 'repealed', 'expired', 'not yet in force', 'as captured'}
 
@@ -46,6 +47,12 @@ def acts_document(c, day):
                      'published': act.get('published') or law.get('published'),
                      'in_force': act.get('in_force') or (versions[0]['from'] if versions and act.get('first_law') else None),
                      'repealed': repealed, 'repealed_by': repealing, 'status': status, 'url': act.get('url')})
+        images = M.counts(latest)
+        images_complete = images['source'] is not None and not images['normative_omitted'] \
+            and images['source'] == images['referenced'] + images['omitted']
+        rows[-1].update(images=images['referenced'], images_omitted=images['omitted'],
+                        images_source=images['source'], images_complete=images_complete,
+                        complete=images_complete and latest.get('complete', act.get('complete')) is True)
     return {'acts': rows}
 
 

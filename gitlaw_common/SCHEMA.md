@@ -59,6 +59,29 @@ checkpoint; missing provenance is an error.
 `to`, lifecycle `status`, and nullable `text_as_of` to every version. The regenerated commits ledger normalizes old
 kind spellings without changing the commits that it describes.
 
+## Images in law text (corpus standard section 5a)
+
+Every new version supplies `source_images`, the count independently taken from the official source (including an
+explicit zero). An unknown inventory is an error for new writes and a warning for pinned history. New law and
+correction commits carry `Corpus-standard: 1`, allowing the checker to distinguish them from pinned legacy rows.
+
+Kept images are listed in the version's `images`: `file` (a local path under the source folder), `sha256`, `ext`
+(optional when the filename supplies it), `media_type`, `source_url`, and the source's `caption`. Their bytes must
+come from the same official host as the text and match the hash. The builder reads local bytes only. Provision
+text must already contain `![caption](assets/<sha256>.<ext>)` at the source position; the builder never inserts or
+transcribes law text. Files over 25 MB must use an omission notice. Assets are marked binary and never re-encoded.
+
+An omission is listed in `images_omitted` with `source_ref`, `description`, `reason` (`licence`, `not extractable`,
+or `too large`), and optional `normative` (defaults to true). Its provision contains exactly
+`[Image omitted: <source_ref>; <description>; reason: <reason>]`. A normative omission makes the act incomplete,
+even though it satisfies the count check. Logos/decorations may explicitly set `normative: false`.
+
+`data/assets.tsv` records path, act, sha256, byte count, media type, source URL, and the actual first commit. Act
+metadata includes referenced and omitted counts, source count (null if unknown), and `images_complete`.
+`complete` additionally requires an explicit source-verification assertion (`complete: true` on the act or version);
+image accounting alone does not prove that all of an act's text was captured. Existing text
+gets a missing image through a labelled correction with `Reason: image restored`, never a history rewrite.
+
 ## corpus.json
 
 All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys and values are plain JSON.

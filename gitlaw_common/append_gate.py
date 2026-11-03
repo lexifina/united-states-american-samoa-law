@@ -156,6 +156,7 @@ def docs_only(folder: Path, repo: Path, docs_date: str) -> bool:
     c, raw = B.load(folder, part_records=part_records, required_parts=required)
     c['_docs_date'] = docs_date
     c['_repo'] = str(repo)
+    B.M.load(c, folder, repo)
     log = AP.published_log(repo)
     tags = {t: 0 for t in g(repo, 'tag', '--list').split()}
     docs = B.docs_files(c, folder, raw, log, tags, docs_date, part_records=part_records)
@@ -347,7 +348,7 @@ def check_appended(folder: Path, repo: Path, docs_date: str, old: str, new: str)
 
 
 FAIL_KEYS = ('mismatches', 'trailer_errors', 'missing_in_force', 'merges', 'backwards', 'future_dated',
-             'tip_mismatches')  # the last only from check_corrected()
+             'tip_mismatches', 'image_errors')  # tip_mismatches is from check_corrected()
 
 
 def repair_tags(repo: Path) -> int:
