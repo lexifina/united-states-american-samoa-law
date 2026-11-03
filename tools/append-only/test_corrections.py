@@ -11,7 +11,9 @@ Each case builds a small synthetic corpus as "published", then appends the corre
   version's commit setting that file back at the tip (2 commits);
 - backfill: the published history lacks the 2010 version: 1 correction (Supersedes is the commit read that day);
 - newer: a correction plus a newer version appended after it in the same run.
-For each: without --corrections the run refuses and changes nothing; with it, check_corrected() reads 0 mismatches and
+And, in a repository made by hand: a one-file act whose path has a comma (title-11/362,1.md), in a folder it shares
+with another act's file; its correction's open range must hold across the sibling's commit and end at the act's own.
+For each corpus case: without --corrections the run refuses and changes nothing; with it, check_corrected() reads 0 mismatches and
 an equal tip, the plain check_repo still runs, trailers are as specified, no published SHA or tag changed, a second run
 adds 0, and another clone of the same head with the same corpus gets the same hashes.
 """
@@ -194,6 +196,11 @@ for want in ('Correction: Const, version in force from 2020-01-01', 'Wording dif
         failures.append(f'newest: the message lacks {want!r}:\n{body}')
 if g(repo, 'diff-tree', '-r', '--name-only', '--no-commit-id', fixes[0][0]).split() != ['constitution/art-3.md']:
     failures.append('newest: the correction does not change exactly the one wrong file')
+keys = g(repo, 'log', '-1', '--format=%(trailers:keyonly,separator=%x2C)', fixes[0][0]).strip()
+if keys != 'Kind,In-force,Corrects,Supersedes,Reason,Act-path,Files':
+    failures.append(f'newest: trailer order is {keys}')
+if 'Act-path: constitution\nFiles: constitution/art-3.md\n' not in body:
+    failures.append(f'newest: Act-path / Files lines are wrong:\n{body}')
 repo, fixes = case('middle', 2)
 if [f[3] for f in fixes] != ['constitution 2010-01-01..2019-12-31', 'constitution 2020-01-01..']:
     failures.append(f'middle: Corrects are {[f[3] for f in fixes]}')
@@ -201,6 +208,63 @@ repo, fixes = case('backfill', 1)
 if fixes and (fixes[0][3] != 'constitution 2010-01-01..2019-12-31' or 'found late' not in fixes[0][5]):
     failures.append(f'backfill: {fixes[0][3:]}')
 case('newer', 1, 1)
+
+
+def shared_folder():
+    """A one-file act (title-11/362,1.md: a path with a comma) in a folder it shares with another act's file. The
+    correction's open range must not end at the sibling's ordinary commit, only at the next one touching Act-path."""
+    import os
+    repo = work / 'shared-repo'
+    repo.mkdir()
+    g(repo, 'init', '-q', '-b', 'main')
+    act, sib = 'title-11/362,1.md', 'title-11/363.md'
+    n = [0]
+
+    def commit(files: dict, msg: str) -> str:
+        for path, text in files.items():
+            (repo / path).parent.mkdir(parents=True, exist_ok=True)
+            (repo / path).write_bytes(text.encode('utf-8'))
+        subprocess.run(['git', 'add', '-A'], cwd=repo, check=True)
+        n[0] += 1
+        when = f'{1700000000 + n[0]} +0000'
+        subprocess.run(['git', '-c', 'user.name=Test', '-c', 'user.email=test@testland.invalid', 'commit', '-q', '-m',
+                        msg], cwd=repo, check=True, env={**os.environ, 'GIT_AUTHOR_DATE': when, 'GIT_COMMITTER_DATE': when})
+        return g(repo, 'rev-parse', 'HEAD').strip()
+
+    a = commit({act: 'Old.\n', sib: 'Sibling.\n'}, 'Both\n\nIn-force: 2000-01-01')
+    commit({act: 'Fixed.\n'}, 'Correction: s. 362\n\nKind: correction\nIn-force: 2010-01-01\nCorrects: us-11-362 '
+           f'2010-01-01..\nSupersedes: {a}\nReason: test\nAct-path: {act}\nFiles: {act}')
+    commit({sib: 'Sibling, amended.\n'}, 'Sibling\n\nIn-force: 2015-01-01')
+    commit({act: 'New.\n'}, 'New text\n\nIn-force: 2020-01-01')
+    probe = '''
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import append as A
+repo = A.Path(sys.argv[2])
+rd = A.Reader(repo, ['us-11-362'])
+out = {'fixes': [{k: f[k] for k in ('ranges', 'paths', 'files')} for f in rd.fixes],
+       'reads': {d: rd.files('us-11-362', d) for d in ('2005-06-01', '2012-06-01', '2016-06-01', '2021-06-01')}}
+rd.close()
+print(json.dumps(out))
+'''
+    res = json.loads(run('-c', probe, tools, repo).stdout)
+    import hashlib
+
+    def oid(t: str) -> str:
+        return hashlib.sha1(b'blob %d\0' % len(t.encode()) + t.encode()).hexdigest()
+
+    want_fix = [{'ranges': {'us-11-362': ['2010-01-01', None]}, 'paths': {'us-11-362': act},
+                 'files': {'us-11-362': {act: oid('Fixed.\n')}}}]
+    if res['fixes'] != want_fix:
+        failures.append(f'shared folder: corrections read as {res["fixes"]}')
+    for d, t in (('2005-06-01', 'Old.\n'), ('2012-06-01', 'Fixed.\n'), ('2016-06-01', 'Fixed.\n'),
+                 ('2021-06-01', 'New.\n')):
+        if res['reads'][d] != {act: oid(t)}:
+            failures.append(f'shared folder: on {d} the act reads {res["reads"][d]}, expected {t!r}')
+    print('shared folder:', 'reads', {d: v for d, v in res['reads'].items()})
+
+
+shared_folder()
 
 if failures:
     raise SystemExit('FAILED:\n- ' + '\n- '.join(failures))

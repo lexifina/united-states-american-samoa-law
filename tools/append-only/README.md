@@ -41,26 +41,34 @@ Each is made by Lexifina, dated noon on the version's first day, and carries:
 Kind: correction
 In-force: <the version's first day>
 Corrects: <act> <from>..<to>     <to> = the day before the act's next version; open (<from>..) if it runs to the present
-Files: <path> <path> ...         the files it corrects; its tree holds their text (a path it lacks is removed)
 Supersedes: <sha>                the published commit that carried the wrong text for that version, or none
 Reason: <one line>               --reason (default "text corrected from the official source"); fixed wording for a
                                  back-fill ("version found late …") and for a tip restore
+Act-path: <path>                 the act's folder, or its file, relative to the repository root
+Files: <path>                    one line per corrected file, the trailer repeated (a path may contain a comma)
 ```
 
-`Files` is one addition to the agreed format. A correction can set a file to the text the tip already has: a version
-found late whose text the act came back to. Such a commit changes nothing git can show, so the trailer names the files.
-Readers take them from the commit's tree. With no `Files` trailer, a reader takes the files the commit changes.
+The trailers come in that order. `Act-path` names what the act is in the repository. For the builder's corpora that is
+the act's folder, but it may be one file in a folder other acts share (US `title-11/362.md`). `Files` names the files
+the commit corrects; readers take their text from the commit's tree, and a listed path the tree lacks is removed. A
+correction can set a file to the text the tip already has (a version found late whose text the act came back to), and
+such a commit changes nothing git can show, so `Files` is what says which files it covers. A commit with no `Files`
+covers the files it changes under `Act-path`. A commit with no `Act-path` (an older form) falls back to the folder its
+`Files` share, then to its `Corrects` act name.
 
 The subject is `Correction: <act short>, version in force from <day>`. The body says which provisions were wrong and how
 (wording differed, missing, published but not in force), which law made the corrected text, and that the history is
 not re-sorted. All text comes from the corpus; nothing is edited by hand. No published commit or tag moves, and no tag
 is added for a correction. `data/commits.csv` lists them with kind `correction`.
 
-**Reading with corrections applied** (`Reader` in append.py): the text of an act on a day is the commit the `In-force`
-trailer picks among the commits that are *not* corrections. Then, file by file and in commit order, each correction
-whose `Corrects` range holds the day is applied (its `Files`, as its tree has them). An open range ends the day before the act's next non-correction
-commit. The published `tools/on.py` and `tools/check_repo.py` don't apply corrections yet (they still run; they read the
-correction commit's tree for days on or after its In-force day). Until they do, check a corrected main with
+**Reading with corrections applied** (`Reader` in append.py; gitlaw-mcp reads the same way): the text of an act on a
+day is the commit the `In-force` trailer picks among the commits that touch its `Act-path` and are *not* corrections.
+Then, file by file and in commit order, each correction whose `Corrects` range holds the day is applied (its `Files`,
+as its tree has them). An open range ends the day before the next non-correction commit, by In-force day, that touches
+`Act-path`: a sibling file's commit in a shared folder does not end it.
+
+The published `tools/on.py` and `tools/check_repo.py` don't apply corrections yet. They still run, but they read the
+correction commit's tree for days on or after its In-force day. Until they do, check a corrected main with
 `check_corrected()`: 0 mismatches read this way, and the tip equal to the corpus on `--docs-date`. With
 `--corrections`, append_gate.py checks it that way.
 
@@ -100,8 +108,11 @@ appends the rest (1 new act, 31 more versions). It then checks:
 `test_corrections.py` builds a small synthetic corpus as published, then appends a corrected one with
 `--corrections`. Its cases are: one unit wrong in the newest version (1 correction commit); one wrong in a middle version
 that the next version changes again (the correction plus the tip restore); a 2010 version missing (back-filled); and a
-correction followed by a newer version in the same run. For each, without `--corrections` the run refuses and changes
-nothing. With it:
+correction followed by a newer version in the same run. A hand-made repository adds a one-file act whose path has a
+comma (`title-11/362,1.md`), in a folder shared with another act. There, the correction's open range must hold across
+the sibling's commit and end at the act's own.
+
+For each corpus case, without `--corrections` the run refuses and changes nothing. With it:
 - `check_corrected()` finds 0 mismatches and an equal tip;
 - reading with corrections applied gives the corpus text before, inside and after the corrected range;
 - the plain check_repo still runs;

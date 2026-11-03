@@ -31,16 +31,19 @@ and carries:
     Kind: correction
     In-force: <the version's first day>
     Corrects: <act> <from>..<to>      <to>: the day before the act's next version; open (<from>..) for the newest
-    Files: <path> <path> ...          the files it corrects (its tree holds their text; a path it lacks is
-                                      removed). Needed as a commit can't show a file it sets to the text the
-                                      tip already has (a version found late)
     Supersedes: <sha>                 the published commit that carried the wrong text on that day, or none
     Reason: <one line>                --reason; for a back-fill or a tip restore, a fixed reason saying so
+    Act-path: <path>                  the act's folder (or file), relative to the repository root
+    Files: <path>                     one line per file it corrects, repeated (a path may hold a comma); its tree
+                                      holds their text, and a path it lacks is removed. Needed as a commit can't
+                                      show a file it sets to the text the tip already has (a version found late)
 
 The history is not re-sorted: the commits before keep their text as first published. Readers apply corrections by
-date (Reader): the text of an act on a day is the commit the In-force trailer picks among the commits that are not
-corrections, then, file by file and in commit order, each correction whose Corrects range holds the day; an open range
-ends the day before the act's next non-correction commit. tools/on.py and tools/check_repo.py as published do not
+date (Reader): the text of an act on a day is the commit the In-force trailer picks among the commits that touch its
+Act-path and are not corrections, then, file by file and in commit order, each correction whose Corrects range holds
+the day; an open range ends the day before the next such non-correction commit (one touching Act-path: a sibling
+file's commit in a shared folder does not end it). A commit with no Act-path falls back to the folder of its Files,
+and then to its Corrects act name. tools/on.py and tools/check_repo.py as published do not
 apply them yet; check_corrected() checks such a main (0 mismatches, read this way, and the tip equal to the corpus on
 --docs-date). A second run reads main with its corrections applied, finds nothing to correct and adds nothing.
 """
@@ -139,18 +142,29 @@ def day_before(day: str) -> str:
     return (B.dt.date.fromisoformat(day) - B.dt.timedelta(days=1)).isoformat()
 
 
+def _ls(repo: Path, commit: str, path: str) -> dict[str, str]:
+    """{path: blob id} of every file at or under `path` in `commit` (none if it is not there)."""
+    out = {}
+    for rec in git(repo, '-c', 'core.quotePath=false', 'ls-tree', '-r', '-z', commit, '--', path).split('\0'):
+        meta, _, p = rec.partition('\t')
+        if p and meta.split()[1] == 'blob':
+            out[p] = meta.split()[2]
+    return out
+
+
 def corrections_on(repo: Path, ref: str = 'main') -> list[dict]:
-    """The correction commits on ref, oldest first: {'commit', 'ranges': {act: (from, to or None)}, 'files': {act:
-    {path: blob id, or None if removed}}}. The files are those its Files trailers name, read from its tree (a path the
-    tree lacks is removed); with no Files trailer, the files the commit changes."""
+    """The correction commits on ref, oldest first: {'commit', 'ranges': {act: (from, to or None)}, 'paths': {act:
+    Act-path}, 'files': {act: {path: blob id, or None if removed}}}. An act's files are those its Files trailers name
+    (one path per line), read from its tree, a path the tree lacks being removed; with no Files trailer, the files the
+    commit changes under the act's path. A commit with no Act-path gives each act the folder its Files share (an older
+    form), else the act's name."""
     out = git(repo, 'log', '--no-merges', '--reverse', '--format=%H%x1e%(trailers:key=Kind,valueonly,separator=%x1f)'
               '%x1e%(trailers:key=Corrects,valueonly,separator=%x1f)%x1e'
-              '%(trailers:key=Files,valueonly,separator=%x20)%x1d', ref)
+              '%(trailers:key=Act-path,valueonly,separator=%x1f)%x1e'
+              '%(trailers:key=Files,valueonly,separator=%x1f)%x1d', ref)
     fixes = []
     for rec in out.split('\x1d'):
-        h, _, rest = rec.strip('\n').partition('\x1e')
-        kind, _, rest = rest.partition('\x1e')
-        cor, _, named = rest.partition('\x1e')
+        h, kind, cor, apath, named = (rec.strip('\n').split('\x1e') + ['', '', '', ''])[:5]
         if not h or 'correction' not in [k.strip() for k in kind.split('\x1f')]:
             continue
         ranges = {}
@@ -159,52 +173,88 @@ def corrections_on(repo: Path, ref: str = 'main') -> list[dict]:
             if len(parts) == 2 and '..' in parts[1]:
                 a, _, b = parts[1].partition('..')
                 ranges[parts[0]] = (a, b or None)
+        acts = list(ranges)
+        listed = [p.strip() for p in named.split('\x1f') if p.strip()]
+        given = [p.strip().rstrip('/') for p in apath.split('\x1f') if p.strip()]
+        paths = {}
+        for i, a in enumerate(acts):
+            if i < len(given):
+                paths[a] = given[i]
+            else:
+                dirs = {p.rsplit('/', 1)[0] for p in listed if '/' in p}
+                paths[a] = dirs.pop() if len(dirs) == 1 and len(acts) == 1 else a
+
+        def under(p: str, base: str) -> bool:
+            return p == base or p.startswith(base + '/')
+
         files: dict[str, dict] = {}
-        if named.split():
-            want = {p for p in named.split() if p.split('/', 1)[0] in ranges}
-            for s in {p.split('/', 1)[0] for p in want}:
-                have = {}
-                for line in git(repo, '-c', 'core.quotePath=false', 'ls-tree', '-r', h, '--', f'{s}/').splitlines():
-                    meta, _, path = line.partition('\t')
-                    have[path] = meta.split()[2]
-                files[s] = {p: have.get(p) for p in sorted(want) if p.split('/', 1)[0] == s}
+        if listed:
+            for a in acts:
+                mine = [p for p in listed if under(p, paths[a])]
+                if mine:
+                    have = _ls(repo, h, paths[a])
+                    files[a] = {p: have.get(p) for p in mine}
         else:
-            raw = git(repo, 'diff-tree', '-r', '-z', '--no-renames', '--no-commit-id', f'{h}^', h)
+            raw = git(repo, '-c', 'core.quotePath=false', 'diff-tree', '-r', '-z', '--no-renames', '--no-commit-id',
+                      f'{h}^', h)
             f = raw.split('\0')
             for meta, path in zip(f[0::2], f[1::2]):
-                s = path.split('/', 1)[0]
-                if s in ranges and path.endswith('.md') and path != f'{s}/README.md':
-                    m = meta.split()
-                    files.setdefault(s, {})[path] = None if m[4] == 'D' else m[3]
-        fixes.append({'commit': h, 'ranges': ranges, 'files': files})
+                for a in acts:
+                    if under(path, paths[a]) and path.endswith('.md') and path != f'{paths[a]}/README.md':
+                        m = meta.split()
+                        files.setdefault(a, {})[path] = None if m[4] == 'D' else m[3]
+        fixes.append({'commit': h, 'ranges': ranges, 'paths': paths, 'files': files})
     return fixes
 
 
 class Reader:
     """An act's files on a day, with correction commits applied: the commit the In-force trailer picks among the
-    commits that are not corrections (tools/on.py's rule), then, file by file and in commit order, every correction
-    commit whose Corrects range for the act holds the day. An open range (`<from>..`) ends the day before the act's
-    next commit, other than a correction, with a later In-force day."""
+    commits that touch the act's path and are not corrections (tools/on.py's rule), then, file by file and in commit
+    order, every correction commit whose Corrects range for the act holds the day. An open range (`<from>..`) ends the
+    day before the next such commit (not a correction, touching the act's path) with a later In-force day.
 
-    def __init__(self, repo: Path, slugs: list[str], ref: str = 'main', rows: dict | None = None):
+    `acts`: the acts to read, by the name Corrects gives them; `paths` maps a name to its path (default: the path the
+    act's correction commits give as Act-path, else the name itself, the act's folder as the builder writes it). An
+    act's files are the .md files under a folder path (README.md excepted), or the file a path names."""
+
+    def __init__(self, repo: Path, acts: list[str], ref: str = 'main', rows: dict | None = None,
+                 paths: dict[str, str] | None = None):
+        self.repo = repo
         self.fixes = corrections_on(repo, ref)
         skip = {f['commit'] for f in self.fixes}
-        rows = rows if rows is not None else K.all_commits_by_act(repo, ref, slugs)
-        self.rows = {s: [(h, d) for h, d in rows[s] if h not in skip] for s in slugs}
-        self.cat, self.trees = K.Cat(repo), {}
-
-    def files(self, slug: str, day: str) -> dict[str, str] | None:
-        h = K.state_on(self.rows[slug], day)
-        out = dict(K.tree_oids(self.cat, h, slug, self.trees)) if h else None
+        self.path = {a: a for a in acts}
         for f in self.fixes:
-            if slug not in f['ranges']:
+            for a, p in f['paths'].items():
+                if a in self.path:
+                    self.path[a] = p
+        self.path.update(paths or {})
+        # `rows` (by act name) is used only for acts read at their own name.
+        need = sorted({p for a, p in self.path.items() if rows is None or a not in rows or p != a})
+        by_path = K.all_commits_by_act(repo, ref, need) if need else {}
+        self.rows = {a: [(h, d) for h, d in (by_path[p] if p in by_path else rows[a]) if h not in skip]
+                     for a, p in self.path.items()}
+        self.cat, self.trees, self.blobs = K.Cat(repo), {}, {}
+
+    def _at(self, commit: str, act: str) -> dict[str, str]:
+        p = self.path[act]
+        if p.endswith('.md'):  # an act that is one file
+            if (commit, p) not in self.blobs:
+                self.blobs[(commit, p)] = _ls(self.repo, commit, p)
+            return dict(self.blobs[(commit, p)])
+        return dict(K.tree_oids(self.cat, commit, p, self.trees))
+
+    def files(self, act: str, day: str) -> dict[str, str] | None:
+        h = K.state_on(self.rows[act], day)
+        out = self._at(h, act) if h else None
+        for f in self.fixes:
+            if act not in f['ranges']:
                 continue
-            a, b = f['ranges'][slug]
+            a, b = f['ranges'][act]
             if b is None:
-                b = day_before(min((d for _, d in self.rows[slug] if d > a), default='9999-12-31'))
+                b = day_before(min((d for _, d in self.rows[act] if d > a), default='9999-12-31'))
             if a <= day <= b:
                 out = out if out is not None else {}
-                for p, o in f['files'].get(slug, {}).items():
+                for p, o in f['files'].get(act, {}).items():
                     if o is None:
                         out.pop(p, None)
                     else:
@@ -335,7 +385,8 @@ def correction_message(c: dict, x: dict) -> tuple[list[str], list[str]]:
                   (f' It supersedes {x["supersedes"][:12]} ("{x["sup_subject"]}").' if x['sup_subject'] else '')) + ['']
     msg += B.pre_1970(a)
     trailers = ['Kind: correction', f'In-force: {a}', f'Corrects: {s} {a}..{x["to"] or ""}',
-                f'Files: {" ".join(sorted(x["files"]))}', f'Supersedes: {x["supersedes"]}', f'Reason: {x["reason"]}']
+                f'Supersedes: {x["supersedes"]}', f'Reason: {x["reason"]}', f'Act-path: {s}']
+    trailers += [f'Files: {f}' for f in sorted(x['files'])]
     return msg, trailers
 
 
