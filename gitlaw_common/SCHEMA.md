@@ -48,6 +48,13 @@ readers still fall back to it for old commits.
 law supply missing original dates; a baseline's record-start date is never invented as the act's commencement.
 Statuses are `in force`, `repealed`, `expired`, `not yet in force`, and `as captured`.
 
+`data/provisions.tsv` is sorted by provision path and `from`. Columns are `path`, `act`, `from`, `to`, `status`,
+`kind`, `law`, `text_as_of`, `commit`, `text_source`, and `sha256`. An unchanged provision keeps its interval across
+changes to other provisions. A replacement ends the prior interval the preceding day; a deletion is an explicit
+repealed row. Same-day intermediate versions keep that same day as their last day. Correction ranges split the
+applicable intervals and refer to the correction's actual commit. Commit IDs come from git after a fast-import
+checkpoint; missing provenance is an error.
+
 ## corpus.json
 
 All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys and values are plain JSON.

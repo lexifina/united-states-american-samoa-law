@@ -24,10 +24,10 @@ def law_commit_kind(law):
 def legacy_kind(value, subject='', author='', words_changed='', corrects=''):
     """Section 6 read-only mapping; never used to write new trailers."""
     k = (value or '').strip().lower()
-    if author == 'Lexifina' or k == 'documentation':
-        return 'documentation'
     if k == 'correction':
         return 'correction' if corrects else 'law'
+    if author == 'Lexifina' or k == 'documentation':
+        return 'documentation'
     if k == 'publisher':
         if 'oldest version available' in subject.lower():
             return 'baseline'

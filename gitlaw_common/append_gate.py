@@ -155,6 +155,7 @@ def docs_only(folder: Path, repo: Path, docs_date: str) -> bool:
     part_records = {}
     c, raw = B.load(folder, part_records=part_records, required_parts=required)
     c['_docs_date'] = docs_date
+    c['_repo'] = str(repo)
     log = AP.published_log(repo)
     tags = {t: 0 for t in g(repo, 'tag', '--list').split()}
     docs = B.docs_files(c, folder, raw, log, tags, docs_date, part_records=part_records)

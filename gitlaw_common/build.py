@@ -31,6 +31,7 @@ import publish_marker  # noqa: E402
 import corpus_standard as S  # noqa: E402
 import corpus_paths as P  # noqa: E402
 import corpus_tables as T  # noqa: E402
+import provision_index as I  # noqa: E402
 try:
     import private  # noqa: E402  (Lexifina's list of what stays off shared repos)
 except ImportError:  # a published copy of this builder runs without it
@@ -553,7 +554,7 @@ class Writer:
 
     def __init__(self, repo: Path):
         self.p = subprocess.Popen(['git', 'fast-import', '--quiet', '--done', '--date-format=raw'], cwd=repo,
-                                  stdin=subprocess.PIPE)
+                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.mark = 0
         self.heads: dict[str, int] = {}
 
@@ -592,6 +593,13 @@ class Writer:
         self.p.stdin.close()
         if self.p.wait():
             raise CorpusError('git fast-import failed')
+        self.p.stdout.close()
+
+    def checkpoint(self):
+        self._w(b'checkpoint\nprogress corpus-index-ready\n')
+        self.p.stdin.flush()
+        if self.p.stdout.readline().strip() != b'progress corpus-index-ready':
+            raise CorpusError('git fast-import checkpoint failed')
 
 
 # ---------------------------------------------------------------- the repository
@@ -680,6 +688,7 @@ def write_history(repo: Path, c: dict, docs_date: str, commits: list[dict]) -> t
 def tables(c: dict, log: list[dict]) -> dict[str, str]:
     out = {}
     out['data/acts.json'] = json.dumps(T.acts_document(c, c['_docs_date']), ensure_ascii=False, indent=1) + '\n'
+    out['data/provisions.tsv'] = I.document(c, c.get('_repo'))
     buf = io.StringIO()
     wr = csv.writer(buf, lineterminator='\n')
     wr.writerow(['key', 'label', 'kind', 'title', 'enacted', 'published', 'in_force_days', 'commits', 'url'])
@@ -1075,7 +1084,7 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
         for p in sorted(static.rglob('*')):
             if p.is_file() and '__pycache__' not in p.parts:
                 files[p.relative_to(static).as_posix()] = p.read_text(encoding='utf-8').replace('\r\n', '\n')
-    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'corpus_tables.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
+    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'corpus_paths.py', 'corpus_tables.py', 'provision_index.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
         text = (HERE / name).read_text(encoding='utf-8').replace('\r\n', '\n')
         # Passages for Lexifina's agents only (how sources are fetched, internal paths) stay out of the published copy.
         text = re.sub(r'\n?<!-- private -->.*?<!-- /private -->', '', text, flags=re.S)
@@ -1131,9 +1140,11 @@ def build(folder: Path, repo: Path, docs_date: str) -> dict:
     if errs:
         raise CorpusError('corpus.json has problems:\n  ' + '\n  '.join(errs[:60]) + (f'\n  … {len(errs) - 60} more' if len(errs) > 60 else ''))
     c['_docs_date'] = docs_date
+    c['_repo'] = str(repo)
     commits = plan(c)
     prepare(repo)
     w, tags, log, clock = write_history(repo, c, docs_date, commits)
+    w.checkpoint()
     co = c['country']
     committer = ('Lexifina', f'{co["slug"]}-law@lexifina.com')
     files = docs_files(c, folder, raw, log, tags, docs_date, part_records=part_records)

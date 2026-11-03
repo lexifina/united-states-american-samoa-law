@@ -589,7 +589,7 @@ class Appender:
 
     def __init__(self, repo: Path, head: str, head_ct: int, head_tz: str, branch: str = 'main'):
         self.p = subprocess.Popen(['git', 'fast-import', '--quiet', '--done', '--date-format=raw'], cwd=repo,
-                                  stdin=subprocess.PIPE)
+                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.mark, self.parent, self.ct, self.tz = 0, head, head_ct, head_tz
         self.branch = branch
 
@@ -626,6 +626,13 @@ class Appender:
         self.p.stdin.close()
         if self.p.wait():
             raise B.CorpusError('git fast-import failed')
+        self.p.stdout.close()
+
+    def checkpoint(self):
+        self._w(b'checkpoint\nprogress corpus-index-ready\n')
+        self.p.stdin.flush()
+        if self.p.stdout.readline().strip() != b'progress corpus-index-ready':
+            raise B.CorpusError('git fast-import checkpoint failed')
 
 
 def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corrections: bool = False,
@@ -640,6 +647,7 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     if errs:
         raise B.CorpusError('corpus has problems:\n  ' + '\n  '.join(errs[:60]))
     c['_docs_date'] = docs_date
+    c['_repo'] = str(repo)
     if git(repo, 'status', '--porcelain', '--untracked-files=no').strip():
         raise B.CorpusError(f'{repo} has uncommitted changes; refusing')
     head = git(repo, 'rev-parse', 'main').strip()
@@ -686,10 +694,12 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
         summary['corrected'] = {s: {'versions': sum(1 for x in fixes if x['act']['slug'] == s),
                                     'from': min(x['version']['from'] for x in fixes if x['act']['slug'] == s)}
                                 for s in sorted({x['act']['slug'] for x in fixes})}
-    if dry_run or not (planned or fixes or refresh_docs):
+    if dry_run:
         summary['main'] = head
-        if not dry_run:
-            summary['future_commits'] = append_future(repo, c, docs_date)
+        return summary
+    summary['future_commits'] = append_future(repo, c, docs_date)
+    if not (planned or fixes or refresh_docs or summary['future_commits']):
+        summary['main'] = head
         return summary
     w = Appender(repo, head, head_ct, head_tz)
     tags: dict[str, int] = {}
@@ -712,6 +722,7 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
                     'law': x.get('law') or (x['act'].get('first_law') if x['kind'] == 'start' else None),
                     'acts': e['touched'], 'units': len(e['files']), 'branch': 'main', 'clamped': x['day'] < '1970-01-01'})
     full_log = published_log(repo) + log
+    w.checkpoint()
     all_tags = {t: 0 for t in existing_tags} | {t: m for t, m in tags.items()}
     docs = B.docs_files(c, folder, raw, full_log, all_tags, docs_date, part_records=part_records)
     # Ship this script beside build.py, so the repository says how its appended commits were made.
@@ -732,7 +743,6 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     if subprocess.run(['git', 'merge-base', '--is-ancestor', head, new_head], cwd=repo).returncode:
         raise B.CorpusError('internal: the published head is not an ancestor of the new main')
     summary.update({'main': new_head, 'tags_added': sum(1 for t in tags if t not in existing_tags)})
-    summary['future_commits'] = append_future(repo, c, docs_date)
     return summary
 
 
@@ -742,7 +752,10 @@ def append_future(repo: Path, c: dict, docs_date: str) -> int:
         return 0
     branch = B.S.future_branch(c['country'])
     exists = bool(git(repo, 'branch', '--list', branch).strip())
-    ref = branch if exists else 'main'
+    remote = 'origin/' + branch
+    remote_exists = bool(subprocess.run(['git', 'rev-parse', '--verify', '-q', remote], cwd=repo,
+                                       capture_output=True).returncode == 0)
+    ref = branch if exists else remote if remote_exists else 'main'
     head = git(repo, 'rev-parse', ref).strip()
     rows = K.all_commits_by_act(repo, ref, [a['slug'] for a in c['acts']])
     state = {a: max(d for _, d in values) for a, values in rows.items() if values}
