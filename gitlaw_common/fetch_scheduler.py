@@ -649,8 +649,11 @@ def _to_pointer(shared: Path, dst: Path, url: str, body: bytes) -> str | None:
         st = os.stat(shared)
     except OSError:
         return 'body already in another caller folder'          # the entry is a pointer already
-    if os.path.samefile(shared, dst):
-        return None
+    try:
+        if os.path.samefile(shared, dst):
+            return None
+    except OSError:                               # the entry went (a peer's conversion or refresh) since the stat
+        return 'shared entry changed: kept'
     if _same_volume(shared, dst.parent):
         return 'same volume: kept the shared copy'
     obj = OBJECTS / hashlib.sha256(body).hexdigest()
@@ -662,13 +665,14 @@ def _to_pointer(shared: Path, dst: Path, url: str, body: bytes) -> str | None:
     if st.st_nlink > own:                         # other URLs or callers hold it too: removing frees nothing
         return f'shared body has {st.st_nlink - own} other links: kept'
     ptr, gone = _ptr(url), shared.with_name(f'{shared.name}.{os.getpid()}.{threading.get_ident()}.drop')
+    part = ptr.with_name(f'{ptr.name}.{os.getpid()}.{threading.get_ident()}.part')
     try:
         ptr.parent.mkdir(parents=True, exist_ok=True)
-        part = ptr.with_name(f'{ptr.name}.{os.getpid()}.{threading.get_ident()}.part')
         part.write_text(str(dst.resolve()), encoding='utf-8')
         _replace(part, ptr)                       # pointer first: cached() never misses meanwhile
         os.rename(shared, gone)                   # atomic: from here no reader or writer sees this file as the entry
     except OSError as e:
+        part.unlink(missing_ok=True)
         ptr.unlink(missing_ok=True)
         return f'pointer not made: {type(e).__name__}'
     try:
@@ -679,10 +683,12 @@ def _to_pointer(shared: Path, dst: Path, url: str, body: bytes) -> str | None:
         same = False
     if not same:                                  # a refresh wrote a new body meanwhile: put it back, no pointer
         try:
-            os.link(gone, shared)
+            os.link(gone, shared)                 # atomic, and never over an entry (FileExistsError)
+            gone.unlink(missing_ok=True)
+        except FileExistsError:
+            gone.unlink(missing_ok=True)          # an even newer entry is there already
         except OSError:
-            pass                                  # an even newer entry is there already
-        gone.unlink(missing_ok=True)
+            pass                                  # gone is kept, not deleted: the newer body is never lost
         ptr.unlink(missing_ok=True)
         return 'shared body changed during the conversion: kept'
     gone.unlink(missing_ok=True)
