@@ -28,12 +28,13 @@ from zoneinfo import ZoneInfo
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import publish_marker  # noqa: E402
+import corpus_standard as S  # noqa: E402
 try:
     import private  # noqa: E402  (Lexifina's list of what stays off shared repos)
 except ImportError:  # a published copy of this builder runs without it
     private = None
 KEY = re.compile(r'^[a-z0-9][a-z0-9-]*$')
-KINDS = {'law', 'decree', 'court', 'referendum', 'publisher', 'treaty'}
+KINDS = S.KINDS | S.LAW_KINDS | {'publisher'}
 SUBJECT_MAX = 72
 
 
@@ -150,6 +151,8 @@ def validate(c: dict) -> list[str]:
             errs.append(f'law key {key!r} must be lowercase ASCII [a-z0-9-]')
         if law.get('kind', 'law') not in KINDS:
             errs.append(f'law {key}: kind {law.get("kind")!r} not in {sorted(KINDS)}')
+        if law.get('law_kind') and law['law_kind'] not in S.LAW_KINDS:
+            errs.append(f'law {key}: unknown law_kind {law["law_kind"]!r}')
         if not law.get('label'):
             errs.append(f'law {key}: label is missing')
         for d in ('enacted', 'published', 'temporary_until'):
@@ -311,7 +314,10 @@ def wrap(text: str, width: int = 100) -> list[str]:
 
 def law_trailers(c: dict, key: str, day: str) -> list[str]:
     law = c['laws'][key]
-    t = [f'Law: {law["label"]}', f'Kind: {law.get("kind", "law")}']
+    kind = S.law_commit_kind(law)
+    t = [f'Law: {law["label"]}', f'Kind: {kind}']
+    if kind == 'law':
+        t.append(f'Law-kind: {S.instrument_kind(law)}')
     if law.get('enacted'):
         t.append(f'Enacted: {law["enacted"]}')
     if law.get('published'):
@@ -368,7 +374,7 @@ def start_message(c: dict, x: dict) -> tuple[tuple[str, str], list[str], list[st
             msg += ['The source names these laws as having produced this text:', '']
             msg += [f'- {c["laws"][l]["label"]}: {c["laws"][l].get("title", "")}'.rstrip(': ') for l in act['earlier_laws']]
             msg.append('')
-        trailers = ['Kind: publisher', f'In-force: {v["from"]}']
+        trailers = ['Kind: baseline', f'In-force: {v["from"]}']
     if v.get('note'):
         msg += [*wrap(v['note']), '']
     msg += pre_1970(v['from'])
@@ -453,7 +459,7 @@ def change_message(c: dict, x: dict) -> tuple[tuple[str, str], list[str], list[s
         msg = [subject(shorts[0], all_labels, ' (unexplained)'), '',
                *wrap(f'The consolidated text changed on this day, but no amendment note names a law for it, so the change '
                      f'is not credited to any law. {pub["name"]} published it.'), '', *lines, '']
-        trailers = ['Kind: publisher', f'In-force: {day}', 'Words-changed: yes']
+        trailers = ['Kind: uncredited', f'In-force: {day}', 'Words-changed: yes']
     notes = sorted({p['cur'].get('note', '') for p in parts if p['cur'].get('note')})
     for n in notes:
         msg += [*wrap(n), '']
@@ -617,7 +623,7 @@ def write_history(repo: Path, c: dict, docs_date: str, commits: list[dict]) -> t
             tags.setdefault(f'law/{x["law"]}', mark)
         elif x['kind'] == 'start' and x['act'].get('first_law'):
             tags.setdefault(f'law/{x["act"]["first_law"]}', mark)
-        log.append({'day': x['day'], 'kind': x['kind'], 'law': x.get('law') or (x['act'].get('first_law') if x['kind'] == 'start' else None),
+        log.append({'day': x['day'], 'kind': S.planned_kind(c, x), 'law': x.get('law') or (x['act'].get('first_law') if x['kind'] == 'start' else None),
                     'acts': touched, 'units': len(files), 'branch': branch, 'clamped': x['day'] < '1970-01-01'})
     return w, tags, log, clock
 
@@ -989,6 +995,15 @@ def corpus_descriptor(c: dict, log: list[dict], docs_date: str) -> dict:
     return out
 
 
+def check_documentation_paths(c: dict, files: dict):
+    """A docs commit cannot smuggle a provision or a legal image into the law tree."""
+    slugs = {a['slug'] for a in c['acts']}
+    for path in files:
+        first, _, rest = path.partition('/')
+        if first in slugs and rest != 'README.md':
+            raise CorpusError(f'documentation would alter law: {path}')
+
+
 def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, docs_date: str,
                part_records: dict | None = None) -> dict[str, str]:
     files: dict[str, str] = {}
@@ -997,7 +1012,7 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
         for p in sorted(static.rglob('*')):
             if p.is_file() and '__pycache__' not in p.parts:
                 files[p.relative_to(static).as_posix()] = p.read_text(encoding='utf-8').replace('\r\n', '\n')
-    for name in ('on.py', 'check.py', 'build.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
+    for name in ('on.py', 'check.py', 'build.py', 'corpus_standard.py', 'publish_marker.py', 'published_parts.py', 'SCHEMA.md', 'REPRODUCE.template.md'):
         text = (HERE / name).read_text(encoding='utf-8').replace('\r\n', '\n')
         # Passages for Lexifina's agents only (how sources are fetched, internal paths) stay out of the published copy.
         text = re.sub(r'\n?<!-- private -->.*?<!-- /private -->', '', text, flags=re.S)
@@ -1036,6 +1051,7 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
         files['data/parts.json'] = json.dumps({'schema': 1, 'parts': part_records},
                                              ensure_ascii=False, sort_keys=True, indent=1) + '\n'
     files['REPRODUCE.md'] = reproduce(c, folder, raw, log, tags, docs_date)
+    check_documentation_paths(c, files)
     return files
 
 
@@ -1061,7 +1077,7 @@ def build(folder: Path, repo: Path, docs_date: str) -> dict:
         raise CorpusError(f'nothing is in force on {docs_date}: every version is later than --docs-date')
     w.commit('main', committer, committer, clock.stamp(docs_date),
                         f'Documentation, tables, tools and REPRODUCE.md\n\nBuilt from corpus.json '
-                        f'(sha256 {hashlib.sha256(raw).hexdigest()}), data retrieved {docs_date}.\n',
+                        f'(sha256 {hashlib.sha256(raw).hexdigest()}), data retrieved {docs_date}.\n\nKind: documentation\n',
                         files, parent=w.heads.get('main'))
     for name, mark in sorted(tags.items()):
         w.tag(name, mark)
@@ -1074,7 +1090,7 @@ def build(folder: Path, repo: Path, docs_date: str) -> dict:
         # Parallel checkout (git 2.32+): one worker per core, same files.
         git(repo, '-c', 'checkout.workers=0', 'checkout', '-q', '-f', 'main')
     return {'commits': len(log), 'tags': len(tags), 'laws': sum(1 for e in log if e['kind'] == 'law'),
-            'unexplained': sum(1 for e in log if e['kind'] == 'unexplained'),
+            'unexplained': sum(1 for e in log if e['kind'] == 'uncredited'),
             'future': sum(1 for e in log if e['branch'] != 'main'), 'main': git(repo, 'rev-parse', 'HEAD').strip()}
 
 
@@ -1137,12 +1153,31 @@ def hashes(repo: Path) -> tuple[list[str], dict[str, str], dict[str, str]]:
     return log, tags, heads
 
 
+def compare_preserved(repo: Path, previous: Path) -> dict:
+    """Independent append proof against an unchanged published clone, including exact tag objects."""
+    old, old_tags, _ = hashes(previous)
+    new, new_tags, _ = hashes(repo)
+    extension = new[:len(new) - len(old)] if len(new) >= len(old) else []
+    docs_only = all('Kind: documentation' in git(repo, 'show', '-s', '--format=%B', sha).splitlines()
+                    for sha in extension)
+    added_files = git(repo, 'diff', '--name-status', old[0], new[0]).splitlines() if old[0] in new else []
+    roots = {'README.md', 'REPRODUCE.md', 'SOURCES.md', 'LICENSE', '.gitattributes', '.gitignore',
+             'corpus.json', 'jurisdiction.json'}
+    docs_paths_only = all(p in roots or p.startswith(('data/', 'tools/')) or p.endswith('/README.md')
+                          for row in added_files for p in row.split('\t')[1:])
+    return {'identical': new[len(extension):] == old and old_tags == new_tags and docs_only and docs_paths_only,
+            'preserved_commits': len(old), 'tags': len(old_tags), 'documentation_commits': len(extension),
+            'changed_files': added_files, 'base': old[0], 'main': new[0]}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('folder', help='scripts/<slug>-law (holds corpus.json and repo/)')
     ap.add_argument('--repo', required=True, help='the repository to (re)build; emptied first, origin kept')
     ap.add_argument('--docs-date', required=True, help='the day the data was retrieved (never the run day)')
     ap.add_argument('--compare', help='an earlier build of the same corpus: report whether every hash is identical')
+    ap.add_argument('--append', action='store_true', help='preserve existing history and append new commits')
+    ap.add_argument('--refresh-docs', action='store_true', help='with --append, write one documentation commit')
     ap.add_argument('--site-data', help='also write the /watch reader data (JSON) to this path')
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding='utf-8')
@@ -1154,9 +1189,19 @@ def main():
         Path(args.site_data).parent.mkdir(parents=True, exist_ok=True)
         Path(args.site_data).write_text(json.dumps(site_data(c, args.docs_date), ensure_ascii=False, separators=(',', ':')),
                                         encoding='utf-8', newline='\n')
-    res = build(folder, repo, args.docs_date)
+    if args.refresh_docs and not args.append:
+        raise CorpusError('--refresh-docs requires --append')
+    if args.append:
+        import append as A
+        res = A.append(folder, repo, args.docs_date, refresh_docs=args.refresh_docs)
+    else:
+        res = build(folder, repo, args.docs_date)
     print(json.dumps(res, indent=1))
     if args.compare:
+        if args.append:
+            rec = compare_preserved(repo, Path(args.compare))
+            print(json.dumps(rec, indent=1))
+            raise SystemExit(0 if rec['identical'] else 1)
         a, b = hashes(Path(args.compare)), hashes(repo)
         rec = {'identical': a[0][1:] == b[0][1:] and a[1] == b[1],
                'history_tip': b[0][1] if len(b[0]) > 1 else b[0][0], 'commits': len(b[0]) - 1, 'tags': len(b[1]),

@@ -633,7 +633,7 @@ class Appender:
 
 
 def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corrections: bool = False,
-           reason: str = DEFAULT_REASON) -> dict:
+           reason: str = DEFAULT_REASON, refresh_docs: bool = False) -> dict:
     try:
         required = published_parts.required(repo, folder)
     except published_parts.PublishedPartError as exc:
@@ -688,7 +688,7 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
         summary['corrected'] = {s: {'versions': sum(1 for x in fixes if x['act']['slug'] == s),
                                     'from': min(x['version']['from'] for x in fixes if x['act']['slug'] == s)}
                                 for s in sorted({x['act']['slug'] for x in fixes})}
-    if dry_run or not (planned or fixes):
+    if dry_run or not (planned or fixes or refresh_docs):
         summary['main'] = head
         return summary
     w = Appender(repo, head, head_ct, head_tz)
@@ -708,7 +708,7 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
             tags.setdefault(f'law/{x["law"]}', mark)
         elif x['kind'] == 'start' and x['act'].get('first_law'):
             tags.setdefault(f'law/{x["act"]["first_law"]}', mark)
-        log.append({'day': x['day'], 'kind': x['kind'],
+        log.append({'day': x['day'], 'kind': B.S.planned_kind(c, x),
                     'law': x.get('law') or (x['act'].get('first_law') if x['kind'] == 'start' else None),
                     'acts': e['touched'], 'units': len(e['files']), 'branch': 'main', 'clamped': x['day'] < '1970-01-01'})
     full_log = published_log(repo) + log
@@ -722,7 +722,7 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     w.commit(committer, f'{min(int(ts), int(time.time()))} {tz}', committer,
              f'Documentation, tables, tools and REPRODUCE.md\n\nAppended {len(log)} commits to {head[:12]}'
              + (f' ({len(fixes)} of them corrections)' if fixes else '') + f'; corpus '
-             f'sha256 {B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n', docs)
+             f'sha256 {B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n\nKind: documentation\n', docs)
     for name, mark in sorted(tags.items()):
         if name not in existing_tags:
             w.tag(name, mark)
@@ -741,12 +741,13 @@ def main():
     ap.add_argument('--repo', required=True)
     ap.add_argument('--docs-date', required=True)
     ap.add_argument('--dry-run', action='store_true')
+    ap.add_argument('--refresh-docs', action='store_true', help='append one documentation commit even with no new law')
     ap.add_argument('--corrections', action='store_true',
                     help='where main holds text that differs from the corpus, append correction commits instead of '
                          'refusing')
     ap.add_argument('--reason', default=DEFAULT_REASON, help='the Reason trailer of a correction commit (one line)')
     a = ap.parse_args()
-    print(append(Path(a.folder), Path(a.repo), a.docs_date, a.dry_run, a.corrections, a.reason))
+    print(append(Path(a.folder), Path(a.repo), a.docs_date, a.dry_run, a.corrections, a.reason, a.refresh_docs))
 
 
 if __name__ == '__main__':

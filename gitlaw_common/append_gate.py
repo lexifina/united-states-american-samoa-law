@@ -175,7 +175,7 @@ def docs_only(folder: Path, repo: Path, docs_date: str) -> bool:
     when = f'{max(min(int(ts), int(time.time())), int(head_ct))} {tz}'  # never in the future, never before the head
     w.commit(committer, when, committer,
              f'Documentation update: tables, tools and REPRODUCE.md\n\nNo new law commits on {head[:12]}; corpus sha256 '
-             f'{B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n', changed)
+             f'{B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n\nKind: documentation\n', changed)
     w.finish()
     g(repo, '-c', 'checkout.workers=0', 'checkout', '-q', '-f', 'main')
     return True

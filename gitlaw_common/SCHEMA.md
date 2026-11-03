@@ -121,7 +121,14 @@ All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys a
 - The first version is credited to `first_law` if it is the act as enacted. Otherwise (`first_law: null`) it is credited to the publisher as "oldest version available", naming `earlier_laws`.
 
 **Laws**
-- `kind` is one of `law`, `decree`, `court`, `referendum`, `publisher` or `treaty`.
+- New commit `Kind` values are `law`, `baseline`, `correction`, `uncredited`, `printing`, `court`, `treaty`, and
+  `documentation`. An unnamed first version is `baseline`; later unnamed text changes are `uncredited`.
+- Input `kind` also accepts instrument names. These produce `Kind: law` with `Law-kind:` set from `law_kind`, or
+  from the old instrument kind. The closed instrument list is `constitution`, `constitutional-amendment`, `act`,
+  `code`, `decree`, `decree-law`, `regulation`, `ordinance`, `legal-notice`, `referendum`, `other`.
+- Existing commits are read through the historical mapping; they are never rewritten. For existing repositories,
+  use `build.py --append --refresh-docs` to add one documentation commit with no new law.
+  `--compare <unchanged published clone>` checks every old commit and tag object, permitting only appended docs.
 - A court ruling that strikes or conditions text is `kind: "court"`, for example Colombia C-xxx/yy (inexequible) and Brazil STF ADI. It is credited like a law, with the decision date as `enacted` and the date it took effect on the text as the version `from`.
 - Temporary measures that lapse, such as Brazil's Medidas Provisórias and Argentina's DNU, set `temporary_until`. The lapse is a version credited to the law with `restores` set.
 - The email is derived as `<law key>@<publisher-domain>.invalid`, so law keys must also be ASCII `[a-z0-9-]`.
