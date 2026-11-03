@@ -10,6 +10,7 @@
    then the build's own tags in batches of 300; a tag already on the remote is moved with a per-tag lease; remote-only
    tags are left alone. Every ref is verified with ls-remote afterwards.
 """
+import os
 import subprocess
 import sys
 import time
@@ -90,6 +91,8 @@ def remote_refs(url: str, *patterns: str) -> dict[str, str]:
 
 def main() -> None:
     build, slug = Path(sys.argv[1]), sys.argv[2]
+    if os.name == 'nt' and (Path(__file__).resolve().parents[1] / slug / '.wsl-only').exists():
+        sys.exit(f'{slug} is WSL-only (scripts/{slug}/.wsl-only): push from ~/gitlaw-builds through wsl_exec.py')
     to_main = '--main' in sys.argv
     branches = ['main'] + [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == '--branch']
     pub = f'https://github.com/lexifina/{slug}.git'

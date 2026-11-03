@@ -1228,6 +1228,8 @@ def host_get(url: str, cache: Path | str | None = None, tries: int = 5, timeout:
     have = hit is not None and hit.exists()
     if have and not refresh:
         return hit.read_bytes()
+    if os.environ.get('GITLAW_FETCH_DRY') == '1':  # publish side in WSL (wsl_exec.py): the host state lives on Windows
+        raise RuntimeError(f'GITLAW_FETCH_DRY=1: {url} is not cached; fetch it on Windows')
     cond, meta_path = [], _meta_file(cache, url) if cache is not None else None
     if have and meta_path is not None:
         try:
