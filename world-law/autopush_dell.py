@@ -1281,8 +1281,11 @@ def wip(slug: str, folder: Path, repo: Path, dry_run: bool = False) -> str:
                 data=''.join(f'100644 {shas[rel]}\twip/{rel}\n' for rel, _ in files).encode('utf-8'))
         tree = git(repo, 'write-tree', env=env)
     branch = f'wip/{slug}-law'
-    git(repo, 'fetch', '-q', '--no-tags', 'ops', f'+refs/heads/{branch}:refs/remotes/ops/wip', check=False)
-    parent = git(repo, 'rev-parse', '-q', '--verify', 'refs/remotes/ops/wip', check=False)
+    # Tracked outside refs/remotes/: a plain `git fetch ops` creates refs/remotes/ops/wip/<slug>-law, and git then
+    # cannot create refs/remotes/ops/wip, so the fetch failed, the snapshot had no parent and every push was
+    # rejected as non-fast-forward (2026-11-03).
+    git(repo, 'fetch', '-q', '--no-tags', 'ops', f'+refs/heads/{branch}:refs/autopush/ops-wip', check=False)
+    parent = git(repo, 'rev-parse', '-q', '--verify', 'refs/autopush/ops-wip', check=False)
     if parent and git(repo, 'rev-parse', f'{parent}^{{tree}}') == tree:
         return 'ops wip unchanged'
     if dry_run:
@@ -1845,12 +1848,13 @@ def one(slug: str, dry_run: bool = False, work: Path | None = None, where: str |
     try:
         if in_wsl:
             # Built and published in WSL (main_build_wsl); never on NTFS again once moved. The wip snapshot stays on
-            # Windows, in the old clone when there is one, else in a small objects-only repo.
+            # Windows, always in a small objects-only repo: the old NTFS clone is no longer maintained, and a stale
+            # one (Santa Catarina: a local tag to a missing object) failed every wip fetch (2026-11-03).
             if work is None and not (repo / '.git').exists() and subprocess.run(
                     ['git', 'ls-remote', '-h', f'https://github.com/lexifina/{slug}-law.git'], capture_output=True).returncode:
                 return f'{slug:10} {"no GitHub repo yet":28} | waiting for its builder to create it'
             status['wip'] = 'skipped (scratch dry run)' if work is not None else wip(
-                slug, folder, repo if (repo / '.git').exists() else _wip_repo(slug), dry_run=dry_run)
+                slug, folder, _wip_repo(slug), dry_run=dry_run)
             status.update(main_build_wsl(slug, folder, state, dry_run=dry_run, repo=wsl_repo))
         else:
             if not (repo / '.git').exists():
