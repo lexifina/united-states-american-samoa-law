@@ -1,0 +1,1969 @@
+{
+  "acts": [
+    {
+      "slug": "ordenanza-392-2019",
+      "short": "Withdrawn corpus record: Ordenanza 392/2018",
+      "title": "Withdrawn corpus record: Ordenanza 392/2018",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298374",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-02-27",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298374",
+          "sha256": "9e55b5899761522fb8f2e5ae63b31c7cd1daa31356aa9275d3a81f8f9d797c44",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-392-2019",
+        "source_identity": "ordenanza-392-2018",
+        "source_heading_date": "03/12/2018",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298374",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-395-2019",
+      "short": "Withdrawn corpus record: Ordenanza 395/2018",
+      "title": "Withdrawn corpus record: Ordenanza 395/2018",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298394",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-02-27",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298394",
+          "sha256": "9a425d3c810bac14ad93c8d98c5041e15226fa2e45e3496890e4246c3618d29f",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-395-2019",
+        "source_identity": "ordenanza-395-2018",
+        "source_heading_date": "28/12/2018",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298394",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-402-2019",
+      "short": "Withdrawn corpus record: Ordenanza 402/2018",
+      "title": "Withdrawn corpus record: Ordenanza 402/2018",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298474",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-02-27",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298474",
+          "sha256": "39220a7c0c616b49e8ded40b205ec3766a7b4fee126bed28f2525913d157aed8",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-402-2019",
+        "source_identity": "ordenanza-402-2018",
+        "source_heading_date": "28/12/2018",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298474",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-403-2019",
+      "short": "Withdrawn corpus record: Ordenanza 403/2018",
+      "title": "Withdrawn corpus record: Ordenanza 403/2018",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298479",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-02-27",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298479",
+          "sha256": "b9bb8d74789e68becf7285a25c01c54736808b3c53c1628a1f0a23294336326d",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-403-2019",
+        "source_identity": "ordenanza-403-2018",
+        "source_heading_date": "28/12/2018",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298479",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-409-2019",
+      "short": "Withdrawn corpus record: Ordenanza 409/2018",
+      "title": "Withdrawn corpus record: Ordenanza 409/2018",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298597",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-02-27",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298597",
+          "sha256": "5801606d20bdc79e7d402687db672c17f20c9614b13e72e60fecbe1920a8c87b",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-409-2019",
+        "source_identity": "ordenanza-409-2018",
+        "source_heading_date": "28/12/2018",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298597",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-410-2019",
+      "short": "Withdrawn corpus record: Ordenanza 410/2018",
+      "title": "Withdrawn corpus record: Ordenanza 410/2018",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298598",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-02-27",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298598",
+          "sha256": "7b00eca89c6ff647f264a7ffd2435e66876512c85d9947c8665ba0c0efd3aad2",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-410-2019",
+        "source_identity": "ordenanza-410-2018",
+        "source_heading_date": "28/12/2018",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298598",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-419-2019",
+      "short": "Withdrawn corpus record: Ordenanza 419/2018",
+      "title": "Withdrawn corpus record: Ordenanza 419/2018",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298664",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-02-27",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298664",
+          "sha256": "7c410d225a97758cc9cd0adc6ab4732644bee7978a3edb8857bc4e4d323a179a",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-419-2019",
+        "source_identity": "ordenanza-419-2018",
+        "source_heading_date": "28/12/2018",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298664",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-420-2019",
+      "short": "Withdrawn corpus record: Ordenanza 420/2018",
+      "title": "Withdrawn corpus record: Ordenanza 420/2018",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298670",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-02-27",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298670",
+          "sha256": "049ac15df14078cb7e393013f68de720af4ae4e8f8879fa3b24b9db5b1c4ae71",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-420-2019",
+        "source_identity": "ordenanza-420-2018",
+        "source_heading_date": "28/12/2018",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298670",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-424-2019",
+      "short": "Withdrawn corpus record: Ordenanza 424/2018",
+      "title": "Withdrawn corpus record: Ordenanza 424/2018",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298684",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-02-27",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298684",
+          "sha256": "e31049befd671b8475b19669d8450f5d9cb1dae3271b24c86f579dd765201f71",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-424-2019",
+        "source_identity": "ordenanza-424-2018",
+        "source_heading_date": "28/12/2018",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/1950/contents/1298684",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-1-2019",
+      "short": "Withdrawn corpus record: Ordenanza 1/2019",
+      "title": "Withdrawn corpus record: Ordenanza 1/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306723",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-03-24",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306723",
+          "sha256": "1c2d6a8f3d69d5497f387c7436aee47014a43af4601f762abf51cf5cd7249041",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-1-2019",
+        "source_identity": "ordenanza-1-2019",
+        "source_heading_date": "07/02/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306723",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-2-2019",
+      "short": "Withdrawn corpus record: Ordenanza 2/2019",
+      "title": "Withdrawn corpus record: Ordenanza 2/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306725",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-03-24",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306725",
+          "sha256": "0932a50d4893bd13a2486db6f8855c71ba865e24d1761d9cf6d8b2ed704dab8d",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-2-2019",
+        "source_identity": "ordenanza-2-2019",
+        "source_heading_date": "07/02/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306725",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-3-2019",
+      "short": "Withdrawn corpus record: Ordenanza 3/2019",
+      "title": "Withdrawn corpus record: Ordenanza 3/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306726",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-03-24",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306726",
+          "sha256": "a87ddb288200e6b2d49853498553d1b733ce786320d7b4c0f98d90da51f43e25",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-3-2019",
+        "source_identity": "ordenanza-3-2019",
+        "source_heading_date": "07/02/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306726",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-4-2019",
+      "short": "Withdrawn corpus record: Ordenanza 4/2019",
+      "title": "Withdrawn corpus record: Ordenanza 4/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306728",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-03-24",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306728",
+          "sha256": "426d2ab362b5dbf7427a428e23a95bae0d183e5d5caa7e0c59ba91449d152936",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-4-2019",
+        "source_identity": "ordenanza-4-2019",
+        "source_heading_date": "07/02/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306728",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-5-2019",
+      "short": "Withdrawn corpus record: Ordenanza 5/2019",
+      "title": "Withdrawn corpus record: Ordenanza 5/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306734",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-03-24",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306734",
+          "sha256": "825cfcd534d0cbaf190c1043b5f400421870936187eda65794d9962d34ad690d",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-5-2019",
+        "source_identity": "ordenanza-5-2019",
+        "source_heading_date": "07/02/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306734",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-7-2019",
+      "short": "Withdrawn corpus record: Ordenanza 7/2019",
+      "title": "Withdrawn corpus record: Ordenanza 7/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306737",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-03-24",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306737",
+          "sha256": "014be1cfa43f1d5c24bab73fd110e78cda7cc3507227d77146533c0ab5d9b6c9",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-7-2019",
+        "source_identity": "ordenanza-7-2019",
+        "source_heading_date": "07/02/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306737",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-8-2019",
+      "short": "Withdrawn corpus record: Ordenanza 8/2019",
+      "title": "Withdrawn corpus record: Ordenanza 8/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306738",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-03-24",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306738",
+          "sha256": "bfdf120bd12a74f6159aa7ffa3be1d02ee65c79c7fadf869ad81fedddf68b292",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-8-2019",
+        "source_identity": "ordenanza-8-2019",
+        "source_heading_date": "07/02/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306738",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-9-2019",
+      "short": "Withdrawn corpus record: Ordenanza 9/2019",
+      "title": "Withdrawn corpus record: Ordenanza 9/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306739",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-03-24",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306739",
+          "sha256": "c839c0839ddf6a8f2cb2e5b0dd3e9e03c18ee1d90e0ef6a26fb7714888ada5c3",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-9-2019",
+        "source_identity": "ordenanza-9-2019",
+        "source_heading_date": "07/02/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2013/contents/1306739",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-14-2019",
+      "short": "Withdrawn corpus record: Ordenanza 14/2019",
+      "title": "Withdrawn corpus record: Ordenanza 14/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313634",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-04-14",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313634",
+          "sha256": "2edc35efbe1bb461ad154b9d6cdae1f6d5c55743863bc380dee64a40271200d4",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-14-2019",
+        "source_identity": "ordenanza-14-2019",
+        "source_heading_date": "14/03/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313634",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-16-2019",
+      "short": "Withdrawn corpus record: Ordenanza 16/2019",
+      "title": "Withdrawn corpus record: Ordenanza 16/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313636",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-04-14",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313636",
+          "sha256": "0ed68a003857f4f32a6614915b8b9a418efc580e2cf9c06a3e72f60afd260150",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-16-2019",
+        "source_identity": "ordenanza-16-2019",
+        "source_heading_date": "14/03/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313636",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-17-2019",
+      "short": "Withdrawn corpus record: Ordenanza 17/2019",
+      "title": "Withdrawn corpus record: Ordenanza 17/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313637",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-04-14",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313637",
+          "sha256": "59c696b4c7bf0ea28bb53d866c4d2e6c4da901438faef7d3f1f65082eca47cd8",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-17-2019",
+        "source_identity": "ordenanza-17-2019",
+        "source_heading_date": "14/03/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313637",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-20-2019",
+      "short": "Withdrawn corpus record: Ordenanza 20/2019",
+      "title": "Withdrawn corpus record: Ordenanza 20/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313640",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-04-14",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313640",
+          "sha256": "00a9283de6432337750b3ba90bef3ee0020adc10fafe6dfa7a54d739a0f8be11",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-20-2019",
+        "source_identity": "ordenanza-20-2019",
+        "source_heading_date": "14/03/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2100/contents/1313640",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-25-2019",
+      "short": "Withdrawn corpus record: Ordenanza 25/2019",
+      "title": "Withdrawn corpus record: Ordenanza 25/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327221",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-06-02",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327221",
+          "sha256": "0d0d4b20269db2b1dc71e86f8790972a5a68d72405d5ba27cd695e739f3af16e",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-25-2019",
+        "source_identity": "ordenanza-25-2019",
+        "source_heading_date": "28/03/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327221",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-28-2019",
+      "short": "Withdrawn corpus record: Ordenanza 28/2019",
+      "title": "Withdrawn corpus record: Ordenanza 28/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327237",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-06-02",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327237",
+          "sha256": "3f09a2bb5783e52cd355a33ac0763fdaf1671362b1ad6c93a0186fcc5cab8eab",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-28-2019",
+        "source_identity": "ordenanza-28-2019",
+        "source_heading_date": "28/03/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327237",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-29-2019",
+      "short": "Withdrawn corpus record: Ordenanza 29/2019",
+      "title": "Withdrawn corpus record: Ordenanza 29/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327248",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-06-02",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327248",
+          "sha256": "a10845f34171c2ad3bf2a9c2f6152bf6f17667ba15477dd1396a21e3a3d5ec49",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-29-2019",
+        "source_identity": "ordenanza-29-2019",
+        "source_heading_date": "28/03/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327248",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-30-2019",
+      "short": "Withdrawn corpus record: Ordenanza 30/2019",
+      "title": "Withdrawn corpus record: Ordenanza 30/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327249",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-06-02",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327249",
+          "sha256": "2b5163d84b96b5716b369574c3695c6f96e20258dcbec7f00fb689a0997950b7",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-30-2019",
+        "source_identity": "ordenanza-30-2019",
+        "source_heading_date": "28/03/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327249",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-32-2019",
+      "short": "Withdrawn corpus record: Ordenanza 32/2019",
+      "title": "Withdrawn corpus record: Ordenanza 32/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327260",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-06-02",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327260",
+          "sha256": "021178f2f3911965db9941102d4c1089d8c010bcc3228b05b7f5957ffdda2437",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-32-2019",
+        "source_identity": "ordenanza-32-2019",
+        "source_heading_date": "11/04/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327260",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-34-2019",
+      "short": "Withdrawn corpus record: Ordenanza 34/2019",
+      "title": "Withdrawn corpus record: Ordenanza 34/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327265",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-06-02",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327265",
+          "sha256": "0b983604981f27a69d31861acb5e031c6fbcb24f66e0949a9ae7f294c1c0d2fc",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-34-2019",
+        "source_identity": "ordenanza-34-2019",
+        "source_heading_date": "11/04/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327265",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-35-2019",
+      "short": "Withdrawn corpus record: Ordenanza 35/2019",
+      "title": "Withdrawn corpus record: Ordenanza 35/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327266",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-06-02",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327266",
+          "sha256": "873275074961a8589dc6b44fa5f1e575c3e6290833b6c4135e11148aca555b93",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-35-2019",
+        "source_identity": "ordenanza-35-2019",
+        "source_heading_date": "11/04/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327266",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-36-2019",
+      "short": "Withdrawn corpus record: Ordenanza 36/2019",
+      "title": "Withdrawn corpus record: Ordenanza 36/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327267",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-06-02",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327267",
+          "sha256": "555b34bfda9360e173ea319623a53eb9c2e01d8640fd5233dc39f020986159cc",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-36-2019",
+        "source_identity": "ordenanza-36-2019",
+        "source_heading_date": "11/04/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327267",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-42-2019",
+      "short": "Withdrawn corpus record: Ordenanza 42/2019",
+      "title": "Withdrawn corpus record: Ordenanza 42/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327273",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-06-02",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327273",
+          "sha256": "c1ffd030a9f85416554a9ccfdf8058cdaa09d87f3eb564e6c182c4836b7fcadc",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-42-2019",
+        "source_identity": "ordenanza-42-2019",
+        "source_heading_date": "11/04/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2253/contents/1327273",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-51-2019",
+      "short": "Withdrawn corpus record: Ordenanza 51/2019",
+      "title": "Withdrawn corpus record: Ordenanza 51/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1350976",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-08-09",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1350976",
+          "sha256": "ad0de65f6064a17e4ec9dc4d311a95617191d44f3fc8b0132ebac1ecfc9e344c",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-51-2019",
+        "source_identity": "ordenanza-51-2019",
+        "source_heading_date": "09/05/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1350976",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-52-2019",
+      "short": "Withdrawn corpus record: Ordenanza 52/2019",
+      "title": "Withdrawn corpus record: Ordenanza 52/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351001",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-08-09",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351001",
+          "sha256": "9f1796e73e8c38d05538816f80c0e2e75961d800333fed302e8900f1e077ad64",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-52-2019",
+        "source_identity": "ordenanza-52-2019",
+        "source_heading_date": "09/05/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351001",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-56-2019",
+      "short": "Withdrawn corpus record: Ordenanza 56/2019",
+      "title": "Withdrawn corpus record: Ordenanza 56/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351030",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-08-09",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351030",
+          "sha256": "6a77ca6f33f41f65a491ac4e628e7af24134c489efbf34f2163bf737408a05aa",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-56-2019",
+        "source_identity": "ordenanza-56-2019",
+        "source_heading_date": "23/05/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351030",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-58-2019",
+      "short": "Withdrawn corpus record: Ordenanza 58/2019",
+      "title": "Withdrawn corpus record: Ordenanza 58/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351050",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-08-09",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351050",
+          "sha256": "bb6d34a71f4533b19274bea729036962db0bd7144dbe17bf56b0b1d420720462",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-58-2019",
+        "source_identity": "ordenanza-58-2019",
+        "source_heading_date": "23/05/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351050",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-60-2019",
+      "short": "Withdrawn corpus record: Ordenanza 60/2019",
+      "title": "Withdrawn corpus record: Ordenanza 60/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351057",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-08-09",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351057",
+          "sha256": "a9badc3d420bfba257ce8062967f724c8d8c665bb6f88aa9939f7391a16ca205",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-60-2019",
+        "source_identity": "ordenanza-60-2019",
+        "source_heading_date": "23/05/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351057",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-64-2019",
+      "short": "Withdrawn corpus record: Ordenanza 64/2019",
+      "title": "Withdrawn corpus record: Ordenanza 64/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351086",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-08-09",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351086",
+          "sha256": "e5073cd395ff9a314cff876fa81e5940670cfcd9b72b8987d71007a0c78709ea",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-64-2019",
+        "source_identity": "ordenanza-64-2019",
+        "source_heading_date": "23/05/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351086",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-68-2019",
+      "short": "Withdrawn corpus record: Ordenanza 68/2019",
+      "title": "Withdrawn corpus record: Ordenanza 68/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351106",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-08-09",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351106",
+          "sha256": "cb42e91c62026b1f75d68fbb6151c44c50ddf333b50614d64f6c4d424667bfc0",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-68-2019",
+        "source_identity": "ordenanza-68-2019",
+        "source_heading_date": "23/05/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351106",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-73-2019",
+      "short": "Withdrawn corpus record: Ordenanza 73/2019",
+      "title": "Withdrawn corpus record: Ordenanza 73/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351154",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-08-09",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351154",
+          "sha256": "0c0eeed130f921e9ac36fedcc119f00338342c4ec7eed0262c5f2c05fc254daf",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-73-2019",
+        "source_identity": "ordenanza-73-2019",
+        "source_heading_date": "13/06/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351154",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-74-2019",
+      "short": "Withdrawn corpus record: Ordenanza 74/2019",
+      "title": "Withdrawn corpus record: Ordenanza 74/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351177",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-08-09",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351177",
+          "sha256": "a00bef4f0cb5d3478a79984dd1f06697500009fbec7356265636adca604b9ae7",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-74-2019",
+        "source_identity": "ordenanza-74-2019",
+        "source_heading_date": "13/06/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2486/contents/1351177",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-103-2019",
+      "short": "Withdrawn corpus record: Ordenanza 103/2019",
+      "title": "Withdrawn corpus record: Ordenanza 103/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404656",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404656",
+          "sha256": "dd6e70165bc1e4df6f7530374d248478228b3cee7ee6544345758221e44ee3a0",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-103-2019",
+        "source_identity": "ordenanza-103-2019",
+        "source_heading_date": "08/08/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404656",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-104-2019",
+      "short": "Withdrawn corpus record: Ordenanza 104/2019",
+      "title": "Withdrawn corpus record: Ordenanza 104/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404659",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404659",
+          "sha256": "eb965797f1ff632ab37840aa9ec42830e3943a29292cbf318066e8e95484e0ff",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-104-2019",
+        "source_identity": "ordenanza-104-2019",
+        "source_heading_date": "08/08/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404659",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-105-2019",
+      "short": "Withdrawn corpus record: Ordenanza 105/2019",
+      "title": "Withdrawn corpus record: Ordenanza 105/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404669",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404669",
+          "sha256": "0c1faccb7f7b36d904b839441eb4dd03546a2ccc90d4f5cf250d8ce83a02354b",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-105-2019",
+        "source_identity": "ordenanza-105-2019",
+        "source_heading_date": "08/08/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404669",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-108-2019",
+      "short": "Withdrawn corpus record: Ordenanza 108/2019",
+      "title": "Withdrawn corpus record: Ordenanza 108/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404682",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404682",
+          "sha256": "819a918ee8713c80ba0f345f314b86ad211319ee6a4305c325df04d0731de9f3",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-108-2019",
+        "source_identity": "ordenanza-108-2019",
+        "source_heading_date": "12/09/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404682",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-109-2019",
+      "short": "Withdrawn corpus record: Ordenanza 109/2019",
+      "title": "Withdrawn corpus record: Ordenanza 109/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404723",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404723",
+          "sha256": "d4ab4d80b9244f2e1c685ad79ca4d9a10e2f446ff65d58b222f9326d454ffd2e",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-109-2019",
+        "source_identity": "ordenanza-109-2019",
+        "source_heading_date": "12/09/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404723",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-110-2019",
+      "short": "Withdrawn corpus record: Ordenanza 110/2019",
+      "title": "Withdrawn corpus record: Ordenanza 110/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404728",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404728",
+          "sha256": "6e2a3a3ba587bd5e3cfc96bba6bcef96612fc0ce563322d40cb2ce3ebdccb763",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-110-2019",
+        "source_identity": "ordenanza-110-2019",
+        "source_heading_date": "12/09/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404728",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-111-2019",
+      "short": "Withdrawn corpus record: Ordenanza 111/2019",
+      "title": "Withdrawn corpus record: Ordenanza 111/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404733",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404733",
+          "sha256": "c71535b456305e5422c79355832fd2c05a13311a9106770ecc0fe3ae95bd4fc1",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-111-2019",
+        "source_identity": "ordenanza-111-2019",
+        "source_heading_date": "12/09/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404733",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-112-2019",
+      "short": "Withdrawn corpus record: Ordenanza 112/2019",
+      "title": "Withdrawn corpus record: Ordenanza 112/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404737",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404737",
+          "sha256": "4897fe13157e54a9848d4b5f4608fc0edbb86ab1b452dca60dbda1da8de61ae2",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-112-2019",
+        "source_identity": "ordenanza-112-2019",
+        "source_heading_date": "12/09/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404737",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-114-2019",
+      "short": "Withdrawn corpus record: Ordenanza 114/2019",
+      "title": "Withdrawn corpus record: Ordenanza 114/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404763",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404763",
+          "sha256": "b26907139e8bcb96e702aab032f334c1f266a41defef60f67e1c2a88320b2ab7",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-114-2019",
+        "source_identity": "ordenanza-114-2019",
+        "source_heading_date": "12/09/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404763",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-119-2019",
+      "short": "Withdrawn corpus record: Ordenanza 119/2019",
+      "title": "Withdrawn corpus record: Ordenanza 119/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404880",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404880",
+          "sha256": "efe902e4ed10e3f0f96693b2959f6a3dad5330d405de162912facfc9fb70ba0e",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-119-2019",
+        "source_identity": "ordenanza-119-2019",
+        "source_heading_date": "12/09/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404880",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-122-2019",
+      "short": "Withdrawn corpus record: Ordenanza 122/2019",
+      "title": "Withdrawn corpus record: Ordenanza 122/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404877",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404877",
+          "sha256": "a5300f41e7888a87541cfbd7699a2c740bc6a92b64d61cfdd38279fe243f76af",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-122-2019",
+        "source_identity": "ordenanza-122-2019",
+        "source_heading_date": "12/09/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404877",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-124-2019",
+      "short": "Withdrawn corpus record: Ordenanza 124/2019",
+      "title": "Withdrawn corpus record: Ordenanza 124/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405025",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405025",
+          "sha256": "7da9384d440378ef22e9ba87d91c4f5042f16ec1e452855508ea9996bdec8d21",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-124-2019",
+        "source_identity": "ordenanza-124-2019",
+        "source_heading_date": "12/09/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405025",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-126-2019",
+      "short": "Withdrawn corpus record: Ordenanza 126/2019",
+      "title": "Withdrawn corpus record: Ordenanza 126/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407718",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407718",
+          "sha256": "af28fc7f590490c2c7a281bf7af56948a2805220d9b4d6145ba8c3a17dde68b6",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-126-2019",
+        "source_identity": "ordenanza-126-2019",
+        "source_heading_date": "24/10/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407718",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-130-2019",
+      "short": "Withdrawn corpus record: Ordenanza 130/2019",
+      "title": "Withdrawn corpus record: Ordenanza 130/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405049",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405049",
+          "sha256": "9c67dd96e62c43f09bff0643311e8ebb0a5eba9ff2f6c441d86cc08a7e548b96",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-130-2019",
+        "source_identity": "ordenanza-130-2019",
+        "source_heading_date": "14/11/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405049",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-133-2019",
+      "short": "Withdrawn corpus record: Ordenanza 133/2019",
+      "title": "Withdrawn corpus record: Ordenanza 133/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405142",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405142",
+          "sha256": "45cd0db7d3b5304214026d95b7ce38f552cc18324d66e67dc87e3f83b74afeb3",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-133-2019",
+        "source_identity": "ordenanza-133-2019",
+        "source_heading_date": "14/11/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405142",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-138-2019",
+      "short": "Withdrawn corpus record: Ordenanza 138/2019",
+      "title": "Withdrawn corpus record: Ordenanza 138/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405150",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405150",
+          "sha256": "f8dc047b0d8d58a13d80c1e97c9c2fdddb85d66f4942c2852cd67b2ca5778c9f",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-138-2019",
+        "source_identity": "ordenanza-138-2019",
+        "source_heading_date": "14/11/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405150",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-141-2019",
+      "short": "Withdrawn corpus record: Ordenanza 141/2019",
+      "title": "Withdrawn corpus record: Ordenanza 141/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405176",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405176",
+          "sha256": "ed29b93e6dea86161e9d9dec69a62b57eb63935261b6f0c1c2c4e33b8db8d3af",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-141-2019",
+        "source_identity": "ordenanza-141-2019",
+        "source_heading_date": "14/11/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405176",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-144-2019",
+      "short": "Withdrawn corpus record: Ordenanza 144/2019",
+      "title": "Withdrawn corpus record: Ordenanza 144/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405181",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405181",
+          "sha256": "dcf1aa7be262c28a4253426ff3a324a39fa406960472d9e4bccf4c554345238b",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-144-2019",
+        "source_identity": "ordenanza-144-2019",
+        "source_heading_date": "14/11/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1405181",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-147-2019",
+      "short": "Withdrawn corpus record: Ordenanza 147/2019",
+      "title": "Withdrawn corpus record: Ordenanza 147/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407836",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407836",
+          "sha256": "1ad024d5e061bc970f8d89ca3c8a20c8fe6cf32535e0726e80c6b50dfafd715b",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-147-2019",
+        "source_identity": "ordenanza-147-2019",
+        "source_heading_date": "28/11/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407836",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-148-2019",
+      "short": "Withdrawn corpus record: Ordenanza 148/2019",
+      "title": "Withdrawn corpus record: Ordenanza 148/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407753",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407753",
+          "sha256": "1ea35f031e1c11702b390b3ab161efa210cd864a12ff794dbf4fdd18712be6d3",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-148-2019",
+        "source_identity": "ordenanza-148-2019",
+        "source_heading_date": "28/11/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407753",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-152-2019",
+      "short": "Withdrawn corpus record: Ordenanza 152/2019",
+      "title": "Withdrawn corpus record: Ordenanza 152/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407761",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407761",
+          "sha256": "da722d859820d59a8aa7f479110fbea25424839d4b2a924e032c1cb8ff887aa2",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-152-2019",
+        "source_identity": "ordenanza-152-2019",
+        "source_heading_date": "28/11/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1407761",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-76-2019",
+      "short": "Withdrawn corpus record: Ordenanza 76/2019",
+      "title": "Withdrawn corpus record: Ordenanza 76/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403700",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403700",
+          "sha256": "14fcc9f379c1d81bf98e40e81779b819a81238f197740979bc285cc187f1890a",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-76-2019",
+        "source_identity": "ordenanza-76-2019",
+        "source_heading_date": "11/07/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403700",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-77-2019",
+      "short": "Withdrawn corpus record: Ordenanza 77/2019",
+      "title": "Withdrawn corpus record: Ordenanza 77/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403708",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403708",
+          "sha256": "785786b8fd9e87a8b8ded3d7cac75501d12e9f8465e2e4aa7b3dd9fcf4176f34",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-77-2019",
+        "source_identity": "ordenanza-77-2019",
+        "source_heading_date": "11/07/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403708",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-80-2019",
+      "short": "Withdrawn corpus record: Ordenanza 80/2019",
+      "title": "Withdrawn corpus record: Ordenanza 80/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403728",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403728",
+          "sha256": "1dd6e401657e516b3812e787efba66721b56d4de36a7daf337e2afdfe8e92fdd",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-80-2019",
+        "source_identity": "ordenanza-80-2019",
+        "source_heading_date": "11/07/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403728",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-82-2019",
+      "short": "Withdrawn corpus record: Ordenanza 82/2019",
+      "title": "Withdrawn corpus record: Ordenanza 82/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403844",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403844",
+          "sha256": "d8c72a4930d561f6d55ac51c187e9a43d114340370c1f11049c021c75d04e982",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-82-2019",
+        "source_identity": "ordenanza-82-2019",
+        "source_heading_date": "11/07/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1403844",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-89-2019",
+      "short": "Withdrawn corpus record: Ordenanza 89/2019",
+      "title": "Withdrawn corpus record: Ordenanza 89/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404031",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404031",
+          "sha256": "449b377a9b6b5d4f433b0d9471ad5eb24f4590aa300da458f7d10ed01648616e",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-89-2019",
+        "source_identity": "ordenanza-89-2019",
+        "source_heading_date": "25/07/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404031",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-91-2019",
+      "short": "Withdrawn corpus record: Ordenanza 91/2019",
+      "title": "Withdrawn corpus record: Ordenanza 91/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404048",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404048",
+          "sha256": "a5b5fedab7612e771bd9d3b637b952c96a01699e2f54364c5fa0e90dafc1df36",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-91-2019",
+        "source_identity": "ordenanza-91-2019",
+        "source_heading_date": "25/07/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404048",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-98-2019",
+      "short": "Withdrawn corpus record: Ordenanza 98/2019",
+      "title": "Withdrawn corpus record: Ordenanza 98/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404613",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404613",
+          "sha256": "52d41d0cfbdb473b0d96b2ed6863a8081c219f6e882bd1ad4a37043ba8e97c04",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-98-2019",
+        "source_identity": "ordenanza-98-2019",
+        "source_heading_date": "25/07/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404613",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-99-2019",
+      "short": "Withdrawn corpus record: Ordenanza 99/2019",
+      "title": "Withdrawn corpus record: Ordenanza 99/2019",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404618",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2019-12-18",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404618",
+          "sha256": "51d9ab5d4d62ad5178619bd82b1e082df1d5d29e22b5f6436f25f2642dfd6c04",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-99-2019",
+        "source_identity": "ordenanza-99-2019",
+        "source_heading_date": "25/07/2019",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/2976/contents/1404618",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-80-2021",
+      "short": "Withdrawn corpus record: Ordenanza 80/2021",
+      "title": "Withdrawn corpus record: Ordenanza 80/2021",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/6584/contents/1687762",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2022-03-20",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/6584/contents/1687762",
+          "sha256": "5e7853b46d5861593c86def565c2f80e901ded9c7fc7c6aaa3e732fbf87b174f",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-80-2021",
+        "source_identity": "ordenanza-80-2021",
+        "source_heading_date": "02/12/2021",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/6584/contents/1687762",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    },
+    {
+      "slug": "ordenanza-68-2022",
+      "short": "Withdrawn corpus record: Ordenanza 68/2022",
+      "title": "Withdrawn corpus record: Ordenanza 68/2022",
+      "url": "https://sibom.slyt.gba.gob.ar/bulletins/7741/contents/1802329",
+      "first_law": null,
+      "earlier_laws": [],
+      "versions": [
+        {
+          "from": "2022-12-01",
+          "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/7741/contents/1802329",
+          "sha256": "245247526429d386e01df1b2e9d582d4fd9ad7f9d324bca62a5dd45635de0046",
+          "units": {},
+          "credits": {},
+          "note": "This incomplete corpus record is withdrawn. This is an editorial correction, not a repeal or a statement that the ordinance has no operative text."
+        }
+      ],
+      "corpus_withdrawal": {
+        "published_slug": "ordenanza-68-2022",
+        "source_identity": "ordenanza-68-2022",
+        "source_heading_date": "23/06/2022",
+        "reason": "summary-or-no-dispositive-articles",
+        "disposition": "withdraw-incomplete-record",
+        "source_url": "https://sibom.slyt.gba.gob.ar/bulletins/7741/contents/1802329",
+        "scope": "Corpus withdrawal, not repeal of the ordinance; no complete legal text is asserted."
+      }
+    }
+  ],
+  "decisions": [
+    "ordenanza-392-2019: withdraw the incomplete corpus record; source identity ordenanza-392-2018. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-395-2019: withdraw the incomplete corpus record; source identity ordenanza-395-2018. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-402-2019: withdraw the incomplete corpus record; source identity ordenanza-402-2018. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-403-2019: withdraw the incomplete corpus record; source identity ordenanza-403-2018. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-409-2019: withdraw the incomplete corpus record; source identity ordenanza-409-2018. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-410-2019: withdraw the incomplete corpus record; source identity ordenanza-410-2018. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-419-2019: withdraw the incomplete corpus record; source identity ordenanza-419-2018. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-420-2019: withdraw the incomplete corpus record; source identity ordenanza-420-2018. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-424-2019: withdraw the incomplete corpus record; source identity ordenanza-424-2018. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-1-2019: withdraw the incomplete corpus record; source identity ordenanza-1-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-2-2019: withdraw the incomplete corpus record; source identity ordenanza-2-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-3-2019: withdraw the incomplete corpus record; source identity ordenanza-3-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-4-2019: withdraw the incomplete corpus record; source identity ordenanza-4-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-5-2019: withdraw the incomplete corpus record; source identity ordenanza-5-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-7-2019: withdraw the incomplete corpus record; source identity ordenanza-7-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-8-2019: withdraw the incomplete corpus record; source identity ordenanza-8-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-9-2019: withdraw the incomplete corpus record; source identity ordenanza-9-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-14-2019: withdraw the incomplete corpus record; source identity ordenanza-14-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-16-2019: withdraw the incomplete corpus record; source identity ordenanza-16-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-17-2019: withdraw the incomplete corpus record; source identity ordenanza-17-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-20-2019: withdraw the incomplete corpus record; source identity ordenanza-20-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-25-2019: withdraw the incomplete corpus record; source identity ordenanza-25-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-28-2019: withdraw the incomplete corpus record; source identity ordenanza-28-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-29-2019: withdraw the incomplete corpus record; source identity ordenanza-29-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-30-2019: withdraw the incomplete corpus record; source identity ordenanza-30-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-32-2019: withdraw the incomplete corpus record; source identity ordenanza-32-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-34-2019: withdraw the incomplete corpus record; source identity ordenanza-34-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-35-2019: withdraw the incomplete corpus record; source identity ordenanza-35-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-36-2019: withdraw the incomplete corpus record; source identity ordenanza-36-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-42-2019: withdraw the incomplete corpus record; source identity ordenanza-42-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-51-2019: withdraw the incomplete corpus record; source identity ordenanza-51-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-52-2019: withdraw the incomplete corpus record; source identity ordenanza-52-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-56-2019: withdraw the incomplete corpus record; source identity ordenanza-56-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-58-2019: withdraw the incomplete corpus record; source identity ordenanza-58-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-60-2019: withdraw the incomplete corpus record; source identity ordenanza-60-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-64-2019: withdraw the incomplete corpus record; source identity ordenanza-64-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-68-2019: withdraw the incomplete corpus record; source identity ordenanza-68-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-73-2019: withdraw the incomplete corpus record; source identity ordenanza-73-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-74-2019: withdraw the incomplete corpus record; source identity ordenanza-74-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-103-2019: withdraw the incomplete corpus record; source identity ordenanza-103-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-104-2019: withdraw the incomplete corpus record; source identity ordenanza-104-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-105-2019: withdraw the incomplete corpus record; source identity ordenanza-105-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-108-2019: withdraw the incomplete corpus record; source identity ordenanza-108-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-109-2019: withdraw the incomplete corpus record; source identity ordenanza-109-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-110-2019: withdraw the incomplete corpus record; source identity ordenanza-110-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-111-2019: withdraw the incomplete corpus record; source identity ordenanza-111-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-112-2019: withdraw the incomplete corpus record; source identity ordenanza-112-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-114-2019: withdraw the incomplete corpus record; source identity ordenanza-114-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-119-2019: withdraw the incomplete corpus record; source identity ordenanza-119-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-122-2019: withdraw the incomplete corpus record; source identity ordenanza-122-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-124-2019: withdraw the incomplete corpus record; source identity ordenanza-124-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-126-2019: withdraw the incomplete corpus record; source identity ordenanza-126-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-130-2019: withdraw the incomplete corpus record; source identity ordenanza-130-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-133-2019: withdraw the incomplete corpus record; source identity ordenanza-133-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-138-2019: withdraw the incomplete corpus record; source identity ordenanza-138-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-141-2019: withdraw the incomplete corpus record; source identity ordenanza-141-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-144-2019: withdraw the incomplete corpus record; source identity ordenanza-144-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-147-2019: withdraw the incomplete corpus record; source identity ordenanza-147-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-148-2019: withdraw the incomplete corpus record; source identity ordenanza-148-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-152-2019: withdraw the incomplete corpus record; source identity ordenanza-152-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-76-2019: withdraw the incomplete corpus record; source identity ordenanza-76-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-77-2019: withdraw the incomplete corpus record; source identity ordenanza-77-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-80-2019: withdraw the incomplete corpus record; source identity ordenanza-80-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-82-2019: withdraw the incomplete corpus record; source identity ordenanza-82-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-89-2019: withdraw the incomplete corpus record; source identity ordenanza-89-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-91-2019: withdraw the incomplete corpus record; source identity ordenanza-91-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-98-2019: withdraw the incomplete corpus record; source identity ordenanza-98-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-99-2019: withdraw the incomplete corpus record; source identity ordenanza-99-2019. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-80-2021: withdraw the incomplete corpus record; source identity ordenanza-80-2021. The original history and tags remain. This is not a legislative repeal.",
+    "ordenanza-68-2022: withdraw the incomplete corpus record; source identity ordenanza-68-2022. The original history and tags remain. This is not a legislative repeal."
+  ],
+  "ai_use": [
+    "A model classified source completeness and prepared editorial withdrawal metadata. No model-generated legal text is included."
+  ]
+}
