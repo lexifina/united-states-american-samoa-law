@@ -879,6 +879,10 @@ def incremental(slug: str, folder: Path, repo: Path, state: dict, day: str) -> d
     new_parts = [n for n in parts if n not in old]
     if not new_parts:
         return {'ok': 'same'}
+    future = (json.loads((folder / 'corpus.d' / new_parts[0]).read_text(encoding='utf-8')).get('country') or {}).get(
+        'future_branch') or 'futuro'
+    if git(repo, 'ls-remote', '--heads', 'origin', future, check=False):
+        return {'ok': False, 'why': f'the remote has a {future} branch (kept in step by the full build)'}
     new_acts: set[str] = set()
     for n in new_parts:
         new_acts |= {a['slug'] for a in json.loads((folder / 'corpus.d' / n).read_text(encoding='utf-8')).get('acts', [])}
@@ -1260,6 +1264,11 @@ def main_build(slug: str, folder: Path, repo: Path, state: dict, dry_run: bool =
     if not ok:
         state.update(built_sha=sha, built_at=_now(), result=f'main {info["stage"]} failed, not pushed')
         return {'main': f'main {info["stage"]} failed, not pushed', **out, **info}
+    if not git(repo, 'rev-parse', '-q', '--verify', f'refs/heads/{future}', check=False) and             git(repo, 'ls-remote', '--heads', 'origin', future, check=False):
+        # No version is in force after the docs date any more, but the remote still has the future branch: keep it in
+        # step with main's laws (main's last law commit; the build ends main with the docs commit), so readers of the
+        # future branch never see older text than main.
+        git(repo, 'update-ref', f'refs/heads/{future}', 'refs/heads/main~1')
     branches = ['main'] + ([future] if git(repo, 'rev-parse', '-q', '--verify', f'refs/heads/{future}', check=False) else [])
 
     def check_appended() -> tuple[bool, str]:
