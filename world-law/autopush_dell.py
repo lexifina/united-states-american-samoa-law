@@ -41,6 +41,7 @@ from build import load  # noqa: E402
 import build as B  # noqa: E402
 import check as K  # noqa: E402  (gitlaw_common/check.py)
 import private  # noqa: E402  (what stays off shared repos)
+import on as ON  # noqa: E402  (gitlaw_common/on.py: the reading rule for correction commits)
 SOUTH_AMERICA = ['chile', 'uruguay', 'brazil', 'colombia', 'argentina', 'peru', 'paraguay', 'ecuador', 'bolivia',
                  'venezuela', 'guyana', 'suriname']
 # Africa, English-language first (Laws.Africa Peachjam LIIs and South Africa). A country is picked up as soon as its
@@ -605,21 +606,20 @@ def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law
       version from the first one that reads differently, with the agreed trailers (correction_trailers(): Kind,
       In-force, Corrects, Supersedes, Reason, Act-path, Files), each setting the act to that version's text.
     Returns (items to append in order, number of corrections, reasons) or (reason string, 0, []) to hold."""
+    # Published correction commits, read by the agreed rule (gitlaw_common/on.py: Reader), as check.py and tools/on.py
+    # read them: an act's ordinary commits pick the text by In-force day, then each correction whose Corrects range
+    # holds the day is applied file by file.
+    r_fixes = ON.corrections(r_list[-1], repo) if r_list else []
+    r_skip = {x['commit'] for x in r_fixes}
+
     def rows(seq: list[str], deltas: dict) -> tuple[dict, dict]:
-        """{act: [(in-force day, state, commit)]} in history order, and each act's final state."""
+        """{act: [(in-force day, state, commit)]} of the ordinary commits (corrections left out; their changes stay
+        in the state that later commits carry, as their trees do), in history order, and each act's final state."""
         out: dict[bytes, list] = {}
         state: dict[bytes, dict] = {}
         for s in seq:
             ld = _law_delta(deltas[s])
-            day = _in_force(raws[s])
-            if day is None:
-                if ld:
-                    raise ValueError(f'{_describe(raws[s])} changes provisions but has no In-force trailer')
-                continue
-            # As check.py and tools/on.py read it: a commit with an In-force trailer belongs to every act folder it
-            # touches, even when no provision file changes (a correction that only re-dates a version's text).
-            touched = {p.partition(b'/')[0] for p in deltas[s] if b'/' in p} - {b'data', b'tools'}
-            for f in touched:
+            for f in {p.partition(b'/')[0] for p in ld}:
                 cur = state.setdefault(f, {})
                 for p, v in ld.items():
                     if p.partition(b'/')[0] == f:
@@ -627,7 +627,15 @@ def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law
                             cur.pop(p, None)
                         else:
                             cur[p] = v[1]
-                out.setdefault(f, []).append((day, frozenset(cur.items()), s))
+            if s in r_skip:
+                continue
+            day = _in_force(raws[s])
+            if day is None:
+                if ld:
+                    raise ValueError(f'{_describe(raws[s])} changes provisions but has no In-force trailer')
+                continue
+            for f in {p.partition(b'/')[0] for p in ld}:
+                out.setdefault(f, []).append((day, frozenset(state[f].items()), s))
         return out, state
 
     def read(rs: list, day: str):
@@ -639,36 +647,63 @@ def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law
     def before(day: str) -> str:
         return (dt.date.fromisoformat(day) - dt.timedelta(days=1)).isoformat() if day > '0001-01-01' else day
 
+    def read_r(f: bytes, day: str):
+        """The published act on `day`: its ordinary commit's text, then the corrections whose range holds the day
+        (an open range ends the day before the act's next ordinary commit with a later In-force day)."""
+        rs = r_rows.get(f, [])
+        st, s = read(rs, day)
+        name = f.decode('utf-8', 'replace')
+        cur = None
+        for x in r_fixes:
+            if name not in x['ranges']:
+                continue
+            a, b = x['ranges'][name]
+            if b is None:  # open: to the day before the act's next ordinary commit, else for good ('today' included)
+                nxt = min((d for d, _, _ in rs if d > a), default=None)
+                b = before(nxt) if nxt else '9999-12-31'
+            if a <= day <= b:
+                cur = dict(st) if cur is None else cur
+                for p, o in x['files'].get(name, {}).items():
+                    if o is None:
+                        cur.pop(p.encode('utf-8'), None)
+                    else:
+                        cur[p.encode('utf-8')] = o
+        return (st if cur is None else frozenset(cur.items())), s
+
     try:
-        r_rows, r_state = rows(r_list, r_delta)
+        r_rows, _ = rows(r_list, r_delta)
         n_rows, n_state = rows(n_law, n_delta)
     except ValueError as e:
         return str(e), 0, []
+    for x in r_fixes:  # an act published only through corrections still counts as published
+        for name in x['ranges']:
+            r_rows.setdefault(name.encode('utf-8'), [])
     r_last_day = max((d for rs in r_rows.values() for d, _, _ in rs), default='')
     keep: dict[str, set[bytes]] = {}  # build commit -> acts whose part of it is appended
     fixes: list[tuple[bytes, int, str]] = []
     for f in sorted(set(r_rows) | set(n_rows)):
         ns, rs = n_rows.get(f, []), r_rows.get(f, [])
-        if not rs:  # an act not yet published: its whole history is appended (D12 when it is older)
+        if f not in r_rows:  # an act not yet published: its whole history is appended (D12 when it is older)
             for d, st, s in ns:
                 keep.setdefault(s, set()).add(f)
             continue
         first = None
         for i, (d, st, s) in enumerate(ns):
             want_prev = read(ns[:i], before(d))[0]
-            if read(rs, d)[0] != read(ns, d)[0] or read(rs, before(d))[0] != want_prev:
+            if read_r(f, d)[0] != read(ns, d)[0] or read_r(f, before(d))[0] != want_prev:
                 first = i
                 break
         today = '9999-12-31'
         if first is None:
-            if read(rs, today)[0] != read(ns, today)[0]:
+            if read_r(f, today)[0] != read(ns, today)[0]:
                 first = len(ns)  # the published act has a later version or text the build no longer has
             else:
                 continue
         # Plain append when every published version comes before the first differing one and it reads unchanged
         # until then: the build's versions from `first` on are simply newer.
-        rs_last = max(d for d, _, _ in rs)
-        if first < len(ns) and ns[first][0] > rs_last and read(rs, today)[0] == read(ns, before(ns[first][0]))[0]:
+        rs_last = max([d for d, _, _ in rs] + [x['ranges'][f.decode('utf-8', 'replace')][0] for x in r_fixes
+                                               if f.decode('utf-8', 'replace') in x['ranges']])
+        if first < len(ns) and ns[first][0] > rs_last and read_r(f, today)[0] == read(ns, before(ns[first][0]))[0]:
             for d, st, s in ns[first:]:
                 keep.setdefault(s, set()).add(f)
             continue
@@ -688,13 +723,15 @@ def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law
         ns, rs = n_rows.get(f, []), r_rows[f]
         name = f.decode('utf-8', 'replace')
         versions = ns[first:] if first < len(ns) else []
+        mine = [x for x in r_fixes if name in x['ranges']]
         if not versions:  # removed from the build: one correction that empties the act from its last published day
-            versions = [(max(d for d, _, _ in rs), frozenset(), None)]
-        tip_state = frozenset(r_state.get(f, {}).items())  # the act's provision files at the published tip
-        # Every provision path the act has had (published or built): each correction sets the whole act, so its Files
-        # trailer names them all (a path its tree lacks is removed), and a reader applying it file by file gets
-        # exactly this version.
-        ever = {p for _, sts, _ in rs + ns for p, _ in sts}
+            versions = [(max([d for d, _, _ in rs] + [x['ranges'][name][0] for x in mine]), frozenset(), None)]
+        # Every provision path the act has had (published, corrected or built): each correction sets the whole act, so
+        # its Files trailers name them all (a path its tree lacks is removed), and a reader applying it file by file
+        # gets exactly this version. A correction that only re-dates text the tip already holds changes no file: its
+        # trailers alone (Act-path, Files) say what it corrects, as the reading rule reads it.
+        ever = {p for _, sts, _ in rs + ns for p, _ in sts} | {p.encode('utf-8') for x in mine
+                                                                for p in x['files'].get(name, {})}
         for j, (d, st, s) in enumerate(versions):
             nxt = versions[j + 1][0] if j + 1 < len(versions) else None
             _, sup = read(rs, d)
@@ -704,17 +741,12 @@ def _plan_by_act(repo: Path, raws: dict, r_list: list[str], r_delta: dict, n_law
                    f'The published text of {name} differs from the corrected build ({why}). This commit sets it to the '
                    f'build\'s text for {d}..{to}; the published commits stay as they were.\n\n'
                    + correction_trailers(name, d, to, sup, why, files)).encode()
-            delta = {p: (b'100644', o) for p, o in st}
-            if st == tip_state:
-                # Same provision text, another day (an earlier version found, h2 2026-11-03): without a file change
-                # the commit would not touch the act, and check.py and tools/on.py, which read an act's history by the
-                # commits touching its folder, would never see it (on futuro, which has no act READMEs, it was empty).
-                # A note outside the provision files (.txt: not read as law) makes it touch the act; the next docs
-                # commit drops it, and history keeps it.
-                delta[f + b'/CORRECTIONS.txt'] = (b'100644', _write_object(repo, 'blob', msg))
-            tip_state = st
+            # Provision files only (the act's README and other files stay): the version's files, and every other listed
+            # path removed. A correction that only re-dates text the tip already holds is an empty change.
+            delta = {p: None for p in files}
+            delta.update({p: (b'100644', o) for p, o in st})
             items.append({'src': None, 'author': None, 'committer': None, 'msg': msg, 'correction': True,
-                          'clear': [f], 'delta': delta})
+                          'delta': delta})
         reasons.append(f'{name}: {why}')
     return items, len(items) - sum(1 for it in items if it.get('src')), reasons
 
