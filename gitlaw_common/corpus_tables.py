@@ -47,3 +47,32 @@ def acts_document(c, day):
                      'in_force': act.get('in_force') or (versions[0]['from'] if versions and act.get('first_law') else None),
                      'repealed': repealed, 'repealed_by': repealing, 'status': status, 'url': act.get('url')})
     return {'acts': rows}
+
+
+def versions_document(c, day):
+    acts = []
+    for act in c['acts']:
+        versions = []
+        for i, v in enumerate(act['versions']):
+            following = act['versions'][i + 1] if i + 1 < len(act['versions']) else None
+            end = v.get('to') or (max(v['from'], (dt.date.fromisoformat(following['from']) - dt.timedelta(days=1)).isoformat())
+                                   if following else None)
+            status = version_status(c, act, v, day)
+            if v['from'] <= day and following and following['from'] <= day and v['units']:
+                status = 'replaced'
+            versions.append({'from': v['from'], 'to': end, 'status': status,
+                             'text_as_of': S.text_as_of(c, act, v), 'units': len(v['units']),
+                             'source_url': v.get('source_url'), 'sha256': v.get('sha256')})
+        acts.append({'slug': act['slug'], 'short': act['short'], 'title': act['title'], 'url': act.get('url'),
+                     'versions': versions})
+    return {'country': c['country']['code'], 'acts': acts}
+
+
+def ledger_kind(c, entry):
+    value = entry['kind']
+    if value == 'start':
+        return 'law' if entry.get('law') else 'baseline'
+    if value == 'publisher':
+        starts = {a['slug']: a['versions'][0]['from'] for a in c['acts'] if a['versions']}
+        return 'baseline' if any(starts.get(a) == entry['day'] for a in entry['acts']) else 'uncredited'
+    return S.legacy_kind(value, corrects='known' if value == 'correction' else '')

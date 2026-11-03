@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 import append as A
+import append_gate as G
 import build as B
 from test_build import corpus
 
@@ -27,6 +28,7 @@ class AppendDocsTest(unittest.TestCase):
                 proof = B.compare_preserved(target, previous)
                 self.assertTrue(proof['identical'], proof)
                 self.assertEqual(proof['documentation_commits'], 1)
+                self.assertFalse(G.docs_only(source, target, '2026-10-28'), 'repeat refresh must not add another docs commit')
                 for change in proof['changed_files']:
                     path = change.split('\t')[-1]
                     self.assertFalse(path.startswith(('constitucion/art-', 'codigo-civil/art-')), path)

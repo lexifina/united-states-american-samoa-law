@@ -55,6 +55,10 @@ repealed row. Same-day intermediate versions keep that same day as their last da
 applicable intervals and refer to the correction's actual commit. Commit IDs come from git after a fast-import
 checkpoint; missing provenance is an error.
 
+`data/laws.csv` separates canonical commit `kind` from instrument `law_kind`. `data/versions.json` adds inclusive
+`to`, lifecycle `status`, and nullable `text_as_of` to every version. The regenerated commits ledger normalizes old
+kind spellings without changing the commits that it describes.
+
 ## corpus.json
 
 All dates are ISO `YYYY-MM-DD`. All text is UTF-8 with `\n` line endings. Keys and values are plain JSON.

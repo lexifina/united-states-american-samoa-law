@@ -20,9 +20,11 @@ The build made {{COMMITS}} commits:
 
 | Commits | Kind |
 | ---: | --- |
-| {{START_COMMITS}} | first version of an act |
-| {{LAW_COMMITS}} | one law on its in-force day |
+| {{START_COMMITS}} | baseline texts where the record starts |
+| {{LAW_COMMITS}} | named laws, court decisions and treaties |
 | {{UNEXPLAINED}} | changes no amendment note explains, credited to the publisher |
+| {{CORRECTIONS}} | corrections to the existing record |
+| {{PRINTING}} | printing or layout changes |
 
 Other counts:
 - {{FUTURE}} commits on the branch `{{FUTURE_BRANCH}}`: laws not yet in force on {{DOCS_DATE}}.

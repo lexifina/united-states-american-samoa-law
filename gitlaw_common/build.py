@@ -691,7 +691,7 @@ def tables(c: dict, log: list[dict]) -> dict[str, str]:
     out['data/provisions.tsv'] = I.document(c, c.get('_repo'))
     buf = io.StringIO()
     wr = csv.writer(buf, lineterminator='\n')
-    wr.writerow(['key', 'label', 'kind', 'title', 'enacted', 'published', 'in_force_days', 'commits', 'url'])
+    wr.writerow(['key', 'label', 'kind', 'law_kind', 'title', 'enacted', 'published', 'in_force_days', 'commits', 'url'])
     days: dict[str, list[str]] = {}
     for e in log:
         if e['law']:
@@ -699,21 +699,17 @@ def tables(c: dict, log: list[dict]) -> dict[str, str]:
     for key in sorted(c['laws'], key=lambda k: law_order(c['laws'], k)):
         law = c['laws'][key]
         ds = sorted(set(days.get(key, [])))
-        wr.writerow([key, law['label'], law.get('kind', 'law'), law.get('title', ''), law.get('enacted') or '',
+        wr.writerow([key, law['label'], S.law_commit_kind(law), S.instrument_kind(law), law.get('title', ''), law.get('enacted') or '',
                      law.get('published') or '', ' '.join(ds), len(days.get(key, [])), law.get('url') or ''])
     out['data/laws.csv'] = buf.getvalue()
     co = c['country']
     out['data/repo.json'] = None  # superseded by the root descriptor; delete in the docs commit only
-    out['data/versions.json'] = json.dumps({'country': c['country']['code'], 'acts': [{
-        'slug': a['slug'], 'short': a['short'], 'title': a['title'], 'url': a.get('url'),
-        'versions': [{'from': v['from'], 'units': len(v['units']), 'source_url': v.get('source_url'),
-                      'sha256': v.get('sha256')} for v in a['versions']]} for a in c['acts']]},
-        ensure_ascii=False, indent=1) + '\n'
+    out['data/versions.json'] = json.dumps(T.versions_document(c, c['_docs_date']), ensure_ascii=False, indent=1) + '\n'
     buf = io.StringIO()
     wr = csv.writer(buf, lineterminator='\n')
     wr.writerow(['day', 'kind', 'law', 'acts', 'files', 'branch'])
     for e in log:
-        wr.writerow([e['day'], e['kind'], e['law'] or '', ' '.join(e['acts']), e['units'], e['branch']])
+        wr.writerow([e['day'], T.ledger_kind(c, e), e['law'] or '', ' '.join(e['acts']), e['units'], e['branch']])
     out['data/commits.csv'] = buf.getvalue()
     for a in c['acts']:
         if not a['versions']:
@@ -905,9 +901,10 @@ def reproduce(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, do
     co = c['country']
     ver = json.loads((folder / 'verification.json').read_text(encoding='utf-8')) if (folder / 'verification.json').exists() else {}
     tpl = (HERE / 'REPRODUCE.template.md').read_text(encoding='utf-8')
-    n_law = sum(1 for e in log if e['kind'] == 'law')
-    n_unexp = sum(1 for e in log if e['kind'] == 'unexplained')
-    n_start = sum(1 for e in log if e['kind'] == 'start')
+    kinds = [T.ledger_kind(c, e) for e in log]
+    n_law = sum(k in ('law', 'court', 'treaty') for k in kinds)
+    n_unexp = kinds.count('uncredited')
+    n_start = kinds.count('baseline')
     n_future = sum(1 for e in log if e['branch'] != 'main')
     n_clamped = sum(1 for e in log if e['clamped'])
     src_rows = '\n'.join(f'| {public_note(s.get("name", ""))} | <{s.get("url", "")}> | {s.get("retrieved", "")} | '
@@ -938,6 +935,7 @@ def reproduce(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, do
         'CORPUS_SHA': hashlib.sha256(raw).hexdigest(), 'CORPUS_BYTES': str(len(raw)),
         'LAWS': str(len(c['laws'])), 'COMMITS': str(len(log)), 'LAW_COMMITS': str(n_law), 'START_COMMITS': str(n_start),
         'UNEXPLAINED': str(n_unexp), 'FUTURE': str(n_future), 'CLAMPED': str(n_clamped), 'TAGS': str(len(tags)),
+        'CORRECTIONS': str(kinds.count('correction')), 'PRINTING': str(kinds.count('printing')),
         'FUTURE_BRANCH': co.get('future_branch', 'futuro'),
         'BUILD_BLOB': blob(HERE / 'build.py'), 'CHECK_BLOB': blob(HERE / 'check.py'), 'ON_BLOB': blob(HERE / 'on.py'),
         'PYTHON': version([sys.executable, '--version']), 'GIT': version(['git', '--version']),
