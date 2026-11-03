@@ -189,6 +189,16 @@ def spark(snaps, get, unit):
             f'<path d="{d}" class="line"/>{dots}</svg>')
 
 
+def decisions_block():
+    """Decisions only Alan can make, from goal-decisions.txt (one per line), so the page shows what is waiting on him."""
+    f = HOME / 'goal-decisions.txt'
+    items = [l.strip() for l in f.read_text(encoding='utf-8').splitlines() if l.strip()] if f.exists() else []
+    if not items:
+        return ''
+    return ("<h2>Waiting on you</h2><p class='muted'>Each of these unblocks coverage or speed; nothing here is bypassed in the meantime.</p>"
+            "<div class='tablewrap'><table><tbody>" + ''.join(f"<tr><td>{html.escape(i)}</td></tr>" for i in items) + "</tbody></table></div>")
+
+
 def growth_table(top=20):
     """Which repos grew most since the first census: where the coverage is coming from."""
     files = sorted(sw.CENSUS_DIR.glob('census-*.tsv'))
@@ -265,6 +275,7 @@ th{{color:var(--text2);font-weight:500;font-size:12px}} td ul{{margin:0;padding-
 <p class="health {hp}">{html.escape(health_txt)}</p>
 <div class="grid">{''.join(tiles)}</div>
 {growth_table()}
+{decisions_block()}
 <h2>Snapshots and the steps taken before each</h2>
 <div class="tablewrap"><table><thead><tr><th>Snapshot</th><th>Repos with law</th><th>Data</th><th>Law commits</th><th>Commits/h</th><th>Requests</th><th>Repo works</th><th>Steps taken</th></tr></thead>
 <tbody>{''.join(rows)}</tbody></table></div>

@@ -31,7 +31,7 @@ HOME = re.compile(r'(?i)(?:\\\\wsl(?:\.localhost|\$)\\[^\\/\s]+\\home\\+alany|/m
 # The final privacy audit's content markers, checked in every text blob a push would add.
 AUDIT_MARKS = {
     'speed tooling': re.compile(rb'host_get|cc_get\b|cc_captures|import wayback|wayback\.(get|captures|fetch)|'
-                                rb'ThreadPoolExecutor|requests a second(?! (?:evaluation|opinion|hearing|review|examination))|adaptive rate', re.I),  # law text: "requests a second evaluation" (C.R.S. 16-8.5-103)
+                                rb'ThreadPoolExecutor|requests a second(?!ment)(?! (?:evaluation|opinion|hearing|review|examination|confirmatory|interview))|adaptive rate', re.I),  # law text: "requests a second evaluation" (C.R.S. 16-8.5-103), "requests a second confirmatory test" (Iowa Code 730.5), "requests a secondment" (NSW Government Sector Employment (General) Rules 2014 r 31), "requests a second interview" (7 CFR 273.2)
     'common crawl / archive tactics': re.compile(rb'data\.commoncrawl\.org|index\.commoncrawl\.org|cluster\.idx', re.I),
     # Windows and Git Bash forms (/mnt/c/Users/alany included), and the WSL home: /home/alany, \\wsl.localhost\...\home\alany.
     'home path': re.compile(rb'(?i)(?:[A-Z]:(?:\\\\|\\|/)+Users(?:\\\\|\\|/)+alany|/c/Users/alany|/mnt/[a-z]/+Users/+alany|'

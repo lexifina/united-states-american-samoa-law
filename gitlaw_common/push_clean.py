@@ -89,6 +89,44 @@ def remote_refs(url: str, *patterns: str) -> dict[str, str]:
     return {ref: sha for sha, ref in (l.split('\t') for l in out.splitlines() if '\t' in l)}
 
 
+def push_ff(build: Path, pub: str, slug: str, ref: str, old: str | None, new: str):
+    """Plain (fast-forward only) push of `new` to `ref`. With GITLAW_PUSH_CHUNK=N (2026-11-03: GitHub answered large
+    united-kingdom-law pushes with HTTP 500 / unexpected disconnect), the first-parent commits old..new go up in steps
+    of N, each step its own plain push of an intermediate commit verified by ls-remote; a step that still fails after
+    retries is halved. Never forced. Returns (remote sha after, last CompletedProcess); exits 3 on a non-fast-forward."""
+    chunk = int(os.environ.get('GITLAW_PUSH_CHUNK') or 0)
+    revs = (run('git', 'rev-list', '--reverse', '--first-parent', f'{old}..{new}', cwd=build).stdout.split()
+            if chunk > 0 and old else [])
+    steps = revs[chunk - 1::chunk] if revs else []
+    if not steps or steps[-1] != new:
+        steps.append(new)
+    got, r = old, subprocess.CompletedProcess([], 0, '', '')
+    i = 0
+    while i < len(steps):
+        sha = steps[i]
+        for attempt in range(3):
+            r = run('git', 'push', pub, f'{sha}:{ref}', cwd=build)
+            got = remote_refs(pub, ref).get(ref)
+            if got == sha:
+                break
+            if 'non-fast-forward' in r.stderr or 'fetch first' in r.stderr or '[rejected]' in r.stderr:
+                held(slug, f'{ref[11:]} {(old or "")[:9]} -> {new[:9]} is not a fast-forward')
+                sys.exit(3)
+            time.sleep(20 * (attempt + 1))
+        if got != sha:
+            lo = revs.index(got) + 1 if got in revs else 0
+            hi = revs.index(sha) if sha in revs else -1
+            if hi - lo >= 1:   # halve the failed step and retry from its midpoint
+                steps.insert(i, revs[(lo + hi) // 2])
+                print(f'{slug}: step to {sha[:9]} failed ({r.stderr.strip()[-120:]}); halving')
+                continue
+            return got, r
+        if len(steps) > 1:
+            print(f'{slug}: public {ref[11:]} step {i + 1}/{len(steps)} -> {sha[:9]} ok', flush=True)
+        i += 1
+    return got, r
+
+
 def main() -> None:
     build, slug = Path(sys.argv[1]), sys.argv[2]
     if os.name == 'nt' and (Path(__file__).resolve().parents[1] / slug / '.wsl-only').exists():
@@ -132,11 +170,7 @@ def main() -> None:
     for b in branches:
         ref = f'refs/heads/{b}'
         old = remote.get(ref)
-        r = run('git', 'push', pub, f'{local[b]}:{ref}', cwd=build)
-        got = remote_refs(pub, ref).get(ref)
-        if got != local[b] and ('non-fast-forward' in r.stderr or 'fetch first' in r.stderr or 'rejected' in r.stderr):
-            held(slug, f'{b} {(old or "")[:9]} -> {local[b][:9]} is not a fast-forward')
-            sys.exit(3)
+        got, r = push_ff(build, pub, slug, ref, old, local[b])
         print(f'{slug}: public {b} {(old or "none")[:9]} -> {(got or "")[:9]}',
               'ok' if got == local[b] else f'FAILED {r.stderr.strip()[-300:]}')
         if got != local[b]:
