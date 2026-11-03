@@ -1,0 +1,27 @@
+{
+  "micronesia-law.json": {
+    "sha256": "a7b22545cc1252fff45854aa6de41f65d6950dbd6a2e65e9c558defbbf096602",
+    "baseline": "4386da75f456ee97520744da598d208e2c639820",
+    "act_count": 27,
+    "delivery_files": {
+      "zz-fm-dates-43-public-laws-22-20261103.json": "191e36470cbc841abce60415e751f653114640b134c4297031860a6f480a7128",
+      "zz-fm-dates-44-public-laws-21-20261103.json": "df418a4be484be60ef9282131e1e1f0b31572747da0150b009ac4f8ddd599b60",
+      "zz-fm-dates-50-public-laws-15-20261103.json": "df8328251813c49dc74a18deaf7dfff6f199318ee01cf9753fa1ec46cfddfcc5",
+      "zz-fm-dates-51-public-laws-14-20261103.json": "7d4ef652f579ca5d2c57069b195b88783e006e81214885be5574544a197349fd",
+      "zz-fm-dates-52-public-laws-13-20261103.json": "01046a914319590b862bdcfaf3539f953be0631bbcb63ab2db8251bc0ebce6a9",
+      "zz-fm-dates-53-public-laws-12-20261103.json": "cf5993b24db5071ed17df50b9529833752e146c76c1c89b0f2863657dc3fe492",
+      "zz-fm-dates-55-public-laws-10-20261103.json": "c5c6b9144f628bf8ebdfdfa7934272483f9ea1fd3fe9c6433465855203b153db",
+      "zz-fm-dates-90-additional-enrolled-laws-20261103.json": "2b603eecabd4a3ac270328b11c13a58d7d6ef9fc8c35ef353649b94de33d80f3"
+    },
+    "gate_sha256": "51417270b6b42e55dbb4526945e788ffbed16f8ae6befd35341e06265ee00f06"
+  },
+  "kenya-garissa-law.json": {
+    "sha256": "b33d60113e661a9218b37653433be8c1b14c51d90ac9479bf9d4ca761fde0d09",
+    "baseline": "9edc7289ab115f0566a399f264aaa161caf7d66d",
+    "act_count": 3,
+    "delivery_files": {
+      "zz-garissa-corrections-20261103.json": "8e406d9e3a1344da1e633c2d5aa9c40243a03012ccdb1b34991ad08997736424"
+    },
+    "gate_sha256": "fe960e1cef9d76d551b3fb78d684be4582b7b9e32214624e12057d990a372472"
+  }
+}

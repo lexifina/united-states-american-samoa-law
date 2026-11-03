@@ -1,0 +1,2 @@
+# Fixture hashes pin exact bytes across platforms.
+*.json -text
