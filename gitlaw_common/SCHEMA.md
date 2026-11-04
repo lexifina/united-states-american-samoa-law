@@ -1,5 +1,12 @@
 # gitlaw_common: the corpus.json contract
 
+Existing repositories receive this standard through `build.py --append --refresh-docs`:
+one new documentation commit, with existing law commits and tag objects preserved.
+New trailers appear only on future commits; a documentation rollout never re-emits them
+on existing commits. A cold build requires an empty target. `build`, `prepare` and the
+full-history writer refuse any target with existing Git refs, and the append writer
+refuses replacement of an existing tag.
+
 The goal is one builder for every country. Each country's law is recorded as one corpus, `corpus.json` (optionally split into `corpus.d/` parts), beside the country's static docs in `repo/` (`README.md` with the standard sections, `LICENSE`, and optionally `tools/<local-name>.py` as a thin wrapper around `tools/on.py`).
 <!-- private -->
 (Lines between these markers are for Lexifina's agents only; build.py strips them from the published copy.)

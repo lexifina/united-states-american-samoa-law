@@ -600,6 +600,7 @@ class Appender:
     """`git fast-import` onto an existing main; separate author and committer dates."""
 
     def __init__(self, repo: Path, head: str, head_ct: int, head_tz: str, branch: str = 'main'):
+        self.existing_tags = set(git(repo, 'tag', '--list').split())
         self.p = subprocess.Popen(['git', 'fast-import', '--quiet', '--done', '--date-format=raw'], cwd=repo,
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.mark, self.parent, self.ct, self.tz = 0, head, head_ct, head_tz
@@ -631,7 +632,10 @@ class Appender:
         return self.mark
 
     def tag(self, name: str, mark: int):
+        if name in self.existing_tags:
+            raise B.CorpusError(f'append-only: refusing to replace existing tag {name}')
         self._w(f'reset refs/tags/{name}\nfrom :{mark}\n\n'.encode('utf-8'))
+        self.existing_tags.add(name)
 
     def finish(self):
         self._w(b'done\n')

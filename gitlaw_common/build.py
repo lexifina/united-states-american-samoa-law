@@ -560,10 +560,21 @@ class Clock:
 
 # ---------------------------------------------------------------- fast-import
 
+def require_empty_history(repo: Path):
+    """Full-history writers may create a repository, never replace an existing ref."""
+    if (repo / '.git').exists():
+        refs = subprocess.run(['git', 'for-each-ref', '--format=%(refname)'], cwd=repo,
+                              capture_output=True, text=True, encoding='utf-8', check=True).stdout
+        if refs.strip():
+            raise CorpusError('append-only: target already has Git history; use --append --refresh-docs '
+                              'for a rollout, or a new empty scratch directory for a cold rebuild')
+
+
 class Writer:
     """One `git fast-import` for the whole history; commits are written as they are made and then forgotten."""
 
     def __init__(self, repo: Path):
+        require_empty_history(repo)
         self.p = subprocess.Popen(['git', 'fast-import', '--quiet', '--done', '--date-format=raw'], cwd=repo,
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.mark = 0
@@ -623,7 +634,8 @@ def git(repo: Path, *args: str) -> str:
 
 
 def prepare(repo: Path) -> str | None:
-    """Empties the target, keeping the remote. Refuses a folder that holds anything but an earlier build."""
+    """Initialize an empty target; existing Git history is always append-only."""
+    require_empty_history(repo)
     remote = None
     if repo.exists() and any(repo.iterdir()):
         if not (repo / '.git').exists():
@@ -1155,6 +1167,7 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
 # ---------------------------------------------------------------- main
 
 def build(folder: Path, repo: Path, docs_date: str, published_repo: Path | None = None) -> dict:
+    require_empty_history(repo)
     part_records = {}
     c, raw = load(folder, part_records=part_records)
     errs = validate(c)
@@ -1279,7 +1292,7 @@ def compare_preserved(repo: Path, previous: Path) -> dict:
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('folder', help='scripts/<slug>-law (holds corpus.json and repo/)')
-    ap.add_argument('--repo', required=True, help='the repository to (re)build; emptied first, origin kept')
+    ap.add_argument('--repo', required=True, help='an empty build target, or an existing repository with --append')
     ap.add_argument('--docs-date', required=True, help='the day the data was retrieved (never the run day)')
     ap.add_argument('--compare', help='an earlier build of the same corpus: report whether every hash is identical')
     ap.add_argument('--append', action='store_true', help='preserve existing history and append new commits')
