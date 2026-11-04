@@ -77,9 +77,13 @@ def issues(act, version, *, require_inventory=True):
         if image.get('sha256') not in wanted:
             result.append(f'unreferenced source image {image.get("sha256")}')
     omissions = {(o.get('source_ref'), o.get('description'), o.get('reason')) for o in version.get('images_omitted', [])}
-    for notice in notices:
-        if notice.groups() not in omissions:
-            result.append('omission notice has no matching source inventory record')
+    # Published text can already contain a valid omission notice without the v1
+    # structured survey. Missing survey metadata is unknown, not a silent drop.
+    # Once supplied (or required for a new/opted-in corpus), it must agree.
+    if require_inventory or 'source_images' in version or 'images_omitted' in version:
+        for notice in notices:
+            if notice.groups() not in omissions:
+                result.append('omission notice has no matching source inventory record')
     return [f'{act["slug"]} {version["from"]}: {message}' for message in result]
 
 

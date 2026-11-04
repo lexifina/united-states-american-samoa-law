@@ -119,6 +119,29 @@ class ImagesTest(unittest.TestCase):
             (root / '.autopush.json').write_text(json.dumps({'built_sha': 'a' * 64, 'result': 'built but held'}), encoding='utf-8')
             self.assertTrue(M.inventory_required({}, root))
 
+    def test_unsurveyed_published_omission_survives_cold_rebuild(self):
+        c = fixture()
+        act, version = c['acts'][0], c['acts'][0]['versions'][0]
+        del version['source_images']
+        version['images'] = []
+        text = '[Image omitted: official PDF p. 12; tariff table; reason: not extractable]\n'
+        version['units']['schedule']['text'] = text
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / 'corpus.json').write_text(json.dumps(c), encoding='utf-8')
+            (root / '.autopush.json').write_text(json.dumps({
+                'built_sha': 'a' * 64, 'result': 'pushed (main fixture)'}), encoding='utf-8')
+            with self.assertWarnsRegex(UserWarning, 'not surveyed'):
+                B.build(root, root / 'rebuilt', '2026-11-03')
+            self.assertEqual(B.git(root / 'rebuilt', 'show', 'main:a/schedule.md'), text)
+            self.assertEqual(K.check(root / 'rebuilt', root / 'corpus.json')['image_errors'], 0)
+        self.assertFalse(T.acts_document(c, '2026-11-03')['acts'][0]['images_complete'])
+        with self.assertRaisesRegex(ValueError, 'inventory'):
+            M.require(act, version, required=True)
+        version['source_images'] = 1
+        with self.assertRaisesRegex(ValueError, 'matching source inventory'):
+            M.require(act, version)
+
     def test_normative_omission_counts_but_is_incomplete(self):
         c = fixture()
         act, v = c['acts'][0], c['acts'][0]['versions'][0]
