@@ -31,7 +31,10 @@ def require_complete_history(repo, c, records):
             if (not path.endswith('.md') or path in root_docs or path.endswith('/README.md')
                     or path.startswith(('tools/', 'data/')) or '/assets/' in path):
                 continue
-            published.add(path.rsplit('/', 1)[0] if '/' in path else path)
+            # Native provision keys may contain subfolders (e.g. transition
+            # schedules). The act is the top-level law folder, not its last
+            # provision directory. This identity comes from published paths.
+            published.add(path.split('/', 1)[0])
     if len(slugs) != len(c['acts']) or slugs != published:
         raise B.CorpusError('rollout requires complete published act identity coverage: '
                             f'missing {sorted(published - slugs)[:20]}; extra {sorted(slugs - published)[:20]}')

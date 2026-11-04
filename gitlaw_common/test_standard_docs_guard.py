@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 
 class DocumentationGuardTest(unittest.TestCase):
-    def native_history(self, root, texts=('First native text.\n', 'Middle native text.\n', 'Last native text.\n')):
+    def native_history(self, root, texts=('First native text.\n', 'Middle native text.\n', 'Last native text.\n'), unit='s-1'):
         folder, repo = root / 'input', root / 'repo'
         folder.mkdir()
         c = {'country': {'slug': 'testland', 'code': 'XX', 'name': 'Testland', 'tz': 'UTC', 'lang': 'en',
@@ -21,7 +21,7 @@ class DocumentationGuardTest(unittest.TestCase):
         identity = ('Native fixture', 'fixture@example.invalid')
         for index, text in enumerate(texts):
             day = f'{2020 + index}-01-01'
-            files = {'a/s-1.md': text}
+            files = {'a/' + unit + '.md': text}
             if index == 0:
                 files.update({'corpus.json': '{"acts": 1}\n',
                               'jurisdiction.json': '{"code":"XX","level":"country"}\n'})
@@ -29,7 +29,7 @@ class DocumentationGuardTest(unittest.TestCase):
                                  f'Independent native event\n\nKind: law\nIn-force: {day}\n', files)
             writer.tag('a/' + day, mark)
             c['acts'][0]['versions'].append({'from': day, 'source_images': 0,
-                                            'units': {'s-1': {'label': '1', 'text': text}}})
+                                            'units': {unit: {'label': '1', 'text': text}}})
         writer.finish()
         return folder, repo, c
 
@@ -45,6 +45,17 @@ class DocumentationGuardTest(unittest.TestCase):
     def test_rollout_refuses_omitted_middle_transition_and_preserves_refs(self):
         with tempfile.TemporaryDirectory() as tmp:
             folder, repo, c = self.native_history(Path(tmp))
+            c['acts'][0]['versions'].pop(1)
+            self.refused_inventory(folder, repo, c, '2021-01-01.*published text transition')
+
+    def test_rollout_keeps_nested_provisions_with_their_act(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder, repo, c = self.native_history(Path(tmp), unit='schedule/s-1')
+            (folder / 'corpus.json').write_text(json.dumps(c), encoding='utf-8')
+            head = B.git(repo, 'rev-parse', 'main').strip()
+            result = rollout.refresh(folder, repo, '2026-11-04', head)
+            self.assertEqual(result['documentation_commits'], 1)
+            self.assertEqual(B.git(repo, 'rev-parse', 'main^').strip(), head)
             c['acts'][0]['versions'].pop(1)
             self.refused_inventory(folder, repo, c, '2021-01-01.*published text transition')
 
