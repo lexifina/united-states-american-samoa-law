@@ -119,6 +119,34 @@ class ImagesTest(unittest.TestCase):
             (root / '.autopush.json').write_text(json.dumps({'built_sha': 'a' * 64, 'result': 'built but held'}), encoding='utf-8')
             self.assertTrue(M.inventory_required({}, root))
 
+    def test_native_published_history_without_shared_index_is_existing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            published = root / 'native'
+            published.mkdir()
+            B.git(published, 'init', '-q', '-b', 'main')
+            (published / 'README.md').write_text('Native scaffold\n', encoding='utf-8')
+            B.git(published, 'add', 'README.md')
+            B.git(published, '-c', 'user.name=Lexifina', '-c', 'user.email=test@example.invalid',
+                  'commit', '-qm', 'Scaffold\n\nIn-force: 2020-01-01\n')
+            self.assertTrue(M.inventory_required({}, root, published))
+            (published / 'a').mkdir()
+            (published / 'a/schedule.md').write_text('# Schedule\n', encoding='utf-8')
+            B.git(published, 'add', 'a/schedule.md')
+            B.git(published, '-c', 'user.name=Official publisher', '-c', 'user.email=source@example.invalid',
+                  'commit', '-qm', 'Native law\n\nKind: consolidated\nIn-force: 2020-01-01\n')
+            self.assertFalse(M.inventory_required({}, root, published))
+            c = fixture()
+            v = c['acts'][0]['versions'][0]
+            del v['source_images']
+            v.update(images=[], units={'schedule': {'label': 'Schedule', 'text': '# Schedule\n'}})
+            (root / 'corpus.json').write_text(json.dumps(c), encoding='utf-8')
+            with self.assertWarnsRegex(UserWarning, 'not surveyed'):
+                B.build(root, root / 'rebuilt', '2026-11-03', published_repo=published)
+            self.assertEqual(B.git(root / 'rebuilt', 'show', 'main:a/schedule.md'),
+                             B.git(published, 'show', 'main:a/schedule.md'))
+            self.assertTrue(M.inventory_required({'image_inventory_required': True}, root, published))
+
     def test_unsurveyed_published_omission_survives_cold_rebuild(self):
         c = fixture()
         act, version = c['acts'][0], c['acts'][0]['versions'][0]

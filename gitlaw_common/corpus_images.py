@@ -27,6 +27,16 @@ def inventory_required(country, folder, published_repo=None):
                                    capture_output=True, timeout=120)
             if known.returncode == 0:
                 return False
+            # Native builders use their own version indexes. A dated law commit
+            # touching provision Markdown is publication context too; a docs-only
+            # scaffold or descriptor is not. Keep unsurveyed distinct from zero.
+            law = subprocess.run(['git', '-C', str(repo), 'log', '-1', '--format=%H',
+                                  '--extended-regexp', '--grep=^In-force: [0-9]{4}-[0-9]{2}-[0-9]{2}$',
+                                  'main', '--', '*.md', ':!README.md', ':!REPRODUCE.md', ':!SOURCES.md',
+                                  ':!LICENSE.md', ':!*/README.md', ':!tools/*', ':!data/*'],
+                                 capture_output=True, timeout=120)
+            if law.returncode == 0 and law.stdout.strip():
+                return False
     # A successful publisher receipt survives a cold rebuild of its source folder.
     # A scaffold, a sign-off marker, or a mere "built" label is not a publication.
     receipt = Path(folder) / '.autopush.json'
