@@ -96,10 +96,10 @@ Run a dry run against the published head first. `commits: 0` means main and the 
 precondition for appending.
 
 ## Tested
-`test_append.py` builds part of the Romanian corpus (5 acts plus the first 30 of the Codul muncii's 61 versions), then
-appends the rest (1 new act, 31 more versions). It then checks:
+`test_append.py` builds a synthetic act, then appends a later version and a newly found older act. It uses the
+shared builder from `../../gitlaw_common` and needs no country checkout. It then checks:
 - every published SHA and tag is unchanged;
-- check_repo finds 0 mismatches over 212 versions, with no backwards or future dates;
+- check_repo finds 0 mismatches over all three versions, with no backwards or future dates;
 - a second append adds nothing;
 - two independent runs give the same head.
 

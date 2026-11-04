@@ -2,7 +2,7 @@
 touches no file. append.py must count it as published, not append it again.
 
 Usage: python -X utf8 test_credit_only.py <work dir> [<append.py to test>]
-<work dir>/tools is made from ./tools (build.py, check_repo.py and the files build.py ships, as for test_append.py);
+<work dir>/tools is copied from ../../gitlaw_common;
 the optional second argument replaces its append.py, to run this test against another version of the tool.
 """
 import ast
@@ -11,13 +11,14 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from fixture_support import COMMON, surveyed
 
 HERE = Path(__file__).resolve().parent
 work = Path(sys.argv[1])
 if work.exists():
     shutil.rmtree(work)
 tools = work / 'tools'
-shutil.copytree(HERE / 'tools', tools)
+shutil.copytree(COMMON, tools, ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
 if len(sys.argv) > 2:
     shutil.copy(sys.argv[2], tools / 'append.py')
 D = '2026-01-01'
@@ -45,7 +46,7 @@ def corpus(with_ruling: bool) -> dict:
 def folder(name: str, with_ruling: bool) -> Path:
     f = work / name
     f.mkdir(parents=True)
-    (f / 'corpus.json').write_text(json.dumps(corpus(with_ruling), ensure_ascii=False), encoding='utf-8', newline='\n')
+    (f / 'corpus.json').write_text(json.dumps(surveyed(corpus(with_ruling)), ensure_ascii=False), encoding='utf-8', newline='\n')
     return f
 
 

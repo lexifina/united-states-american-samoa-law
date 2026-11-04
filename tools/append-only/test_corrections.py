@@ -2,7 +2,7 @@
 gets labelled correction commits (one per corrected act version) with no published SHA or tag changed.
 
 Usage: python -X utf8 test_corrections.py <work dir> [<append.py to test>]
-<work dir>/tools is made from ./tools (build.py, check_repo.py and the files build.py ships, as for test_append.py);
+<work dir>/tools is copied from ../../gitlaw_common;
 the optional second argument replaces its append.py.
 
 Each case builds a small synthetic corpus as "published", then appends the corrected corpus:
@@ -24,13 +24,14 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from fixture_support import COMMON, surveyed
 
 HERE = Path(__file__).resolve().parent
 work = Path(sys.argv[1])
 if work.exists():
     shutil.rmtree(work)
 tools = work / 'tools'
-shutil.copytree(HERE / 'tools', tools)
+shutil.copytree(COMMON, tools, ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
 if len(sys.argv) > 2:
     shutil.copy(sys.argv[2], tools / 'append.py')
 D = '2026-01-01'
@@ -79,7 +80,7 @@ def corpus(case: str, fixed: bool) -> dict:
 def folder(name: str, c: dict) -> Path:
     f = work / name
     f.mkdir(parents=True)
-    (f / 'corpus.json').write_text(json.dumps(c, ensure_ascii=False), encoding='utf-8', newline='\n')
+    (f / 'corpus.json').write_text(json.dumps(surveyed(c), ensure_ascii=False), encoding='utf-8', newline='\n')
     return f
 
 
@@ -197,7 +198,7 @@ for want in ('Correction: Const, version in force from 2020-01-01', 'Wording dif
 if g(repo, 'diff-tree', '-r', '--name-only', '--no-commit-id', fixes[0][0]).split() != ['constitution/art-3.md']:
     failures.append('newest: the correction does not change exactly the one wrong file')
 keys = g(repo, 'log', '-1', '--format=%(trailers:keyonly,separator=%x2C)', fixes[0][0]).strip()
-if keys != 'Kind,In-force,Corrects,Supersedes,Reason,Act-path,Files':
+if keys != 'Kind,In-force,Corrects,Supersedes,Reason,Act-path,Files,Corpus-standard':
     failures.append(f'newest: trailer order is {keys}')
 if 'Act-path: constitution\nFiles: constitution/art-3.md\n' not in body:
     failures.append(f'newest: Act-path / Files lines are wrong:\n{body}')

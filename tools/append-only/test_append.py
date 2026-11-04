@@ -1,34 +1,24 @@
 """Test append.py: a partial build plus an append must read back exactly like the full corpus, with no SHA changed.
 
 Usage: python -X utf8 test_append.py <work dir>
-Uses the laptop's 7-part Phase 1+2 corpus (scripts/romania-law/corpus.d) as test data.
+Uses a synthetic fixture with a later version and a newly found older act.
 """
 import json
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+from fixture_support import COMMON, append_fixture
 
 HERE = Path(__file__).resolve().parent
-TOOLS = HERE / 'tools'
-SRC = Path(r'C:\Users\alany\Documents\lexifina\scripts\romania-law')
+TOOLS = COMMON
 work = Path(sys.argv[1])
 if work.exists():
     shutil.rmtree(work)
 part_dir, full_dir, repo, ref = work / 'partial', work / 'full', work / 'repo', work / 'ref'
-for d in (part_dir, full_dir):
-    (d / 'corpus.d').mkdir(parents=True)
-    shutil.copytree(SRC / 'repo', d / 'repo')
-parts = sorted((SRC / 'corpus.d').glob('*.json'))
-for p in parts:
-    shutil.copy(p, full_dir / 'corpus.d' / p.name)
-    if p.name.startswith(('10-', '20-', '30-', '40-', '50-')):
-        shutil.copy(p, part_dir / 'corpus.d' / p.name)
-    elif p.name.startswith('60-'):
-        c = json.loads(p.read_text(encoding='utf-8'))
-        for a in c['acts']:
-            a['versions'] = a['versions'][:30]
-        (part_dir / 'corpus.d' / p.name).write_text(json.dumps(c, ensure_ascii=False), encoding='utf-8')
+for d, full in ((part_dir, False), (full_dir, True)):
+    d.mkdir(parents=True)
+    (d / 'corpus.json').write_text(json.dumps(append_fixture(full)), encoding='utf-8')
 D = '2026-10-29'
 
 
