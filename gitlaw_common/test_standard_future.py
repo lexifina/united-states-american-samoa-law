@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 import build as B
 import append as A
@@ -9,6 +10,24 @@ from test_build import corpus
 
 
 class FutureTest(unittest.TestCase):
+    def test_unchanged_future_history_never_reaches_planning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, repo = root / 'source', root / 'repo'
+            source.mkdir()
+            c = corpus()
+            (source / 'corpus.json').write_text(json.dumps(c), encoding='utf-8')
+            try:
+                B.build(source, repo, '2026-10-28')
+                refs = B.git(repo, 'show-ref')
+                with patch.object(B, 'plan') as plan:
+                    self.assertEqual(A.append_future(repo, c, '2026-10-28'), 0)
+                plan.assert_not_called()
+                self.assertEqual(B.git(repo, 'show-ref'), refs)
+            finally:
+                for p in repo.rglob('*'):
+                    p.chmod(0o700)
+
     def test_invalid_branch(self):
         for value in ('main', '../bad', 'future.lock', 'x//y', 'HEAD'):
             with self.assertRaises(ValueError):

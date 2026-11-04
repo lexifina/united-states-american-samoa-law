@@ -797,6 +797,8 @@ def append_future(repo: Path, c: dict, docs_date: str) -> int:
             if {p: oid for p, oid in have.items() if p.endswith('.md') and not p.endswith('/README.md')} != want:
                 raise B.CorpusError(f'{act["slug"]}: existing future text differs; correction review is required')
     sub, based = to_append(c, state, '9999-12-31')
+    if not sub['acts']:
+        return 0
     planned = [x for x in B.plan(sub) if not (x['kind'] == 'start' and x['act']['slug'] in based)]
     if not planned:
         return 0
