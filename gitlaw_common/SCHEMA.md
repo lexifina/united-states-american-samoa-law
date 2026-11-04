@@ -276,3 +276,13 @@ Verification of parts: `main` holds corpus.json once the country's `PUBLISH` exi
 
 ## Per-act publisher (optional, 2026-10-29)
 An act may carry `"publisher": {"name": ..., "email": "...@<domain>.invalid"}` when its text comes from a different source than the country's publisher (for example a ministry's revised edition, SILEP, Veritas). That act's "oldest version available" commit and its unexplained changes are then authored by it. A commit spanning acts with different publishers uses the country's. Corpora without the field build byte-identically to before.
+# Documentation rollout for own builders
+
+Own builders can pass their complete normalized corpus input to
+`rollout.py <input-folder> --repo <published-clone> --docs-date YYYY-MM-DD --expected-head <published-SHA>`.
+It verifies the input against published versions and current text, then appends at most one
+documentation commit containing the standard descriptor, jurisdiction and data indexes.
+It preserves native tools, source manifests, root documentation and act READMEs. It does
+not emit law commits or tags. A changed published head, incomplete act inventory, unpublished
+version, or changed law text stops the rollout before a commit is made.
+The shared-builder rollout remains `build.py --append --refresh-docs`.
