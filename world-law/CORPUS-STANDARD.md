@@ -96,8 +96,10 @@ title, type, ELI), never for dates. New corpora put those facts in `data/acts.js
   - `country`, or `supranational` (the EU), for top-level folders only;
   - `national`, `federal`, `bund`, `union` or `uk` for the whole-jurisdiction folder;
   - `state`, `province`, `region`, `canton`, `entity`, `territory`, `district`, `autonomous city` or
-    `autonomous community` for first-level units, or `subdivision` when the source names no type;
-  - `municipality` or `regency` below them.
+    `autonomous community`, `community`, `federal entity`, `autonomous territorial unit`, `autonomous region`,
+    `emirate` or `metropolitan municipality with regional functions` for first-level units, or `subdivision`
+    when the source names no type from this list;
+  - `municipality` or `regency` below them; a source-described `canton` inside an entity retains `canton`.
 
   This list is what global-law's `tools/describe.py` writes since main 95b8164. Builders must write the same values.
 
@@ -106,7 +108,8 @@ title, type, ELI), never for dates. New corpora put those facts in `data/acts.js
 - **`code`:**
   - ISO 3166-1 alpha-2 for a country;
   - ISO 3166-2 for a first-level unit, always with the country prefix (`US-CO`, not `CO`);
-  - below that, the parent's code plus `-` and the place slug in capitals (`AR-B-ALBERTI`). These codes are not ISO,
+  - a canton inside an entity that has its own ISO 3166-2 code retains that code; its parent still comes from the path;
+  - for municipalities and regencies below that, the parent's code plus `-` and the place slug in capitals (`AR-B-ALBERTI`). These codes are not ISO,
     and readers must not present them as ISO;
   - a whole-country corpus takes the country's code (`united-states/federal/cfr` → `US`, `iso_path`
     `us/federal/cfr`).

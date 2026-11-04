@@ -36,6 +36,22 @@ class JurisdictionTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             J.document({'code': 'US-WRONG'}, 'united-states/example/acts')
 
+    def test_preserves_recorded_types_from_the_closed_vocabulary(self):
+        for level in ('community', 'federal entity', 'autonomous territorial unit', 'autonomous region',
+                      'emirate', 'metropolitan municipality with regional functions'):
+            with self.subTest(level=level):
+                got = J.document({'code': 'XX-1'}, 'testland/example/acts', {'level': level, 'code': 'XX-1'})
+                self.assertEqual(got['level'], level)
+                self.assertEqual(got['parent'], 'testland')
+
+    def test_nested_canton_preserves_its_source_type_and_iso_code(self):
+        got = J.document({'code': 'XX-05', 'parent_code': 'XX-A'}, 'testland/entity/river-canton/acts',
+                         {'code': 'XX-05', 'level': 'canton'})
+        self.assertEqual((got['level'], got['code'], got['parent']), ('canton', 'XX-05', 'testland/entity'))
+        with self.assertRaisesRegex(ValueError, 'canton code'):
+            J.document({'code': 'XX-05', 'parent_code': 'XX-A'}, 'testland/entity/river-canton/acts',
+                       {'code': 'XX-NOTISO', 'level': 'canton'})
+
     def test_matches_unchanged_global_describe(self):
         source = Path(__file__).parent / 'fixtures/corpus-standard/describe-95b8164.py'
         spec = importlib.util.spec_from_file_location('pinned_global_describe', source)
@@ -48,9 +64,11 @@ class JurisdictionTest(unittest.TestCase):
             'united-states/federal/cfr': ({'code': 'US'}, {'level': 'federal', 'code': 'US'}),
             'european-union/acts': ({'code': 'EU'}, {'level': 'supranational', 'code': 'EU'}),
             'argentina/buenos-aires/alberti/acts': ({'code': 'AR-B-ALBERTI'}, {'level': 'municipality', 'code': 'AR-B-ALBERTI'}),
+            'testland/example/acts': ({'code': 'XX-1'}, {'level': 'community', 'code': 'XX-1'}),
+            'testland/entity/river-canton/acts': ({'code': 'XX-05', 'parent_code': 'XX-A'}, {'level': 'canton', 'code': 'XX-05'}),
         }
         documents = {'manifest.json': {'corpora': []}, 'jurisdiction.json': {}}
-        for name, code in [('indonesia', 'ID'), ('united-states', 'US'), ('argentina', 'AR')]:
+        for name, code in [('indonesia', 'ID'), ('united-states', 'US'), ('argentina', 'AR'), ('testland', 'XX')]:
             documents[name + '/jurisdiction.json'] = {'code': code, 'level': 'country'}
         documents['argentina/buenos-aires/jurisdiction.json'] = {'code': 'AR-B', 'level': 'province'}
         for path, (_, old) in samples.items():
