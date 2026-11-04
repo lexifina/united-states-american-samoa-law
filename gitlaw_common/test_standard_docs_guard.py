@@ -5,9 +5,73 @@ import build as B
 import append as A
 import json
 import rollout
+from unittest.mock import patch
 
 
 class DocumentationGuardTest(unittest.TestCase):
+    def test_bare_worktree_and_detached_history_refused_before_import(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            native = root / 'native'
+            B.prepare(native)
+            writer = B.Writer(native)
+            identity = ('Independent fixture', 'fixture@example.invalid')
+            mark = writer.commit('main', identity, identity, '1600000000 +0000',
+                                 'Native root\n\nIn-force: 2020-01-01\n', {'a/s-1.md': 'Native fixture.\n'})
+            writer.tag('a/2020-01-01', mark)
+            writer.finish()
+            bare, linked, detached = (root / name for name in ('bare.git', 'linked', 'detached'))
+            B.git(root, 'clone', '--bare', '--no-hardlinks', str(native), str(bare))
+            B.git(native, 'worktree', 'add', '--detach', str(linked), 'main')
+            B.git(root, 'clone', '--no-hardlinks', str(native), str(detached))
+            B.git(detached, 'checkout', '--detach', 'main')
+            for line in B.git(detached, 'for-each-ref', '--format=%(refname)').splitlines():
+                B.git(detached, 'update-ref', '-d', line)
+            for repo in (native, bare, linked, detached):
+                before = B.git(repo, 'for-each-ref', '--format=%(refname) %(objectname)')
+                head = B.git(repo, 'rev-parse', 'HEAD')
+                # Constructor refusal occurs before any import can replay the
+                # native root and move its tag to a fast-forward descendant.
+                with patch.object(B.subprocess, 'Popen', wraps=B.subprocess.Popen) as processes:
+                    with self.assertRaisesRegex(B.CorpusError, 'append-only'):
+                        B.Writer(repo)
+                    self.assertFalse(any('fast-import' in call.args[0] for call in processes.call_args_list))
+                self.assertEqual(B.git(repo, 'for-each-ref', '--format=%(refname) %(objectname)'), before)
+                self.assertEqual(B.git(repo, 'rev-parse', 'HEAD'), head)
+
+    def test_writer_never_discovers_enclosing_repository(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            outer = Path(tmp) / 'outer'
+            B.prepare(outer)
+            nested = outer / 'uninitialized'
+            nested.mkdir()
+            self.assertIsNone(B.target_git_dir(nested))
+            with self.assertRaisesRegex(B.CorpusError, 'initialized target'):
+                B.Writer(nested)
+            self.assertEqual(B.git(outer, 'for-each-ref'), '')
+
+    def test_writer_tag_refuses_published_and_queued_names(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / 'repo'
+            B.prepare(repo)
+            writer = B.Writer(repo)
+            identity = ('Independent fixture', 'fixture@example.invalid')
+            mark = writer.commit('main', identity, identity, '1600000000 +0000',
+                                 'Native root\n', {'a/s-1.md': 'Native fixture.\n'})
+            writer.tag('queued', mark)
+            with self.assertRaisesRegex(B.CorpusError, 'existing tag'):
+                writer.tag('queued', mark)
+            writer.checkpoint()
+            root = B.git(repo, 'rev-parse', 'main').strip()
+            B.git(repo, 'update-ref', 'refs/tags/published', root)
+            before = B.git(repo, 'rev-parse', 'refs/tags/published')
+            newer = writer.commit('main', identity, identity, '1700000000 +0000',
+                                  'Documentation\n', {'README.md': 'Fixture documentation.\n'})
+            with self.assertRaisesRegex(B.CorpusError, 'existing tag'):
+                writer.tag('published', newer)
+            writer.finish()
+            self.assertEqual(B.git(repo, 'rev-parse', 'refs/tags/published'), before)
+
     def test_own_builder_rollout_is_one_docs_commit_and_preserves_native_files(self):
         with tempfile.TemporaryDirectory() as tmp:
             folder, repo = Path(tmp) / 'input', Path(tmp) / 'published'

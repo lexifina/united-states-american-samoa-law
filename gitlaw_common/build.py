@@ -566,25 +566,46 @@ class Clock:
 
 # ---------------------------------------------------------------- fast-import
 
-def require_empty_history(repo: Path):
+def target_git_dir(repo: Path) -> Path | None:
+    """Resolve only this target (ordinary, linked worktree or bare), never its parent."""
+    repo = Path(repo).resolve()
+    for candidate in (repo / '.git', repo):
+        result = subprocess.run(['git', 'rev-parse', '--resolve-git-dir', str(candidate)],
+                                capture_output=True, text=True, encoding='utf-8', timeout=120)
+        if result.returncode == 0:
+            return Path(result.stdout.strip()).resolve()
+    return None
+
+
+def require_empty_history(repo: Path) -> Path | None:
     """Full-history writers may create a repository, never replace an existing ref."""
-    if (repo / '.git').exists():
-        refs = subprocess.run(['git', 'for-each-ref', '--format=%(refname)'], cwd=repo,
-                              capture_output=True, text=True, encoding='utf-8', check=True).stdout
-        if refs.strip():
+    git_dir = target_git_dir(repo)
+    if git_dir is not None:
+        command = ['git', '--git-dir=' + str(git_dir)]
+        refs = subprocess.run(command + ['for-each-ref', '--format=%(refname)'],
+                              capture_output=True, text=True, encoding='utf-8', check=True, timeout=120).stdout
+        head = subprocess.run(command + ['rev-parse', '--verify', '--quiet', 'HEAD'],
+                              capture_output=True, timeout=120)
+        if head.returncode not in (0, 1):
+            raise CorpusError('append-only: cannot verify target HEAD')
+        if refs.strip() or head.returncode == 0:
             raise CorpusError('append-only: target already has Git history; use --append --refresh-docs '
                               'for a rollout, or a new empty scratch directory for a cold rebuild')
+    return git_dir
 
 
 class Writer:
     """One `git fast-import` for the whole history; commits are written as they are made and then forgotten."""
 
     def __init__(self, repo: Path):
-        require_empty_history(repo)
-        self.p = subprocess.Popen(['git', 'fast-import', '--quiet', '--done', '--date-format=raw'], cwd=repo,
+        self.git_dir = require_empty_history(repo)
+        if self.git_dir is None:
+            raise CorpusError('full-history writer requires an initialized target repository')
+        self.p = subprocess.Popen(['git', '--git-dir=' + str(self.git_dir), 'fast-import', '--quiet', '--done', '--date-format=raw'], cwd=repo,
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.mark = 0
         self.heads: dict[str, int] = {}
+        self.tags: set[str] = set()
 
     def _w(self, b: bytes):
         self.p.stdin.write(b)
@@ -614,6 +635,13 @@ class Writer:
         return self.mark
 
     def tag(self, name: str, mark: int):
+        existing = subprocess.run(['git', '--git-dir=' + str(self.git_dir), 'show-ref', '--verify', '--quiet',
+                                   'refs/tags/' + name], capture_output=True, timeout=120)
+        if existing.returncode not in (0, 1):
+            raise CorpusError('cannot verify existing tag: ' + name)
+        if name in self.tags or existing.returncode == 0:
+            raise CorpusError('append-only: refusing to move existing tag: ' + name)
+        self.tags.add(name)
         self._w(f'reset refs/tags/{name}\nfrom :{mark}\n\n'.encode('utf-8'))
 
     def finish(self):
