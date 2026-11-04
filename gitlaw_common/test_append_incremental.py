@@ -103,8 +103,13 @@ def expect(name: str, ok: bool, info=''):
     print(f'{"PASS" if ok else "FAIL"}  {name}  {info}')
 
 
-# Published: a full build of the partial corpus, served from a local bare repository.
-partial, full = folder('partial', corpus(False)), folder('full', corpus(True))
+# Bootstrap a new corpus with the known image-free synthetic source. The full append
+# input deliberately keeps its legacy missing inventories, including the new versions.
+surveyed = corpus(False)
+for act in surveyed['acts']:
+    for version in act['versions']:
+        version['source_images'] = 0
+partial, full = folder('partial', surveyed), folder('full', corpus(True))
 build = work / 'build'
 r = subprocess.run([sys.executable, '-X', 'utf8', str(HERE / 'build.py'), str(partial), '--repo', str(build),
                     '--docs-date', D], capture_output=True, text=True, encoding='utf-8')

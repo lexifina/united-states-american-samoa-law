@@ -369,7 +369,7 @@ def pre_1970(day: str) -> list[str]:
 def start_message(c: dict, x: dict) -> tuple[tuple[str, str], list[str], list[str]]:
     act, v = x['act'], x['version']
     try:
-        M.require(act, v)
+        M.require(act, v, required=c['country'].get('image_inventory_required', False))
     except ValueError as exc:
         raise CorpusError(str(exc)) from exc
     pub = act.get('publisher') or c['country']['publisher']
@@ -418,7 +418,7 @@ def change_message(c: dict, x: dict) -> tuple[tuple[str, str], list[str], list[s
     parts = x['parts']
     for p in parts:
         try:
-            M.require(p['act'], p['cur'])
+            M.require(p['act'], p['cur'], required=c['country'].get('image_inventory_required', False))
         except ValueError as exc:
             raise CorpusError(str(exc)) from exc
     # An act may name its own publisher (its text comes from a different source than the country's); a commit that
@@ -1166,7 +1166,7 @@ def build(folder: Path, repo: Path, docs_date: str) -> dict:
         M.load(c, folder, repo if (repo / '.git').exists() else None)
         for act in c['acts']:
             for version in act['versions']:
-                M.require(act, version)
+                M.require(act, version, required=True)
     except ValueError as exc:
         raise CorpusError(str(exc)) from exc
     commits = plan(c)

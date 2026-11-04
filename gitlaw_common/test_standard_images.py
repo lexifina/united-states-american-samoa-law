@@ -44,10 +44,48 @@ class ImagesTest(unittest.TestCase):
         v = copy.deepcopy(act['versions'][0])
         del v['source_images']
         with self.assertRaisesRegex(ValueError, 'inventory'):
-            M.require(act, v)
+            M.require(act, v, required=True)
         v['source_images'] = 2
         with self.assertRaisesRegex(ValueError, 'source images 2'):
             M.require(act, v)
+
+    def test_unsurveyed_legacy_version_warns_even_on_a_new_correction(self):
+        c = fixture()
+        act, version = c['acts'][0], c['acts'][0]['versions'][0]
+        del version['source_images']
+        with self.assertWarnsRegex(UserWarning, 'not surveyed'):
+            M.require(act, version)
+        records = [{'day': version['from'], 'files': ['a/schedule.md'], 'standard': '1'}]
+        check = M.check(c, records)
+        self.assertEqual(check['errors'], [])
+        self.assertIn('not surveyed', check['warnings'][0])
+        self.assertIsNone(M.counts(version)['source'])
+        self.assertFalse(T.acts_document(c, '2026-11-03')['acts'][0]['images_complete'])
+        c['country']['image_inventory_required'] = True
+        self.assertTrue(M.check(c, records)['errors'])
+        with self.assertRaisesRegex(B.CorpusError, 'inventory'):
+            B.start_message(c, {'act': act, 'version': version})
+
+    def test_new_corpus_without_survey_fails_before_creating_history(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            c = fixture()
+            version = c['acts'][0]['versions'][0]
+            del version['source_images']
+            version['images'] = []
+            version['units']['schedule']['text'] = '# Schedule\n'
+            (root / 'corpus.json').write_text(json.dumps(c), encoding='utf-8')
+            with self.assertRaisesRegex(B.CorpusError, 'inventory'):
+                B.build(root, root / 'new-repo', '2026-11-03')
+            self.assertFalse((root / 'new-repo/.git').exists())
+
+    def test_invalid_survey_is_not_treated_as_missing(self):
+        act = fixture()['acts'][0]
+        for count in (None, -1, True, '1'):
+            with self.subTest(count=count):
+                version = {**act['versions'][0], 'source_images': count}
+                with self.assertRaisesRegex(ValueError, 'invalid'):
+                    M.require(act, version)
 
     def test_normative_omission_counts_but_is_incomplete(self):
         c = fixture()

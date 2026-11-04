@@ -449,7 +449,7 @@ def correction_message(c: dict, x: dict) -> tuple[list[str], list[str]]:
     """Subject and body, and trailers, of one correction commit (see the module doc)."""
     act, v, have, want = x['act'], x['version'], x['have'], x['want']
     try:
-        B.M.require(act, v)
+        B.M.require(act, v, required=c.get('country', {}).get('image_inventory_required', False))
         assets = B.M.files(act, x['files'])
     except ValueError as exc:
         raise B.CorpusError(str(exc)) from exc

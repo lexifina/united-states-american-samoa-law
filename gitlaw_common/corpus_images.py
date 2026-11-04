@@ -4,6 +4,7 @@ import hashlib
 import io
 import re
 import subprocess
+import warnings
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -24,11 +25,13 @@ def counts(version):
             'normative_omitted': sum(m[1] not in decorative for m in notices)}
 
 
-def issues(act, version):
+def issues(act, version, *, require_inventory=True):
     text = '\n'.join(u['text'] for u in version.get('units', {}).values())
     result = []
     n = version.get('source_images')
-    if type(n) is not int or n < 0:
+    if 'source_images' not in version and not require_inventory:
+        pass  # Unknown is distinct from an independently surveyed zero.
+    elif type(n) is not int or n < 0:
         result.append('source_images inventory is missing or invalid')
     links = list(LINK.finditer(text))
     notices = list(OMISSION.finditer(text))
@@ -53,8 +56,11 @@ def issues(act, version):
     return [f'{act["slug"]} {version["from"]}: {message}' for message in result]
 
 
-def require(act, version):
-    errors = issues(act, version)
+def require(act, version, *, required=False):
+    if 'source_images' not in version and not required:
+        warnings.warn(f'check 10: {act["slug"]} {version["from"]}: source_images not surveyed; '
+                      'image completeness is unknown', UserWarning, stacklevel=2)
+    errors = issues(act, version, require_inventory=required)
     if errors:
         raise ValueError('check 10: ' + '; '.join(errors))
 
@@ -150,7 +156,11 @@ def check(c, records, read_blob=None):
                           and any(p.startswith(act['slug'] + '/') for p in r['files'])]
             new = any(r.get('standard') == '1' for r in candidates)
             output = errors if new else warnings
-            output.extend(issues(act, version))
+            required = c.get('country', {}).get('image_inventory_required', False)
+            if 'source_images' not in version and not required:
+                warnings.append(f'{act["slug"]} {version["from"]}: source_images not surveyed; '
+                                'image completeness is unknown')
+            output.extend(issues(act, version, require_inventory=required))
             for unit in version.get('units', {}).values():
                 for link in LINK.finditer(unit['text']):
                     path = act['slug'] + '/' + link[2]

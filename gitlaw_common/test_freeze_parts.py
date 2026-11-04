@@ -31,7 +31,9 @@ def u(text):
 
 def act(slug, day, text):
     return {'slug': slug, 'short': slug[:5], 'title': slug.title(), 'first_law': 'act-1',
-            'versions': [{'from': day, 'units': {'s-1': u(text)}}]}
+            # This synthetic source has one text unit and no images; the initial
+            # repository is a new build, which requires an explicit survey.
+            'versions': [{'from': day, 'source_images': 0, 'units': {'s-1': u(text)}}]}
 
 
 BASE = {'country': {'code': 'XT', 'name': 'Testland', 'slug': 'testland', 'lang': 'en', 'tz': 'UTC',
