@@ -30,6 +30,7 @@ unclear 20; shared-platform shards +5.
   python -X utf8 jobqueue.py release <id> --owner X
   python -X utf8 jobqueue.py add <slug> --step history-shard --shard "acts 0-999" [--host h] [--priority 70]
   python -X utf8 jobqueue.py mark <slug> --status blocked --reason "..."
+  python -X utf8 jobqueue.py lane <slug> --owner <session>   # or edit queue/lanes.json, then seed
   python -X utf8 jobqueue.py status | list [--state queued]
 Windows Python only (the database is SQLite on NTFS); from WSL call python.exe with this path.
 """
@@ -48,11 +49,15 @@ DB = HOME / 'queue' / 'jobs.sqlite'
 SCRIPTS = Path(r'C:\Users\alany\Documents\lexifina\scripts')
 CLAIMS = SCRIPTS / 'world-law' / 'claims'
 SOURCES = SCRIPTS / 'world-law' / 'wave4-sources.json'
+GATE_FILE = HOME / 'queue' / 'gate.txt'  # while it exists, only gating work leases (steps v1c-shard/review-shard, or priority >= 95)
 OVERRIDES = HOME / 'queue' / 'status-overrides.json'   # {slug: {"status": ..., "reason": ...}} kept by hand
+LANES = HOME / 'queue' / 'lanes.json'   # {slug: owning session}: an owned repo is only ever leased by an owner whose name starts with it
 CENSUS = HOME / 'census'
 SMALL_KB, BIG_KB = 500, 5000
+NOT_CORPORA = {'global-law', 'world-law-ops'}  # the superproject and ops repo have no source listing: never queued
 TERMINAL = ('complete', 'exhausted', 'blocked', 'held')
 MAX_ATTEMPTS = 3
+RETRY_HOURS = 3   # a 'retry later' release waits this long before the job is offered again (--retry-hours overrides)
 
 # shared engines: one proven runner covers a whole shard
 PLATFORMS = [
@@ -85,8 +90,11 @@ def connect():
         host TEXT, priority INTEGER, state TEXT, owner TEXT, lease_until TEXT, attempts INTEGER DEFAULT 0, note TEXT,
         created TEXT, updated TEXT, done_at TEXT);
     CREATE UNIQUE INDEX IF NOT EXISTS jobs_key ON jobs(slug, step, shard) WHERE state IN ('queued','leased');
+    CREATE TABLE IF NOT EXISTS lanes(slug TEXT PRIMARY KEY, owner TEXT);
     CREATE TABLE IF NOT EXISTS events(at TEXT, job INTEGER, slug TEXT, owner TEXT, what TEXT, detail TEXT);
     """)
+    if 'not_before' not in {r[1] for r in c.execute('PRAGMA table_info(jobs)')}:
+        c.execute('ALTER TABLE jobs ADD COLUMN not_before TEXT')  # a released 'retry later' job waits until then
     return c
 
 
@@ -149,7 +157,7 @@ def platform_of(slug):
     return next((p for rx, p in PLATFORMS if re.match(rx, slug)), 'own')
 
 
-def seed(c):
+def seed(c, add_jobs=True):
     sizes = latest_census()
     tier = tiers(sizes)
     src = {}
@@ -158,7 +166,13 @@ def seed(c):
     over = json.loads(OVERRIDES.read_text(encoding='utf-8')) if OVERRIDES.exists() else {}
     t = iso(now())
     added = 0
+    lanes = json.loads(LANES.read_text(encoding='utf-8')) if LANES.exists() else {}
+    c.execute('DELETE FROM lanes')
+    c.executemany('INSERT INTO lanes VALUES (?,?)', list(lanes.items()))
     for slug, kb in sizes.items():
+        if slug in NOT_CORPORA:
+            continue
+        findings = False
         s = src.get(slug, {})
         plat = platform_of(slug)
         cur = c.execute('SELECT status, reason FROM repos WHERE slug=?', (slug,)).fetchone()
@@ -166,13 +180,24 @@ def seed(c):
         # status: an override or a worker's final status wins; then holds; then the source check; then size
         if slug in over:
             status, reason = over[slug]['status'], over[slug].get('reason', '')
-        elif cur and cur['status'] in ('complete', 'exhausted', 'blocked') and cur['reason'] != 'by-size':
+        elif (cur and cur['status'] == 'open' and (cur['reason'] or '') not in ('', 'go', 'go-small', 'unclear')
+              and not (cur['reason'] or '').startswith('OCR route')):
+            status, reason = 'open', cur['reason']  # a worker's or person's 'open' with findings is kept, not re-derived from size
+            findings = True  # its follow-up is chosen deliberately (owner or coordinator), never the default job
+        elif cur and cur['status'] == 'held' and (cur['reason'] or '').startswith('needs coordinator plan'):
+            status, reason = cur['status'], cur['reason']  # an automatic hold stays until someone reopens it (mark)
+        elif (cur and cur['status'] in ('complete', 'exhausted', 'blocked') and cur['reason'] != 'by-size'
+              and not cur['reason'].startswith('scans-only:')):  # old scans-only blocks are reopened by D8 below
             status, reason = cur['status'], cur['reason']
         elif line.startswith('HOLD-alan'):
             status, reason = 'held', line
         elif plat == 'pravo-catalogue':
             status, reason = 'blocked', 'publication.pravo.gov.ru robots.txt disallows /File (texts); catalogue only'
-        elif s.get('verdict') in ('blocked', 'scans-only', 'unreachable'):
+        elif s.get('verdict') == 'scans-only' and cur and cur['status'] == 'blocked' and not cur['reason'].startswith('scans-only'):
+            status, reason = cur['status'], cur['reason']
+        elif s.get('verdict') == 'scans-only':  # D8 (2026-11-02): OCR allowed for reusable official scans, labelled and spot-checked
+            status, reason = 'open', 'OCR route (D8): official scans; label OCR, spot-check each page, reuse terms required'
+        elif s.get('verdict') in ('blocked', 'unreachable'):
             status, reason = 'blocked', f"{s['verdict']}: {(s.get('notes') or '')[:200]}"
         elif kb >= BIG_KB:
             status, reason = 'complete', 'by-size'
@@ -183,11 +208,23 @@ def seed(c):
                   'source_url=excluded.source_url, updated=excluded.updated',
                   (slug, tier[slug], plat, status, reason, kb, s.get('source_url') or '', t))
         if status != 'open':
-            for j in c.execute("SELECT id FROM jobs WHERE slug=? AND state='queued'", (slug,)).fetchall():
+            # verify jobs (the 95% listing check) belong on 'complete' repos and are kept
+            # On complete and exhausted repos only the reseed's own default jobs (a bare depth or breadth with no shard)
+            # are cancelled: work someone chose (verify, rework*, any shard such as history-shard) is kept.
+            # Held and blocked repos lose every queued job.
+            keep_verify = (" AND step IN ('depth','breadth') AND COALESCE(shard,'')=''"
+                           if status in ('complete', 'exhausted') else '')
+            for j in c.execute("SELECT id FROM jobs WHERE slug=? AND state='queued'" + keep_verify, (slug,)).fetchall():
                 c.execute("UPDATE jobs SET state='cancelled', updated=? WHERE id=?", (t, j['id']))
+            continue
+        if not add_jobs or findings:  # 'mark'/'lane', or an open set with findings: the caller adds the work it chose
             continue
         empty = kb < SMALL_KB
         step = 'breadth' if empty else 'depth'
+        others = c.execute("SELECT COUNT(*) FROM jobs WHERE slug=? AND state IN ('queued','leased') AND step != ?",
+                           (slug, step)).fetchone()[0]
+        if others:  # the repo already has chosen work (shards, rework): don't add the default job beside it
+            continue
         if tier[slug] == 'national':
             pri = 100 if empty and s.get('verdict') in (None, 'go', 'go-small') else 80
         else:
@@ -213,10 +250,13 @@ def lease(c, owner, minutes=90, platform=None, tier=None, step=None):
     c.execute('BEGIN IMMEDIATE')
     try:
         reap(c)
-        q = ("SELECT j.* FROM jobs j JOIN repos r ON r.slug=j.slug WHERE j.state='queued' AND r.status='open'"
-             + (' AND j.platform=?' if platform else '') + (' AND r.tier=?' if tier else '')
-             + (' AND j.step=?' if step else '') + ' ORDER BY j.priority DESC, j.attempts, j.id')
-        args = [a for a in (platform, tier, step) if a]
+        # Tooling jobs (world-law-ops, global-law) have no repos row; they lease whenever queued (v1c shards, 2026-11-04).
+        q = ("SELECT j.* FROM jobs j LEFT JOIN repos r ON r.slug=j.slug WHERE j.state='queued' AND (j.not_before IS NULL OR j.not_before <= ?) AND (j.slug IN ('world-law-ops','global-law') OR r.status='open' OR(r.status IN ('complete','exhausted') AND NOT (j.step IN ('depth','breadth') AND COALESCE(j.shard,'')='')))"
+             + (' AND j.platform=?' if platform else '') + (' AND (r.tier=? OR r.slug IS NULL)' if tier else '')
+             + (' AND j.step=?' if step else '')
+             + (" AND (j.step IN ('v1c-shard','review-shard') OR j.priority >= 95)" if GATE_FILE.exists() else '')
+             + ' ORDER BY j.priority DESC, j.attempts, j.id')
+        args = [iso(now())] + [a for a in (platform, tier, step) if a]
         busy_hosts = {r[0] for r in c.execute("SELECT host FROM jobs WHERE state='leased' AND host IS NOT NULL")}
         busy_single = {r[0] for r in c.execute("SELECT slug FROM jobs WHERE state='leased' AND step NOT LIKE '%-shard'")}
         busy_any = {r[0] for r in c.execute("SELECT slug FROM jobs WHERE state='leased'")}
@@ -225,19 +265,23 @@ def lease(c, owner, minutes=90, platform=None, tier=None, step=None):
                 continue
             if j['slug'] in busy_single or (not j['step'].endswith('-shard') and j['slug'] in busy_any):
                 continue
+            lane = c.execute('SELECT owner FROM lanes WHERE slug=?', (j['slug'],)).fetchone()
+            if lane and not owner.startswith(lane[0]):
+                continue  # another session's lane
             line = claim_line(j['slug'])
-            if line and not line.startswith('queue-lease '):
+            own_hand_claim = bool(lane and line and lane[0] in line.split()[0])  # e.g. 'gitlaw-scraper-hp-omen' for lane 'hp-omen'
+            if line and not line.startswith('queue-lease ') and not own_hand_claim:
                 continue  # claimed by hand by someone else: never take it
             until = now() + dt.timedelta(minutes=minutes)
             c.execute("UPDATE jobs SET state='leased', owner=?, lease_until=?, updated=? WHERE id=?",
                       (owner, iso(until), iso(now()), j['id']))
-            if not j['step'].endswith('-shard') or not line:
-                write_claim(j['slug'], owner, until, j['id'])
+            if not own_hand_claim and (not j['step'].endswith('-shard') or not line):
+                write_claim(j['slug'], owner, until, j['id'])  # the lane owner's own hand claim is left as it is
             event(c, j['id'], j['slug'], owner, 'leased', iso(until))
             c.execute('COMMIT')
-            r = c.execute('SELECT * FROM repos WHERE slug=?', (j['slug'],)).fetchone()
+            r = c.execute('SELECT * FROM repos WHERE slug=?', (j['slug'],)).fetchone() or {}  # tooling jobs have no repos row
             return {**dict(j), 'state': 'leased', 'owner': owner, 'lease_until': iso(until),
-                    'tier': r['tier'], 'source_url': r['source_url'], 'repo_reason': r['reason']}
+                    'tier': r and r['tier'], 'source_url': r and r['source_url'], 'repo_reason': r and r['reason']}
         c.execute('COMMIT')
         return None
     except Exception:
@@ -252,7 +296,7 @@ def mine(c, job, owner):
     return j
 
 
-def finish(c, job, owner, how, status=None, reason='', note='', minutes=90):
+def finish(c, job, owner, how, status=None, reason='', note='', minutes=90, retry_hours=None):
     c.execute('BEGIN IMMEDIATE')
     reap(c)
     j = mine(c, job, owner)
@@ -264,8 +308,19 @@ def finish(c, job, owner, how, status=None, reason='', note='', minutes=90):
             write_claim(j['slug'], owner, until, job)
     elif how == 'done':
         c.execute("UPDATE jobs SET state='done', note=?, updated=?, done_at=? WHERE id=?", (reason or note, t, t, job))
+        cur_status = c.execute('SELECT status FROM repos WHERE slug=?', (j['slug'],)).fetchone()
+        if status == 'blocked' and (j['step'] == 'verify' or (cur_status and cur_status[0] in ('complete', 'exhausted'))):
+            # a published repo is never flipped to blocked by a verify job: a licence or terms doubt goes to Alan
+            dec = HOME / 'goal-decisions.txt'
+            with dec.open('a', encoding='utf-8') as f:
+                f.write(f"{j['slug']} (published): a verify job raised a reuse question: {reason[:300]}. Keep it, or take it down?\n")
+            status = None
         if status:
             c.execute('UPDATE repos SET status=?, reason=?, updated=? WHERE slug=?', (status, reason, t, j['slug']))
+            # a worker's final status replaces any earlier hand override for this repo
+            over = json.loads(OVERRIDES.read_text(encoding='utf-8')) if OVERRIDES.exists() else {}
+            if over.pop(j['slug'], None) is not None:
+                OVERRIDES.write_text(json.dumps(over, indent=1, ensure_ascii=False), encoding='utf-8')
         drop_claim(j['slug'], job)
     elif how == 'fail':
         n = j['attempts'] + 1
@@ -273,9 +328,26 @@ def finish(c, job, owner, how, status=None, reason='', note='', minutes=90):
                   ('failed' if n >= MAX_ATTEMPTS else 'queued', n, note, t, job))
         drop_claim(j['slug'], job)
     elif how == 'release':
-        c.execute("UPDATE jobs SET state='queued', owner=NULL, lease_until=NULL, updated=? WHERE id=?", (t, job))
+        nb = None
+        if (note or '').lower().startswith('retry later'):  # host down or capped: don't re-offer it at once
+            nb = iso(now() + dt.timedelta(hours=RETRY_HOURS if retry_hours is None else retry_hours))
+        c.execute("UPDATE jobs SET state='queued', owner=NULL, lease_until=NULL, not_before=?, updated=? WHERE id=?",
+                  (nb, t, job))
         drop_claim(j['slug'], job)
     event(c, job, j['slug'], owner, how, status or note or reason)
+    if how in ('fail', 'release'):
+        # 3 releases or fails in a row with no 'done' between: stop offering the repo until someone plans it
+        # the streak restarts at the last 'done' or the last hand reopen ('mark --status open')
+        last_done = c.execute("SELECT MAX(at) FROM events WHERE slug=? AND what IN ('done','reopened')",
+                              (j['slug'],)).fetchone()[0] or ''
+        # a 'retry later' release (host cap, outage) is not an empty result and never counts toward the auto-hold
+        n = c.execute("SELECT COUNT(*) FROM events WHERE slug=? AND what IN ('fail','release') AND at > ? "
+                      "AND lower(COALESCE(detail,'')) NOT LIKE 'retry later%'", (j['slug'], last_done)).fetchone()[0]
+        if n >= 3:
+            c.execute("UPDATE repos SET status='held', reason=?, updated=? WHERE slug=?",
+                      (f'needs coordinator plan: {n} runs in a row ended without a result (last: {(note or reason)[:160]})', t, j['slug']))
+            c.execute("UPDATE jobs SET state='cancelled', updated=? WHERE slug=? AND state='queued'", (t, j['slug']))
+            event(c, job, j['slug'], owner, 'auto-held', f'{n} runs without a result')
     c.execute('COMMIT')
 
 
@@ -302,7 +374,7 @@ def summary(c=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('cmd', choices=['seed', 'lease', 'renew', 'done', 'fail', 'release', 'add', 'mark', 'status', 'list'])
+    ap.add_argument('cmd', choices=['seed', 'lease', 'renew', 'done', 'fail', 'release', 'add', 'mark', 'lane', 'status', 'list'])
     ap.add_argument('arg', nargs='?')
     ap.add_argument('--owner')
     ap.add_argument('--minutes', type=int, default=90)
@@ -316,6 +388,7 @@ def main():
     ap.add_argument('--reason', default='')
     ap.add_argument('--note', default='')
     ap.add_argument('--state')
+    ap.add_argument('--retry-hours', type=float, help="release with a 'retry later' note: hours before it is offered again (default 3)")
     a = ap.parse_args()
     c = connect()
     if a.cmd == 'seed':
@@ -328,20 +401,32 @@ def main():
     elif a.cmd in ('renew', 'done', 'fail', 'release'):
         if not (a.owner and a.arg):
             sys.exit('job id and --owner are required')
-        finish(c, int(a.arg), a.owner, a.cmd, a.status, a.reason, a.note, a.minutes)
+        finish(c, int(a.arg), a.owner, a.cmd, a.status, a.reason, a.note, a.minutes, a.retry_hours)
         print('ok')
     elif a.cmd == 'add':
         t = iso(now())
         r = c.execute('SELECT platform FROM repos WHERE slug=?', (a.arg,)).fetchone()
-        c.execute("INSERT INTO jobs(slug, platform, step, shard, host, priority, state, created, updated) "
-                  "VALUES (?,?,?,?,?,?, 'queued', ?, ?)",
-                  (a.arg, r['platform'] if r else platform_of(a.arg), a.step or 'breadth', a.shard, a.host, a.priority, t, t))
-        print('ok')
+        cur = c.execute("INSERT INTO jobs(slug, platform, step, shard, host, priority, state, note, created, updated) "
+                        "VALUES (?,?,?,?,?,?, 'queued', ?, ?, ?)",
+                        (a.arg, r['platform'] if r else platform_of(a.arg), a.step or 'breadth', a.shard, a.host,
+                         a.priority, a.note or None, t, t))
+        print(f'ok job {cur.lastrowid}')
     elif a.cmd == 'mark':
         over = json.loads(OVERRIDES.read_text(encoding='utf-8')) if OVERRIDES.exists() else {}
         over[a.arg] = {'status': a.status, 'reason': a.reason, 'at': iso(now())}
+        if a.status == 'open':
+            event(c, None, a.arg, 'mark', 'reopened', a.reason[:200])  # resets the auto-hold streak
         OVERRIDES.write_text(json.dumps(over, indent=1, ensure_ascii=False), encoding='utf-8')
-        seed(c)
+        seed(c, add_jobs=False)
+        print('ok')
+    elif a.cmd == 'lane':
+        lanes = json.loads(LANES.read_text(encoding='utf-8')) if LANES.exists() else {}
+        if a.owner:
+            lanes[a.arg] = a.owner
+        else:
+            lanes.pop(a.arg, None)
+        LANES.write_text(json.dumps(lanes, indent=1, sort_keys=True), encoding='utf-8')
+        seed(c, add_jobs=False)
         print('ok')
     elif a.cmd == 'status':
         print(json.dumps(summary(c), indent=1))

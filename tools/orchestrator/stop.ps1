@@ -8,4 +8,4 @@ if (Test-Path "$H\cpulog.pid") {
     Stop-Process -Id $id -Force -Confirm:$false -ErrorAction SilentlyContinue
     Remove-Item "$H\cpulog.pid"
 }
-'stop requested: repoint and pushwatch exit after their current pass (up to ~10 min); cpulog stopped'
+'stop requested: each loop exits at its next check (repoint: within 30 s between passes, or after a running pass, up to ~25 min); cpulog stopped'

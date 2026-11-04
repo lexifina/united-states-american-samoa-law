@@ -6,12 +6,16 @@
 #   ensure_gh_helper.sh --apply-all     set it on every clone under ~/gitlaw-builds (only with each owner's OK)
 # Run inside WSL:  wsl.exe -d Ubuntu --cd /home/alany -- bash /mnt/c/Users/alany/AppData/Local/gitlaw-orchestrator/ensure_gh_helper.sh
 GH='!gh.exe auth git-credential'
-has() { git -C "$1" config --local --get-all credential.helper 2>/dev/null | grep -qF 'gh.exe auth git-credential'; }
+# git's in-memory cache first, so the Windows gh.exe (which opens a console, a visible flash) runs about once a day,
+# not on every push; nothing is written to disk in plain text.
+has() { local h; h=$(git -C "$1" config --local --get-all credential.helper 2>/dev/null)
+        grep -qF 'gh.exe auth git-credential' <<<"$h" && grep -qF 'cache --timeout' <<<"$h"; }
 set_one() {
   [ -d "$1/.git" ] || [ -f "$1/HEAD" ] || { echo "skip (not a repo): $1"; return; }
   if has "$1"; then echo "ok   $1"; return; fi
-  git -C "$1" config --local --replace-all credential.helper "" && git -C "$1" config --local --add credential.helper "$GH" \
-    && echo "set  $1"
+  git -C "$1" config --local --replace-all credential.helper "" \
+    && git -C "$1" config --local --add credential.helper "cache --timeout=86400" \
+    && git -C "$1" config --local --add credential.helper "$GH" && echo "set  $1"
 }
 command -v gh.exe >/dev/null || { echo "gh.exe not on PATH inside WSL"; exit 1; }
 case "$1" in

@@ -70,7 +70,10 @@ def token():
     # gh's keyring token first: `git credential fill` can block forever on a hidden credential-manager prompt
     # (it did after a Claude relaunch on 2026-11-03, stalling every snapshot for 90 min).
     try:
-        t = subprocess.run(['gh', 'auth', 'token'], capture_output=True, text=True, timeout=30).stdout.strip()
+        # Ignore inherited GH_TOKEN/GITHUB_TOKEN: the loops were started on 11-03 and a stale env token gave HTTP 401 on
+        # 11-04, forcing the slow ls-remote fallback. gh then answers from its keyring.
+        env = {k: v for k, v in os.environ.items() if k not in ('GH_TOKEN', 'GITHUB_TOKEN', 'GH_ENTERPRISE_TOKEN')}
+        t = subprocess.run(['gh', 'auth', 'token'], capture_output=True, text=True, timeout=30, env=env).stdout.strip()
         if t:
             return t
     except (OSError, subprocess.TimeoutExpired):
@@ -160,7 +163,15 @@ def scraper_window(name, since):
             'waiting': waiting, 'failed': failed}
 
 
-def cpu_by_lane(seconds=3.0):
+def cpu_by_lane(seconds=3.0, limit=30):
+    """cpu_by_lane_sample in a daemon thread: psutil's per-process cpu_times can block on Windows (2026-11-04 traceback
+    in _pswindows._proc_info), which hung every loop pass. Past `limit` seconds the page is written without the tile."""
+    # The thread cap was not enough: psutil's Windows call holds the GIL, so the main thread stalled too. The tile is
+    # off until it can run in its own killable process; the goal tracker still records total CPU.
+    return []
+
+
+def cpu_by_lane_sample(seconds=3.0):
     """Which work is using the CPU right now: cores per lane over a short sample, from each process's command line
     (python script or git subcommand), so the report can say where build CPU goes."""
     try:
@@ -558,4 +569,8 @@ tr.act td:first-child{{color:var(--act);font-weight:600}}tr.note td:first-child{
 
 
 if __name__ == '__main__':
+    # Git Bash's `timeout 280` cannot stop a Windows python, so a hung read kept the loop's run alive for hours
+    # (2026-11-04). Exit by ourselves at 240 s, printing where we were stuck to speedwatch.log.
+    import faulthandler
+    faulthandler.dump_traceback_later(240, exit=True)
     main()
