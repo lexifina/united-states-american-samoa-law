@@ -37,6 +37,27 @@ class ProvisionsTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'no published commit'):
             I.provision_rows(c, [])
 
+    def test_backfill_end_resumes_existing_ordinary_commit(self):
+        c = {'country': {}, 'laws': {}, 'acts': [{'slug': 'a', 'versions': [
+            {'from': '2000-01-01', 'units': {'s': {'text': 'A\n'}}},
+            {'from': '2010-01-01', 'units': {'s': {'text': 'B\n'}}},
+            {'from': '2020-01-01', 'units': {'s': {'text': 'B\n'}}}]}]}
+        records = [
+            {'commit': 'published-2000', 'day': '2000-01-01', 'kind': 'baseline', 'law': '',
+             'files': ['a/s.md'], 'ranges': []},
+            {'commit': 'published-2020', 'day': '2020-01-01', 'kind': 'uncredited', 'law': '',
+             'files': ['a/s.md'], 'ranges': []},
+            {'commit': 'backfill', 'day': '2010-01-01', 'kind': 'correction', 'law': '',
+             'files': ['a/s.md'], 'ranges': [('a', '2010-01-01', '2019-12-31')]}]
+        rows = I.provision_rows(c, records)
+        self.assertEqual([(r['from'], r['to'], r['commit']) for r in rows], [
+            ('2000-01-01', '2009-12-31', 'published-2000'),
+            ('2010-01-01', '2019-12-31', 'backfill'),
+            ('2020-01-01', '', 'published-2020')])
+        self.assertEqual(rows[-1]['kind'], 'uncredited')
+        with self.assertRaisesRegex(ValueError, 'no published commit'):
+            I.provision_rows(c, [records[0], records[2]])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -140,6 +140,18 @@ def provision_rows(c, records):
                                 if fix.get(field):
                                     row[field] = fix[field]
                     if not row['commit']:
+                        # A backfilled version may have no ordinary commit at its
+                        # own date. When its bounded correction ends, the original
+                        # published ordinary commit at that boundary resumes, even
+                        # if the corrected input has no new wording/credit event.
+                        resumed = [r for r in records if r['kind'] != 'correction'
+                                   and r['day'] == start and path in r['files']]
+                        if start <= c.get('_docs_date', '9999-12-31'):
+                            resumed = [r for r in resumed if r.get('branch', 'main') == 'main'] or resumed
+                        if resumed:
+                            origin = resumed[-1]
+                            row.update(commit=origin['commit'], kind=origin['kind'], law=origin['law'])
+                    if not row['commit']:
                         raise ValueError(f'no published commit for {path} from {row["from"]}')
                     rows.append(row)
     return sorted(rows, key=lambda r: (r['path'], r['from']))
