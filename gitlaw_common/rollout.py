@@ -13,6 +13,51 @@ import build as B
 import corpus_jurisdiction as J
 
 
+def require_complete_history(repo, c, records):
+    """Compare source intervals with published text, including omitted boundaries.
+
+    A docs rollout must neither hide an act nor stretch a supplied version across
+    a different published text. Equal text at an extra published boundary needs
+    no redundant source version. All reads precede any documentation write.
+    """
+    slugs = {act['slug'] for act in c['acts']}
+    published = set()
+    root_docs = {'README.md', 'REPRODUCE.md', 'SOURCES.md', 'LICENSE.md'}
+    for record in records:
+        if record['branch'] != 'main':
+            continue
+        published.update(act for act, _, _ in record['ranges'])
+        for path in record['files']:
+            if (not path.endswith('.md') or path in root_docs or path.endswith('/README.md')
+                    or path.startswith(('tools/', 'data/')) or '/assets/' in path):
+                continue
+            published.add(path.rsplit('/', 1)[0] if '/' in path else path)
+    if len(slugs) != len(c['acts']) or slugs != published:
+        raise B.CorpusError('rollout requires complete published act identity coverage: '
+                            f'missing {sorted(published - slugs)[:20]}; extra {sorted(slugs - published)[:20]}')
+    reader = A.Reader(repo, sorted(slugs))
+    problems = []
+    try:
+        for act in c['acts']:
+            versions = sorted(act['versions'], key=lambda v: v['from'])
+            boundaries = sorted(reader.boundaries(act['slug']) | {v['from'] for v in versions})
+            index, expected = 0, {}
+            for day in boundaries:
+                while index < len(versions) and versions[index]['from'] <= day:
+                    expected = {f'{act["slug"]}/{key}.md': A.K.blob_oid(unit['text'])
+                                for key, unit in versions[index]['units'].items()}
+                    index += 1
+                actual = reader.files(act['slug'], day) or {}
+                if actual != expected:
+                    paths = sorted(p for p in set(actual) | set(expected) if actual.get(p) != expected.get(p))
+                    problems.append(f'{act["slug"]} {day}: supplied history omits or changes a published '
+                                    f'text transition ({len(paths)} files, e.g. {paths[:3]})')
+    finally:
+        reader.close()
+    if problems:
+        raise B.CorpusError('rollout requires complete published text history:\n  ' + '\n  '.join(problems[:40]))
+
+
 def refresh(folder, repo, docs_date, expected_head):
     head = B.git(repo, 'rev-parse', 'main').strip()
     if head != expected_head:
@@ -29,8 +74,9 @@ def refresh(folder, repo, docs_date, expected_head):
     tip = A.H.check(repo, c, docs_date)
     if tip['tip_errors'] or tip['tip_warnings']:
         raise B.CorpusError('rollout input differs from published current text: ' + repr(tip['tip_details']))
-    B.M.load(c, folder, repo)
     records = B.I.commit_records(repo, c['country'].get('future_branch') or 'futuro')
+    require_complete_history(repo, c, records)
+    B.M.load(c, folder, repo)
     slugs = {a['slug'] for a in c['acts']}
     law_keys = {law['label']: key for key, law in c['laws'].items()}
     log = [{'day': r['day'], 'kind': r['kind'], 'law': law_keys.get(r['law']),

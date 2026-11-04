@@ -4,11 +4,92 @@ from pathlib import Path
 import build as B
 import append as A
 import json
+import copy
 import rollout
 from unittest.mock import patch
 
 
 class DocumentationGuardTest(unittest.TestCase):
+    def native_history(self, root, texts=('First native text.\n', 'Middle native text.\n', 'Last native text.\n')):
+        folder, repo = root / 'input', root / 'repo'
+        folder.mkdir()
+        c = {'country': {'slug': 'testland', 'code': 'XX', 'name': 'Testland', 'tz': 'UTC', 'lang': 'en',
+                         'publisher': {'name': 'Native fixture', 'email': 'fixture@example.invalid'}},
+             'laws': {}, 'acts': [{'slug': 'a', 'short': 'A', 'title': 'Native act', 'versions': []}]}
+        B.prepare(repo)
+        writer = B.Writer(repo)
+        identity = ('Native fixture', 'fixture@example.invalid')
+        for index, text in enumerate(texts):
+            day = f'{2020 + index}-01-01'
+            files = {'a/s-1.md': text}
+            if index == 0:
+                files.update({'corpus.json': '{"acts": 1}\n',
+                              'jurisdiction.json': '{"code":"XX","level":"country"}\n'})
+            mark = writer.commit('main', identity, identity, f'{1600000000 + index} +0000',
+                                 f'Independent native event\n\nKind: law\nIn-force: {day}\n', files)
+            writer.tag('a/' + day, mark)
+            c['acts'][0]['versions'].append({'from': day, 'source_images': 0,
+                                            'units': {'s-1': {'label': '1', 'text': text}}})
+        writer.finish()
+        return folder, repo, c
+
+    def refused_inventory(self, folder, repo, c, message):
+        (folder / 'corpus.json').write_text(json.dumps(c), encoding='utf-8')
+        before = B.git(repo, 'for-each-ref', '--format=%(refname) %(objectname)')
+        head = B.git(repo, 'rev-parse', 'main').strip()
+        with self.assertRaisesRegex(B.CorpusError, message):
+            rollout.refresh(folder, repo, '2026-11-04', head)
+        self.assertEqual(B.git(repo, 'for-each-ref', '--format=%(refname) %(objectname)'), before)
+        self.assertEqual(B.git(repo, 'rev-parse', 'main').strip(), head)
+
+    def test_rollout_refuses_omitted_middle_transition_and_preserves_refs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder, repo, c = self.native_history(Path(tmp))
+            c['acts'][0]['versions'].pop(1)
+            self.refused_inventory(folder, repo, c, '2021-01-01.*published text transition')
+
+    def test_rollout_refuses_equal_count_with_missing_act_identity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder, repo, c = self.native_history(Path(tmp))
+            # Count and empty current text alone cannot identify an unheld act.
+            c['acts'][0]['slug'] = 'unpublished'
+            c['acts'][0]['versions'] = []
+            self.refused_inventory(folder, repo, c, 'act identity coverage')
+
+    def test_rollout_accepts_omitted_redundant_text_version(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder, repo, c = self.native_history(Path(tmp), ('Same native text.\n', 'Same native text.\n', 'Last native text.\n'))
+            c['acts'][0]['versions'].pop(1)
+            (folder / 'corpus.json').write_text(json.dumps(c), encoding='utf-8')
+            head = B.git(repo, 'rev-parse', 'main').strip()
+            tags = B.git(repo, 'show-ref', '--tags')
+            result = rollout.refresh(folder, repo, '2026-11-04', head)
+            self.assertEqual(result['documentation_commits'], 1)
+            self.assertEqual(B.git(repo, 'rev-parse', 'main^').strip(), head)
+            self.assertEqual(B.git(repo, 'show-ref', '--tags'), tags)
+
+    def test_rollout_checks_correction_start_and_return_boundaries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder, repo, c = self.native_history(Path(tmp), ('Original native text.\n', 'Original native text.\n', 'Last native text.\n'))
+            c['acts'][0]['versions'].pop(1)
+            head = B.git(repo, 'rev-parse', 'main').strip()
+            writer = A.Appender(repo, head, 1600000002, '+0000')
+            identity = ('Native fixture', 'fixture@example.invalid')
+            writer.commit(identity, '1700000000 +0000', identity,
+                'Independent correction\n\nKind: correction\nIn-force: 2021-02-01\n'
+                'Corrects: a 2021-02-01..2021-06-30\nAct-path: a\nFiles: a/s-1.md\n',
+                {'a/s-1.md': 'Corrected native text.\n'})
+            writer.commit(identity, '1700000001 +0000', identity,
+                'Native tip restored\n\nKind: correction\nIn-force: 2022-01-01\n'
+                'Corrects: a 2022-01-01..\nAct-path: a\nFiles: a/s-1.md\n',
+                {'a/s-1.md': 'Last native text.\n'})
+            writer.finish()
+            self.refused_inventory(folder, repo, c, '2021-02-01.*published text transition')
+            supplied = copy.deepcopy(c)
+            supplied['acts'][0]['versions'].insert(1, {'from': '2021-02-01', 'source_images': 0,
+                'units': {'s-1': {'label': '1', 'text': 'Corrected native text.\n'}}})
+            self.refused_inventory(folder, repo, supplied, '2021-07-01.*published text transition')
+
     def test_bare_worktree_and_detached_history_refused_before_import(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
