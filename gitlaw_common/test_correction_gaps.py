@@ -45,6 +45,11 @@ class CorrectionGaps(unittest.TestCase):
             meta = act.get('editorial_date_correction')
             if meta:
                 meta['supersedes'] = self.commit_map[meta['supersedes']]
+                if name == 'micronesia-law' and meta.get('metadata_only'):
+                    # The standard's agreed migration supplies capture metadata
+                    # explicitly. Keep the delivery fixture and its source words
+                    # pinned; do not restore prose-derived dates in production.
+                    meta['text_as_of'] = '2026-11-03'
         self.data = data
         return self.c
 
