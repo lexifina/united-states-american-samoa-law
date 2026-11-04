@@ -125,6 +125,17 @@ def tree_oids(cat: 'Cat', commit: str, act: str, cache: dict) -> dict[str, str]:
     return cache[key]
 
 
+def future_date_details(commits, now):
+    """Keep the existing safety thresholds and identify every offending commit."""
+    details = []
+    now_iso = dt.datetime.fromtimestamp(now, dt.timezone.utc).isoformat()
+    for index, (sha, stamp, date) in enumerate(commits):
+        allowance = 2 * 86400 if index == len(commits) - 1 else 0
+        if stamp > now + allowance:
+            details.append(f'{sha}: future_dated commit date {date} ({stamp}); now {now_iso} ({now})')
+    return details
+
+
 def check(repo: Path, corpus: Path, checked_on: str | None = None) -> dict:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from build import load  # the same corpus.json + corpus.d/ merge the build used
@@ -205,12 +216,17 @@ def check(repo: Path, corpus: Path, checked_on: str | None = None) -> dict:
         elif 'In-force' not in keys:
             missing_in_force += 1
     merges = int(git(repo, 'rev-list', '--merges', '--count', 'main').strip())
-    cts = [int(x) for x in git(repo, 'log', '--first-parent', '--reverse', '--format=%ct', 'main').split()]
+    dated = [line.split('\t') for line in git(repo, 'log', '--first-parent', '--reverse',
+                                             '--format=%H%x09%ct%x09%cI', 'main').splitlines()]
+    dated = [(sha, int(stamp), date) for sha, stamp, date in dated]
+    cts = [stamp for _, stamp, _ in dated]
     backwards = sum(1 for a, b in zip(cts, cts[1:]) if b < a)
     now = int(time.time())
     # The last commit is the docs commit, dated noon local time on --docs-date; built the same day before noon it is
     # a few hours ahead of now. Allow it up to two days; every law commit must be in the past.
-    future_dated = sum(1 for x in cts[:-1] if x > now) + (1 if cts and cts[-1] > now + 2 * 86400 else 0)
+    future_details = future_date_details(dated, now)
+    future_dated = len(future_details)
+    details.extend(future_details)
     extra = {'corrections': len(rd.fixes)} if rd.fixes else {}  # only when there are any: unchanged output otherwise
     return {**extra, **tip, 'image_errors': len(images['errors']), 'image_warnings': len(images['warnings']),
             'image_details': (images['errors'] + images['warnings'])[:50],
