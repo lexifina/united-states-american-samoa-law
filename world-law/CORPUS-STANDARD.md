@@ -308,12 +308,15 @@ becomes a commit's author or `Law:` on its own. Instead:
    source of `data/laws.csv`), `evidence` (one line quoted from the source), `evidence_url`, `model`, `confidence`,
    `checked`.
 2. It becomes a real credit only when a rule checks it: the proposed law exists; it was made by the version's day;
-   that day is its commencement (the law's `in_force`/`commenced` day, or a commencement clause in the evidence,
-   never a publication or retrieval day); the evidence names that provision and the law by its whole label; and the
+   that day is its commencement as the corpus's own data for the law gives it (`in_force`/`commenced`, read from
+   the official source; the quoted evidence never establishes a commencement, and fails the row if it states
+   another); the evidence names that provision and the law by its whole label; and the
    evidence URL is on a host the corpus already uses. A checked credit is then written as a metadata-only
    `correction` commit with a `Credits:` trailer and `Reason: credit found by a checked model proposal: <law>
    (<URL>)`, never by rewriting the original commit, and only after a reviewer signs its part off.
 3. An unchecked or rejected proposal is never published, so readers never show one; they show "no law named".
+   No checked credit is published either until append.py writes the `Credits:` trailer (the handoff after the
+   corpus-standard bundle): until then blame cannot name the credited law.
 4. `REPRODUCE.md` `ai_use` gives the counts for every run, by model: proposed, checked, rejected.
 
 ## 6. Reading old commits
