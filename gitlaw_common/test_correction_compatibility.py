@@ -5,6 +5,10 @@
 
 No network. Inputs must be job-local copies: build --compare writes verification.json.
 Full stdout identity is reported separately from the existing law-history comparison.
+The default v1 mode asserts required fresh-build trailer changes explicitly,
+and a separate upgrade must preserve every old commit/tree/tag byte. --format-evidence
+records every changed documentation path and its reason. Neither mode waives failed commands.
+--legacy-format retains the original strict fresh-build comparison for unchanged formats.
 """
 import argparse
 import hashlib
@@ -27,7 +31,10 @@ def invoke(common, script, args, output):
     saved_path, saved_argv = sys.path[:], sys.argv[:]
     saved_stdout, saved_stderr = sys.stdout, sys.stderr
     # check.py imports build/on by name; each run must use its own unchanged/candidate code.
-    modules = {key: sys.modules.pop(key, None) for key in ('build', 'on', 'private')}
+    modules = {key: sys.modules.pop(key, None) for key in (
+        'build', 'on', 'private', 'append', 'append_gate', 'publish_marker', 'published_parts',
+        'corpus_standard', 'corpus_paths', 'corpus_tables', 'corpus_images', 'corpus_jurisdiction',
+        'current_text', 'provision_index')}
     try:
         sys.path.insert(0, str(common))
         sys.argv = [str(common / script), *map(str, args)]
@@ -71,9 +78,21 @@ def main():
     parser.add_argument('--scratch', type=Path, required=True)
     parser.add_argument('--strict-stdout', action='store_true', help='also fail on any full stdout difference')
     parser.add_argument('--verified-parts-only', action='store_true', help='exercise the main-branch part filter')
+    parser.add_argument('--standard-format', action='store_true',
+                        help='assert explicit v1 trailer changes and exact published-history preservation')
+    parser.add_argument('--legacy-format', dest='standard_format', action='store_false',
+                        help='require unchanged fresh-build hashes instead of the v1 format contract')
+    parser.set_defaults(standard_format=True)
+    parser.add_argument('--format-evidence', type=Path, help='write every format delta and preservation result here')
     args = parser.parse_args()
     if len(args.corpus) < 3:
         parser.error('at least three unchanged corpus copies are required')
+    if args.standard_format:
+        if args.strict_stdout:
+            parser.error('--strict-stdout is incompatible with explicitly changed --standard-format output')
+        from compatibility_format import verify
+        verify(args)
+        return
     root = args.scratch.resolve()
     root.mkdir(parents=True, exist_ok=False)
     os.environ['GITLAW_NO_CHECKOUT'] = '1'
