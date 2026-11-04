@@ -286,3 +286,10 @@ It preserves native tools, source manifests, root documentation and act READMEs.
 not emit law commits or tags. A changed published head, incomplete act inventory, unpublished
 version, or changed law text stops the rollout before a commit is made.
 The shared-builder rollout remains `build.py --append --refresh-docs`.
+
+Documentation author and committer timestamps use the earlier of local noon on
+`--docs-date` and the current time. An identical docs-only refresh is skipped.
+Within a main-branch append, committer timestamps remain nondecreasing and may
+share that ceiling instead of advancing past it. If an existing published head
+already exceeds the ceiling, a changed docs update is refused until the date/time
+permits it; that published commit is never rewritten.

@@ -22,6 +22,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -556,6 +557,11 @@ class Clock:
         off = int(when.utcoffset().total_seconds() // 60)
         sign = '+' if off >= 0 else '-'
         return f'{int(when.timestamp())} {sign}{abs(off) // 60:02d}{abs(off) % 60:02d}'
+
+    def docs_stamp(self, day: str) -> str:
+        """Documentation is dated at noon local on the data day, capped at now."""
+        stamp = min(int(self.stamp(day).split()[0]), int(time.time()))
+        return f'{stamp} {dt.datetime.fromtimestamp(stamp, self.tz).strftime("%z")}'
 
 
 # ---------------------------------------------------------------- fast-import
@@ -1190,11 +1196,11 @@ def build(folder: Path, repo: Path, docs_date: str, published_repo: Path | None 
     co = c['country']
     committer = ('Lexifina', f'{co["slug"]}-law@lexifina.com')
     files = docs_files(c, folder, raw, log, tags, docs_date, part_records=part_records)
-    # The documentation commit goes on main, dated the day the data was retrieved, so a rebuild on any later day from
-    # the same corpus gives the same hashes. The future branch keeps only laws; tools read it for later dates.
+    # Documentation goes on main at noon on the data day, capped at now during
+    # that morning. The future branch keeps only laws; tools read it for later dates.
     future = co.get('future_branch', 'futuro')
     # An all-future corpus has a documentation-only main. Its law text remains exclusively on the future branch.
-    w.commit('main', committer, committer, clock.stamp(docs_date),
+    w.commit('main', committer, committer, clock.docs_stamp(docs_date),
                         f'Documentation, tables, tools and REPRODUCE.md\n\nBuilt from corpus.json '
                         f'(sha256 {hashlib.sha256(raw).hexdigest()}), data retrieved {docs_date}.\n\nKind: documentation\n',
                         files, parent=w.heads.get('main'))

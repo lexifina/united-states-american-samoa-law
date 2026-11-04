@@ -599,7 +599,12 @@ def published_log(repo: Path) -> list[dict]:
 class Appender:
     """`git fast-import` onto an existing main; separate author and committer dates."""
 
-    def __init__(self, repo: Path, head: str, head_ct: int, head_tz: str, branch: str = 'main'):
+    def __init__(self, repo: Path, head: str, head_ct: int, head_tz: str, branch: str = 'main',
+                 committer_ceiling: int | None = None):
+        if committer_ceiling is not None and head_ct > committer_ceiling:
+            raise B.CorpusError(f'published head {head} timestamp {head_ct} exceeds capped documentation '
+                                f'time {committer_ceiling}; wait or use a later docs-date; never rewrite it')
+        self.committer_ceiling = committer_ceiling
         self.existing_tags = set(git(repo, 'tag', '--list').split())
         self.p = subprocess.Popen(['git', 'fast-import', '--quiet', '--done', '--date-format=raw'], cwd=repo,
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -614,9 +619,17 @@ class Appender:
         self._w(f'data {len(b)}\n'.encode() + b + b'\n')
 
     def commit(self, author: tuple[str, str], when: str, committer: tuple[str, str], message: str,
-               files: dict[str, str | None]) -> int:
+               files: dict[str, str | None], *, committer_when: str | None = None) -> int:
+        next_ct, next_tz = self.ct + 1, self.tz
+        if self.committer_ceiling is not None:
+            next_ct = min(next_ct, self.committer_ceiling)
+        if committer_when is not None:
+            stamp, next_tz = committer_when.split()
+            next_ct = int(stamp)
+            if next_ct < self.ct:
+                raise B.CorpusError('documentation timestamp would precede its parent')
         self.mark += 1
-        self.ct += 1
+        self.ct, self.tz = next_ct, next_tz
         self._w(f'commit refs/heads/{self.branch}\nmark :{self.mark}\n'.encode())
         self._w(f'author {author[0]} <{author[1]}> {when}\n'.encode('utf-8'))
         self._w(f'committer {committer[0]} <{committer[1]}> {self.ct} {self.tz}\n'.encode('utf-8'))
@@ -733,7 +746,16 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     if not (planned or fixes or refresh_docs or summary['future_commits']):
         summary['main'] = head
         return summary
-    w = Appender(repo, head, head_ct, head_tz)
+    if not (planned or fixes):
+        # This path compares generated documentation with the published tree and
+        # skips an identical refresh before opening a writer.
+        import append_gate as G
+        changed = G.docs_only(folder, repo, docs_date)
+        summary.update(main=git(repo, 'rev-parse', 'main').strip(), tags_added=0,
+                       documentation_commits=int(changed), no_change=not changed)
+        return summary
+    docs_when = clock.docs_stamp(docs_date)
+    w = Appender(repo, head, head_ct, head_tz, committer_ceiling=int(docs_when.split()[0]))
     tags: dict[str, int] = {}
     log = []
     # Corrections first: the tip then holds each act's newest held version, which the appended versions build on.
@@ -761,11 +783,11 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     docs['tools/append.py'] = Path(__file__).read_text(encoding='utf-8').replace('\r\n', '\n')
     # Never future-dated: a docs date of today is noon local, so before then it is capped at now (else every later
     # append fails the future-dated check until noon).
-    ts, tz = clock.stamp(docs_date).split()
-    w.commit(committer, f'{min(int(ts), int(time.time()))} {tz}', committer,
+    w.commit(committer, docs_when, committer,
              f'Documentation, tables, tools and REPRODUCE.md\n\nAppended {len(log)} commits to {head[:12]}'
              + (f' ({len(fixes)} of them corrections)' if fixes else '') + f'; corpus '
-             f'sha256 {B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n\nKind: documentation\n', docs)
+             f'sha256 {B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n\nKind: documentation\n', docs,
+             committer_when=docs_when)
     for name, mark in sorted(tags.items()):
         if name not in existing_tags:
             w.tag(name, mark)

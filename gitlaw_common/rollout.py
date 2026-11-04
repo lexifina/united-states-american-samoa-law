@@ -60,10 +60,11 @@ def refresh(folder, repo, docs_date, expected_head):
     if B.git(repo, 'rev-parse', 'main').strip() != expected_head:
         raise B.CorpusError('rollout: main changed while preparing documentation')
     stamps = B.git(repo, 'log', '-1', '--format=%ct %ci', head).split()
-    writer = A.Appender(repo, head, int(stamps[0]), stamps[-1])
+    when = B.Clock(c['country']['tz']).docs_stamp(docs_date)
+    writer = A.Appender(repo, head, int(stamps[0]), stamps[-1], committer_ceiling=int(when.split()[0]))
     identity = ('Lexifina', c['country']['slug'] + '-law@lexifina.com')
-    writer.commit(identity, f'{int(stamps[0]) + 1} {stamps[-1]}', identity,
-                  'Corpus standard: indexes and descriptor\n\nKind: documentation\n', files)
+    writer.commit(identity, when, identity,
+                  'Corpus standard: indexes and descriptor\n\nKind: documentation\n', files, committer_when=when)
     writer.finish()
     after = B.git(repo, 'rev-parse', 'main').strip()
     B.git(repo, 'merge-base', '--is-ancestor', head, after)

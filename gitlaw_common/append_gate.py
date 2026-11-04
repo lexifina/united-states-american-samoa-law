@@ -172,12 +172,12 @@ def docs_only(folder: Path, repo: Path, docs_date: str) -> bool:
     head_ct, head_tz = g(repo, 'log', '-1', '--format=%ct %ci', 'main').split()[0::3]
     co = c['country']
     committer = ('Lexifina', f'{co["slug"]}-law@lexifina.com')
-    w = AP.Appender(repo, head, int(head_ct), head_tz)
-    ts, tz = B.Clock(co['tz']).stamp(docs_date).split()
-    when = f'{max(min(int(ts), int(time.time())), int(head_ct))} {tz}'  # never in the future, never before the head
+    when = B.Clock(co['tz']).docs_stamp(docs_date)
+    w = AP.Appender(repo, head, int(head_ct), head_tz, committer_ceiling=int(when.split()[0]))
     w.commit(committer, when, committer,
              f'Documentation update: tables, tools and REPRODUCE.md\n\nNo new law commits on {head[:12]}; corpus sha256 '
-             f'{B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n\nKind: documentation\n', changed)
+             f'{B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n\nKind: documentation\n', changed,
+             committer_when=when)
     w.finish()
     g(repo, '-c', 'checkout.workers=0', 'checkout', '-q', '-f', 'main')
     return True
