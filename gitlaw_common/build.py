@@ -1154,7 +1154,7 @@ def docs_files(c: dict, folder: Path, raw: bytes, log: list[dict], tags: dict, d
 
 # ---------------------------------------------------------------- main
 
-def build(folder: Path, repo: Path, docs_date: str) -> dict:
+def build(folder: Path, repo: Path, docs_date: str, published_repo: Path | None = None) -> dict:
     part_records = {}
     c, raw = load(folder, part_records=part_records)
     errs = validate(c)
@@ -1164,9 +1164,10 @@ def build(folder: Path, repo: Path, docs_date: str) -> dict:
     c['_repo'] = str(repo)
     try:
         M.load(c, folder, repo if (repo / '.git').exists() else None)
+        require_inventory = M.inventory_required(c['country'], folder, published_repo or repo)
         for act in c['acts']:
             for version in act['versions']:
-                M.require(act, version, required=True)
+                M.require(act, version, required=require_inventory)
     except ValueError as exc:
         raise CorpusError(str(exc)) from exc
     commits = plan(c)
@@ -1300,7 +1301,7 @@ def main():
         import append as A
         res = A.append(folder, repo, args.docs_date, refresh_docs=args.refresh_docs)
     else:
-        res = build(folder, repo, args.docs_date)
+        res = build(folder, repo, args.docs_date, Path(args.compare) if args.compare else None)
     print(json.dumps(res, indent=1))
     if args.compare:
         if args.append:

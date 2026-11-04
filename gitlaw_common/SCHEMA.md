@@ -62,11 +62,16 @@ kind spellings without changing the commits that it describes.
 ## Images in law text (corpus standard section 5a)
 
 New corpus builds require `source_images`, the count independently taken from the official source (including an
-explicit zero). For an existing corpus, a missing field means not surveyed: append/correction writes warn, and
+explicit zero). For an existing corpus, a missing field means not surveyed: appends, corrections and full rebuilds warn, and
 image completeness stays unknown. Set `country.image_inventory_required: true` to require surveys on its new
 writes too. A supplied inventory must balance referenced images and omission notices; a known shortfall fails
 new writes. New law and correction commits carry `Corpus-standard: 1`, distinguishing them from pinned legacy
 rows whose image defects warn. Missing surveys are never inferred to be zero or complete.
+
+An empty rebuild target does not make an existing corpus new. `--compare` supplies the earlier repository as
+publication context; a source folder's successful publisher receipt also supplies that context for a cold rebuild.
+A scaffold, sign-off marker or `jurisdiction.json` saying `built` alone does not. Explicit image-inventory opt-in
+still requires the survey in every case, and known inventory shortfalls still fail.
 
 Kept images are listed in the version's `images`: `file` (a local path under the source folder), `sha256`, `ext`
 (optional when the filename supplies it), `media_type`, `source_url`, and the source's `caption`. Their bytes must

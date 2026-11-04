@@ -2,6 +2,7 @@
 import csv
 import hashlib
 import io
+import json
 import re
 import subprocess
 import warnings
@@ -14,6 +15,32 @@ ANY_IMAGE = re.compile(r'!\[[^\]\n]*\]\([^\n)]*\)|<img\b', re.I)
 OMISSION = re.compile(r'\[Image omitted: ([^;\]\n]+); ([^;\]\n]+); reason: (licence|not extractable|too large)\]')
 MEDIA = {'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif', 'svg': 'image/svg+xml',
          'webp': 'image/webp', 'tif': 'image/tiff', 'tiff': 'image/tiff', 'bmp': 'image/bmp'}
+
+
+def inventory_required(country, folder, published_repo=None):
+    """A new target directory is not evidence that the corpus has never been published."""
+    if country.get('image_inventory_required'):
+        return True
+    for repo in (published_repo, Path(folder) / 'repo'):
+        if repo and (Path(repo) / '.git').exists():
+            known = subprocess.run(['git', '-C', str(repo), 'cat-file', '-e', 'main:data/versions.json'],
+                                   capture_output=True, timeout=120)
+            if known.returncode == 0:
+                return False
+    # A successful publisher receipt survives a cold rebuild of its source folder.
+    # A scaffold, a sign-off marker, or a mere "built" label is not a publication.
+    receipt = Path(folder) / '.autopush.json'
+    if receipt.is_file():
+        try:
+            previous = json.loads(receipt.read_text(encoding='utf-8'))
+        except (ValueError, OSError):
+            previous = {}
+        if not isinstance(previous, dict):
+            previous = {}
+        if (re.fullmatch('[0-9a-f]{64}', str(previous.get('built_sha', '')))
+                and str(previous.get('result', '')).startswith('pushed (')):
+            return False
+    return True
 
 
 def counts(version):

@@ -87,6 +87,38 @@ class ImagesTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'invalid'):
                     M.require(act, version)
 
+    def test_full_rebuild_of_published_corpus_warns_without_survey(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            c = fixture()
+            version = c['acts'][0]['versions'][0]
+            version.update(source_images=0, images=[], units={'schedule': {'label': 'Schedule', 'text': '# Schedule\n'}})
+            (root / 'corpus.json').write_text(json.dumps(c), encoding='utf-8')
+            published = root / 'published'
+            B.build(root, published, '2026-11-03')
+            del version['source_images']
+            (root / 'corpus.json').write_text(json.dumps(c), encoding='utf-8')
+            with self.assertWarnsRegex(UserWarning, 'not surveyed'):
+                B.build(root, root / 'rebuilt', '2026-11-03', published_repo=published)
+            # The ordinary source-folder command also has an existing publication receipt.
+            (root / '.autopush.json').write_text(json.dumps({
+                'built_sha': hashlib.sha256((root / 'corpus.json').read_bytes()).hexdigest(),
+                'result': 'pushed (main ' + B.git(published, 'rev-parse', 'main').strip() + ')'}), encoding='utf-8')
+            with self.assertWarnsRegex(UserWarning, 'not surveyed'):
+                B.build(root, root / 'cold-rebuild', '2026-11-03')
+            c['country']['image_inventory_required'] = True
+            (root / 'corpus.json').write_text(json.dumps(c), encoding='utf-8')
+            with self.assertRaisesRegex(B.CorpusError, 'inventory'):
+                B.build(root, root / 'opted-in', '2026-11-03', published_repo=published)
+
+    def test_unpublished_build_label_is_not_a_publication_receipt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / 'repo').mkdir()
+            (root / 'repo/jurisdiction.json').write_text('{"build": "built"}', encoding='utf-8')
+            (root / '.autopush.json').write_text(json.dumps({'built_sha': 'a' * 64, 'result': 'built but held'}), encoding='utf-8')
+            self.assertTrue(M.inventory_required({}, root))
+
     def test_normative_omission_counts_but_is_incomplete(self):
         c = fixture()
         act, v = c['acts'][0], c['acts'][0]['versions'][0]
