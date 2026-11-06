@@ -1,5 +1,7 @@
 # American Samoa: law history in git
 
+Part of [lexifina/global-law](https://github.com/lexifina/global-law), one git history for every country's law: this is the law of American Samoa, United States, which global-law reads at `united-states/american-samoa/acts/`.
+
 The in-force Revised Constitution of American Samoa as a git repository: one file per section, committed with the American Samoa Government as its publisher. It follows the shared design of [lexifina/global-law](https://github.com/lexifina/global-law).
 
 **What is in it now**
