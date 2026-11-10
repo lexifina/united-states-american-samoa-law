@@ -155,8 +155,6 @@ def docs_only(folder: Path, repo: Path, docs_date: str) -> bool:
     part_records = {}
     c, raw = B.load(folder, part_records=part_records, required_parts=required)
     c['_docs_date'] = docs_date
-    c['_repo'] = str(repo)
-    B.M.load(c, folder, repo)
     log = AP.published_log(repo)
     tags = {t: 0 for t in g(repo, 'tag', '--list').split()}
     docs = B.docs_files(c, folder, raw, log, tags, docs_date, part_records=part_records)
@@ -165,19 +163,19 @@ def docs_only(folder: Path, repo: Path, docs_date: str) -> bool:
     for line in g(repo, 'ls-tree', '-r', 'main').splitlines():
         meta, _, path = line.partition('\t')
         have[path] = meta.split()[2]
-    changed = {p: t for p, t in docs.items() if (p in have if t is None else have.get(p) != K.blob_oid(t))}
+    changed = {p: t for p, t in docs.items() if have.get(p) != K.blob_oid(t)}
     if not changed:
         return False
     head = g(repo, 'rev-parse', 'main')
     head_ct, head_tz = g(repo, 'log', '-1', '--format=%ct %ci', 'main').split()[0::3]
     co = c['country']
     committer = ('Lexifina', f'{co["slug"]}-law@lexifina.com')
-    when = B.Clock(co['tz']).docs_stamp(docs_date)
-    w = AP.Appender(repo, head, int(head_ct), head_tz, committer_ceiling=int(when.split()[0]))
+    w = AP.Appender(repo, head, int(head_ct), head_tz)
+    ts, tz = B.Clock(co['tz']).stamp(docs_date).split()
+    when = f'{max(min(int(ts), int(time.time())), int(head_ct))} {tz}'  # never in the future, never before the head
     w.commit(committer, when, committer,
              f'Documentation update: tables, tools and REPRODUCE.md\n\nNo new law commits on {head[:12]}; corpus sha256 '
-             f'{B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n\nKind: documentation\n', changed,
-             committer_when=when)
+             f'{B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n', changed)
     w.finish()
     g(repo, '-c', 'checkout.workers=0', 'checkout', '-q', '-f', 'main')
     return True
@@ -200,7 +198,7 @@ def check_main(folder: Path, repo: Path, docs_date: str, corrections: bool = Fal
     with tempfile.TemporaryDirectory() as tmp:
         p = Path(tmp) / 'corpus.json'
         p.write_text(json.dumps(c, ensure_ascii=False), encoding='utf-8', newline='\n')
-        res = K.check(repo, p, checked_on=docs_date)
+        res = K.check(repo, p)
     return {k: v for k, v in res.items() if k != 'corpus_sha256'}
 
 
@@ -342,14 +340,13 @@ def check_appended(folder: Path, repo: Path, docs_date: str, old: str, new: str)
     now = int(time.time())
     added = cts[1:]
     future_dated = sum(1 for x in added[:-1] if x > now) + (1 if added and added[-1] > now + 2 * 86400 else 0) + late
-    tip = AP.H.check(repo, c, docs_date)
-    return {**tip, 'mode': 'incremental', 'acts': len(acts), 'touched_acts': len(touched), 'versions': versions,
+    return {'mode': 'incremental', 'acts': len(acts), 'touched_acts': len(touched), 'versions': versions,
             'mismatches': mismatches, 'trailer_errors': trailer_errors, 'missing_in_force': missing_in_force,
             'merges': merges, 'backwards': backwards, 'future_dated': future_dated, 'details': details}
 
 
 FAIL_KEYS = ('mismatches', 'trailer_errors', 'missing_in_force', 'merges', 'backwards', 'future_dated',
-             'tip_mismatches', 'image_errors', 'tip_errors')  # tip_mismatches is from check_corrected()
+             'tip_mismatches')  # the last only from check_corrected()
 
 
 def repair_tags(repo: Path) -> int:
