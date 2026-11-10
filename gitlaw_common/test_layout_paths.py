@@ -88,7 +88,10 @@ class LayoutTest(unittest.TestCase):
             self.assertEqual(git(repo, 'rev-parse', f'{law4}:data/paths.json'), lay.blob)
             # Flattening the lifted tip gives the flat commits back (the docs commit's paths.json aside).
             flat2, _ = LP.flatten(repo, real, lay2)
-            self.assertEqual(git(repo, 'rev-parse', f'{flat2}^{{tree}}'), git(repo, 'rev-parse', f'{new_flat}^{{tree}}'))
+            self.assertEqual(LP.law_files(repo, flat2), LP.law_files(repo, new_flat))
+            # The docs commit ships the layout reader as tools/on.py.
+            self.assertEqual(git(repo, 'show', f'{real}:tools/on.py'),
+                             LP.ON_LAYOUT.read_text(encoding='utf-8').rstrip('\n'))
             self.assertEqual(git(repo, 'rev-parse', f'{flat2}~1'), git(repo, 'rev-parse', f'{new_flat}~1'))
             # Nothing new: lifting the flat tip onto itself adds nothing; a docs commit equal to the tip is dropped.
             self.assertEqual(LP.lift(repo, real, flat2, flat2, lay2)[0], real)

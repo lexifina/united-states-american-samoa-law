@@ -18,8 +18,9 @@ it are the published ones, unchanged. Same input, same SHAs: nothing is stored.
 lift() replays each new flat commit onto the real tip: the tree with every act folder moved to its folder (new acts
 get one by the slug rules below, never one another act holds or sits inside), the author, committer and message bytes
 kept (correction trailers translated). Law and correction commits carry the published data/paths.json; a
-documentation commit (Lexifina's, not a correction) gets data/paths.json with the new acts added, and the files named
-in paths.json "carry" (if any) from the published tip. A documentation commit that changes nothing is dropped.
+documentation commit (Lexifina's, not a correction) gets data/paths.json with the new acts added, tools/on.py
+replaced by on_layout.py (the reader that takes an act id or folder and reads history under both names; build.py
+ships the flat on.py), and the files named in paths.json "carry" (if any) from the published tip. A documentation commit that changes nothing is dropped.
 Standard library only.
 """
 from __future__ import annotations
@@ -34,6 +35,8 @@ import zlib
 from pathlib import Path
 
 PATHS_FILE = 'data/paths.json'
+READER = 'tools/on.py'  # in a layout repository's documentation commits: on_layout.py (reads ids and folders)
+ON_LAYOUT = Path(__file__).resolve().parent / 'on_layout.py'
 RESERVED = {'data', 'tools', 'README.md'}
 
 
@@ -435,6 +438,7 @@ def lift(repo: Path, real_base: str, flat_base: str, flat_tip: str, lay: Layout,
         else:
             blob = objs.write('blob', lay2.json_bytes())
         carry = [p for p in (lay2.doc.get('carry') or []) if isinstance(p, str)]
+        reader = objs.write('blob', ON_LAYOUT.read_bytes().replace(b'\r\n', b'\n'))
         moves = lay2.moves()
         real_tree = lambda c: _field(_split(objs.read(c)[1])[0], b'tree').decode()  # noqa: E731
         base_edit = _Edit(objs, real_tree(real_base))
@@ -446,7 +450,7 @@ def lift(repo: Path, real_base: str, flat_base: str, flat_tip: str, lay: Layout,
             tree = _field(_split(raw)[0], b'tree').decode()
             parent_pj = _Edit(objs, real_tree(prev)).get(PATHS_FILE.encode())
             if is_docs(raw):
-                sets = {PATHS_FILE: (b'100644', blob), **{p: v for p, v in carried.items()}}
+                sets = {PATHS_FILE: (b'100644', blob), READER: (b'100644', reader), **{p: v for p, v in carried.items()}}
             else:
                 sets = {PATHS_FILE: parent_pj}
             new_tree = translate_tree(objs, tree, moves, sets)
