@@ -130,8 +130,50 @@ How parts are read:
 
 How to work with them:
 - Each agent owns only its own part file and writes it atomically: write `.tmp`, then rename.
-- Act slugs must not collide across parts.
+- Act slugs must not collide across parts, except for an explicit correction part below.
+
+### Correction parts
+
+A later part may declare `"corrects": "20-codigo-civil.json"`. Every entry in its `acts` array replaces the complete
+act with the same slug from that earlier part, at its existing position in the merged corpus. Other acts remain
+unchanged. The original part file is never edited. Include every version and all metadata needed for each replacement;
+this is not a per-field or per-version merge. Other part fields keep the merge rules above.
+
+The target must be an earlier loaded part's exact file name, including `.json`, not a path or `corpus.json`. Every
+replacement slug must occur exactly once in the loaded corpus and still belong to that target. Missing targets,
+slugs absent from the target, ambiguous duplicates and repeated corrections within one part are errors. To correct
+an already corrected act again, name its most recent correction part. Split corrections of different original parts
+into separate files. An undeclared duplicate remains an error; a correction cannot hide it.
+
+A corpus withdrawal retains the act's historical slug and version dates, supplies `units: {}` and `credits: {}` for
+the withdrawn versions, and explains the editorial withdrawal in its metadata. This withdraws the corpus's assertion
+of that text; it does not assert legislative repeal. The loader preserves those entries and metadata as supplied.
+This field only selects the merged input; it does not authorize rewriting published history or bypass publication
+and append checks. With verified-only loading, both the target and its correction must pass the existing part filter.
 
 
 ## Per-act publisher (optional, 2026-10-29)
 An act may carry `"publisher": {"name": ..., "email": "...@<domain>.invalid"}` when its text comes from a different source than the country's publisher (for example a ministry's revised edition, SILEP, Veritas). That act's "oldest version available" commit and its unexplained changes are then authored by it. A commit spanning acts with different publishers uses the country's. Corpora without the field build byte-identically to before.
+
+## Several sub-national units in one repository (optional, 2026-11-06)
+One repository may hold several units: one state's municipalities, one province's regencies, a country's prefectures.
+corpus.json declares them (without corpus.json, the part that gives `country` does; no other part may):
+
+```json
+"units": [{"id": "berau", "folder": "regencies/berau", "name": "Kabupaten Berau", "code": "ID-KI-BERAU",
+           "official_code": "…", "source": "<host>"}]
+```
+
+- `id` is `[a-z0-9][a-z0-9-]*`. `folder` is one or two segments, each of that form, not under `data/` or `tools/`.
+  No folder may equal or lie inside another, and no top-level act slug may equal a folder or its first segment.
+- A `corpus.d/` part may carry `"unit": "<id>"`. Every act in it is then written under `<folder>/<act slug>/`, and
+  that path is the act's name everywhere (tags `<folder>/<slug>/<day>`, `data/versions.json`, check.py, tools/on.py).
+  Act slugs keep their rule and need only be unique within the unit. A part naming an undeclared unit stops the build.
+  A part without `unit` builds exactly as before. A correction part corrects a unit's acts only if it names the same unit.
+- Each commit touching a unit's act carries one `Unit: <id>` trailer per unit it touches, after the other trailers.
+  `data/versions.json` gives such acts `"unit"`, and `data/repo.json` lists `units`.
+- Law keys are country-wide: one law key on one day is one commit across every act it is credited in, so give each
+  unit's laws keys of their own (`berau-perda-2020-1`).
+- Appending: a unit added later appends as new acts do, in its own date order after the existing history, even when
+  its laws are dated before the published head (readers order by In-force). A version of an act main already holds,
+  dated on or before that act's newest published day, is still refused (a back-fill: decide by hand).
