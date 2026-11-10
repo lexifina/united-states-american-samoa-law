@@ -352,6 +352,12 @@ def grow(folder: Path, pub: Path, build: Path | None = None, future: str | None 
     old = git(pub, 'rev-parse', f'refs/remotes/origin/{future}')
     main = git(pub, 'rev-parse', 'refs/heads/main')
     out['old'] = old
+    import layout_paths as LP  # kind/year/number folders (data/paths.json)
+    if LP.has_layout(pub, main) or LP.has_layout(pub, old):
+        # Replay and the corrections read act folders by act id; the flat view (append_gate.flat_view()) covers main
+        # only. Held with this reason until the future branch is ported too.
+        return {**out, 'result': 'refused', 'reason': f'{future}: the repository has the kind/year/number layout '
+                                                      f'(data/paths.json); growing the future branch is not ported yet'}
     slugs = {a['slug'] for a in c['acts']}
     try:
         t1, src, replayed = _replay(pub, old, main, slugs, email)

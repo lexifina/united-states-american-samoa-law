@@ -47,6 +47,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import append as AP  # noqa: E402
 import check as K  # noqa: E402
+import layout_paths as LP  # noqa: E402  (kind/year/number folders: data/paths.json)
 import publish_marker  # noqa: E402
 import published_parts  # noqa: E402
 
@@ -385,10 +386,16 @@ def repair_tags(repo: Path) -> int:
 
 def full_check(folder: Path, repo: Path, url: str, docs_date: str, seed: Path | None) -> dict:
     """The nightly gate: the publish clone synced to the published head, then check_main() over the whole corpus.
-    Appends nothing and pushes nothing."""
+    Appends nothing and pushes nothing. A main with data/paths.json is checked in its flat view (flat_view())."""
     head = sync(repo, url, seed)
     if head is None:
         return {'result': 'error', 'reason': 'the remote has no main to check'}
+    if LP.has_layout(repo, head):
+        return flat_view(repo, head, lambda flat: _full_check(folder, repo, docs_date, flat), lift=False)
+    return _full_check(folder, repo, docs_date, head)
+
+
+def _full_check(folder: Path, repo: Path, docs_date: str, head: str) -> dict:
     try:
         published_parts.required(repo, folder, head)
     except published_parts.PublishedPartError as exc:
@@ -406,11 +413,81 @@ def full_check(folder: Path, repo: Path, url: str, docs_date: str, seed: Path | 
     return {**out, 'result': 'checked'}
 
 
+def flat_view(repo: Path, head: str, fn, lift: bool = True) -> dict:
+    """fn(flat head) run on the flat view of a main holding data/paths.json (layout_paths.py): main is set to the
+    flat head (local only) for append.py and check.py, which read act folders by act id. With `lift`, what a clean
+    fn appended (flat head..main) is then written onto the published head with every act at its folder
+    (layout_paths.lift()), main is set to that, and every tag fn created is moved to the real commit (a tag on a flat
+    commit with no real one is deleted: no flat commit is ever pushed). 'old', 'new' and 'head' are real commits;
+    main is the published head again whenever nothing is lifted."""
+    lay = LP.Layout.at(repo, head)
+    objs = LP.Objects(repo)
+    before = set(g(repo, 'tag', '--list').split())
+    try:
+        flat, r2f = LP.flatten(repo, head, lay, objs)
+        f2r = {f: r for r, f in r2f.items()}
+        g(repo, 'update-ref', 'refs/heads/main', flat)
+        g(repo, 'update-ref', 'refs/remotes/origin/main', flat)  # append.py requires main == origin/main
+        g(repo, 'checkout', '-q', '-f', 'main')
+        out = fn(flat)
+        for k in ('old', 'head'):
+            if out.get(k) == flat:
+                out[k] = head
+        new_flat = g(repo, 'rev-parse', 'main')
+        real = head
+        if lift and out.get('result') in ('appended', 'docs') and new_flat != flat:
+            real, lifted, lay2 = LP.lift(repo, head, flat, new_flat, lay, objs)
+            bad = LP.verify(repo, real, new_flat, lay2)
+            if bad:
+                raise LP.LayoutError(bad[0])
+            f2r.update(lifted)
+            out['new'] = real
+            out['layout'] = {'flat': new_flat, 'new_acts': lay2.added}
+            if real == head:  # only the layout's own files differed from the build's documentation
+                out['result'] = 'same'
+        elif 'new' in out:
+            if out['new'] not in (flat, head):
+                out['flat_new'] = out['new']
+            out['new'] = head
+        flat_set = set(r2f.values()) | set(g(repo, 'rev-list', f'{flat}..{new_flat}').split())
+        fix = []
+        for t in sorted(set(g(repo, 'tag', '--list').split()) - before):
+            s = g(repo, 'rev-parse', f'refs/tags/{t}^{{commit}}')
+            r = f2r.get(s) if s in flat_set else s
+            if r is None:
+                fix.append(f'delete refs/tags/{t}\n')
+            elif r != s:
+                fix.append(f'update refs/tags/{t} {r}\n')
+        if fix:
+            # bytes: text mode would write CRLF on Windows, which update-ref --stdin refuses
+            subprocess.run(['git', 'update-ref', '--stdin'], cwd=repo, input=''.join(fix).encode('utf-8'),
+                           capture_output=True, check=True)
+        g(repo, 'update-ref', 'refs/heads/main', real)
+        g(repo, 'checkout', '-q', '-f', 'main')
+        return out
+    except Exception as e:  # LP.LayoutError, or anything else: main and origin/main back at the published head
+        drop = ''.join(f'delete refs/tags/{t}\n' for t in set(g(repo, 'tag', '--list').split()) - before)
+        if drop:
+            subprocess.run(['git', 'update-ref', '--stdin'], cwd=repo, input=drop.encode('utf-8'), capture_output=True)
+        g(repo, 'update-ref', 'refs/heads/main', head)
+        return {'old': head, 'result': 'error', 'reason': f'layout: {type(e).__name__}: {str(e)[:600]}'}
+    finally:
+        objs.close()
+        g(repo, 'update-ref', 'refs/remotes/origin/main', head)
+
+
 def run(folder: Path, repo: Path, url: str, docs_date: str, seed: Path | None, incremental: bool = False,
         corrections: bool = False, repair: bool = False) -> dict:
     old = sync(repo, url, seed)
     if old is None:
         return {'result': 'error', 'reason': 'the remote has no main to append to'}
+    if LP.has_layout(repo, old):  # kind/year/number folders: append and check in the flat view, then lift
+        return flat_view(repo, old, lambda flat: _run(folder, repo, docs_date, flat, incremental, corrections, repair))
+    return _run(folder, repo, docs_date, old, incremental, corrections, repair)
+
+
+def _run(folder: Path, repo: Path, docs_date: str, old: str, incremental: bool, corrections: bool,
+         repair: bool) -> dict:
     out = {'old': old}
     try:
         published_parts.required(repo, folder, old)

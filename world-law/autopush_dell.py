@@ -42,6 +42,7 @@ import build as B  # noqa: E402
 import check as K  # noqa: E402  (gitlaw_common/check.py)
 import private  # noqa: E402  (what stays off shared repos)
 import on as ON  # noqa: E402  (gitlaw_common/on.py: the reading rule for correction commits)
+import layout_paths as LP  # noqa: E402  (gitlaw_common/layout_paths.py: kind/year/number folders, data/paths.json)
 SOUTH_AMERICA = ['chile', 'uruguay', 'brazil', 'colombia', 'argentina', 'peru', 'paraguay', 'ecuador', 'bolivia',
                  'venezuela', 'guyana', 'suriname']
 # Africa, English-language first (Laws.Africa Peachjam LIIs and South Africa). A country is picked up as soon as its
@@ -761,6 +762,56 @@ def _law_files(repo: Path, commit: str) -> dict[bytes, bytes]:
     return files
 
 
+def append_onto_layout(repo: Path, remote: str | None, built: str, ctx: dict, base: dict[str, str] | None = None,
+                       base_tip: str | None = None) -> dict:
+    """append_onto() for a repository with the kind/year/number layout (data/paths.json on the published main; see
+    gitlaw_common/layout_paths.py). The build stays flat: the published branch is read in its flat view (flatten()),
+    append_onto() runs unchanged against that, and what it appends is written onto the published tip with every act at
+    its folder (lift()); new acts get a folder in data/paths.json with the documentation commit. Same result keys, all
+    real commits; 'flat' is the flat tip check.py reads (publish() points the branch there while it checks). `ctx`
+    is shared by the branches of one publish(): {'objs', 'lay' (main's), 'f2r': {flat: real}, 'r2f': {real: flat},
+    'flat': {branch: flat tip}}."""
+    objs, f2r, r2f = ctx['objs'], ctx['f2r'], ctx['r2f']
+
+    def real_of(sha):
+        return f2r.get(sha, sha) if sha else sha
+    if remote:
+        lay = LP.Layout.at(repo, remote)
+        if lay is None:
+            return {'kind': 'rewrite', 'reason': 'layout: main has data/paths.json but this branch does not (merge '
+                                                 'the layout commit into it first: land_layout.py --future)'}
+        flat, rf = LP.flatten(repo, remote, lay, objs)
+        r2f.update(rf)
+        f2r.update({f: r for r, f in rf.items()})
+        g = append_onto(repo, flat, built)
+        real_base, flat_base = remote, flat
+    else:  # a branch the remote lacks, grafted on main's published law commits: through main's flat commits
+        lay = ctx['lay']
+        g = append_onto(repo, None, built, base={b: r2f.get(r, r) for b, r in (base or {}).items()},
+                        base_tip=r2f.get(base_tip, base_tip) if base_tip else None)
+        if g['kind'] == 'new':
+            return {'kind': 'rewrite', 'reason': 'layout: a new branch with nothing published to graft onto would be '
+                                                 'pushed flat'}
+        if g['kind'] == 'append':
+            flat_base = git(repo, 'rev-parse', f'{g["added"][0]}^')
+            real_base = real_of(flat_base)
+    if g['kind'] == 'rewrite':
+        return g
+    mapped = {'map': {k: real_of(v) for k, v in g['map'].items()}, 'law_tip': real_of(g.get('law_tip'))}
+    if g['kind'] == 'same':
+        return {**g, **mapped, 'new': real_of(g['new']), 'flat': g['new']}
+    real, lifted, lay2 = LP.lift(repo, real_base, flat_base, g['new'], lay, objs)
+    bad = LP.verify(repo, real, g['new'], lay2)
+    if bad:
+        return {'kind': 'rewrite', 'reason': f'layout: {bad[0]}'}
+    f2r.update(lifted)
+    mapped = {'map': {k: real_of(v) for k, v in g['map'].items()}, 'law_tip': real_of(g.get('law_tip'))}
+    if remote and real == remote:  # only the layout's own files differed from the build's documentation
+        return {**g, **mapped, 'kind': 'same', 'new': remote, 'flat': g['new'], 'added': [], 'laws': 0, 'docs': 0}
+    added = git(repo, 'rev-list', '--reverse', real, f'^{real_base}').split()
+    return {**g, **mapped, 'new': real, 'flat': g['new'], 'added': added, 'new_acts': lay2.added}
+
+
 # ---------------------------------------------------------------- incremental publishing (2026-11-02)
 # A publish builds only what is new: the verified corpus.d parts the published head does not hold yet, as the commits
 # the full build would make for them, plus the documentation, on top of the published head. Equivalent to a full build
@@ -1002,6 +1053,8 @@ def incremental(slug: str, folder: Path, repo: Path, state: dict, day: str) -> d
     remote = git(repo, 'rev-parse', '-q', '--verify', 'refs/remotes/origin/main', check=False)
     if not remote or remote != inc.get('head'):
         return {'ok': False, 'why': 'the published main moved since the last publish from here'}
+    if LP.has_layout(repo, remote):
+        return {'ok': False, 'why': 'the published main has the kind/year/number layout (data/paths.json)'}
     if (inc.get('check') or {}).get('mismatches') != 0:
         return {'ok': False, 'why': 'the last full check was not clean'}
     parts = _verified_parts(folder)
@@ -1144,14 +1197,38 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
     appended: list[str] = []
     main_map: dict[str, str] = {}
     main_law_tip = None
+    # The kind/year/number layout (data/paths.json on the published main): every branch through append_onto_layout().
+    main_old = git(repo, 'rev-parse', '-q', '--verify', 'refs/remotes/origin/main', check=False) if 'main' in there else ''
+    layout = None
+    if main_old and LP.has_layout(repo, main_old):
+        layout = {'objs': LP.Objects(repo), 'f2r': {}, 'r2f': {}, 'flat': {}, 'lay': LP.Layout.at(repo, main_old)}
+    try:
+        return _publish(slug, repo, branches, dry_run, check, there, remote_tags, local_tags, approved, refs, leases,
+                        plan, rewrites, new_tags, appended, main_map, main_law_tip, layout)
+    except LP.LayoutError as e:
+        return f'NOT pushed: layout: {e}'
+    finally:
+        if layout:
+            layout['objs'].close()
+
+
+def _publish(slug, repo, branches, dry_run, check, there, remote_tags, local_tags, approved, refs, leases, plan,
+             rewrites, new_tags, appended, main_map, main_law_tip, layout) -> str:
+    """publish() from its append loop on (split out so the layout's object reader is always closed)."""
     for b in branches:
         new = git(repo, 'rev-parse', '-q', '--verify', f'refs/heads/{b}', check=False)
         old = git(repo, 'rev-parse', '-q', '--verify', f'refs/remotes/origin/{b}', check=False) if b in there else ''
         if not new:
             plan.append(f'{b} same')
             continue
-        g = append_onto(repo, old or None, new, base=main_map if b != 'main' else None,
-                        base_tip=main_law_tip if b != 'main' else None)
+        if layout is not None:
+            g = append_onto_layout(repo, old or None, new, layout, base=main_map if b != 'main' else None,
+                                   base_tip=main_law_tip if b != 'main' else None)
+            if g['kind'] == 'append':
+                layout['flat'][b] = g['flat']
+        else:
+            g = append_onto(repo, old or None, new, base=main_map if b != 'main' else None,
+                            base_tip=main_law_tip if b != 'main' else None)
         if b == 'main':
             main_map = g.get('map', {})
             main_law_tip = g.get('law_tip')
@@ -1199,8 +1276,17 @@ def publish(slug: str, repo: Path, branches: list[str], dry_run: bool = False, c
     if not dry_run:
         note_pending(slug, None)
     if appended and check is not None:
-        # check.py on what would be published (the local branches now point at the appended tips).
-        ok, why = check()
+        # check.py on what would be published (the local branches now point at the appended tips). With the layout,
+        # the branches point at their flat tips while check.py reads them (act folders by act id), then back.
+        flat = (layout or {}).get('flat') or {}
+        real = {b: git(repo, 'rev-parse', f'refs/heads/{b}') for b in flat}
+        for b, f in flat.items():
+            git(repo, 'update-ref', f'refs/heads/{b}', f)
+        try:
+            ok, why = check()
+        finally:
+            for b, r in real.items():
+                git(repo, 'update-ref', f'refs/heads/{b}', r)
         if not ok:
             return f'NOT pushed: {why}'
     clashes = []
