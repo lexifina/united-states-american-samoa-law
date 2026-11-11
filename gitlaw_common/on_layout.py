@@ -355,11 +355,11 @@ def corrected(day: str, args: list[str], show_law: bool, rd_main: Reader, rd_fut
     rd = reader(act)
     files, hit, used = rd.files(act, day)
     if not files:
-        sys.exit(f'{act} is not in the record on {day}: it took effect later, or the name is wrong (see `python tools/on.py {day}`).')
+        sys.exit(f'{args[1].rstrip("/")} is not in the record on {day}: it took effect later, or the name is wrong (see `python tools/on.py {day}`).')
     if len(args) > 2 or rd.path(act).endswith('.md'):
         path = rd.path(act) if len(args) == 2 else resolve('', act, args[2], sorted(files))
         if not path or path not in files:
-            sys.exit(f'{act}/{args[2]} was not in the text on {day} (it may have been inserted later or removed earlier).')
+            sys.exit(f'{args[1].rstrip("/")}/{args[2]} was not in the text on {day} (it may have been inserted later or removed earlier).')
         if show_law:
             fix = next((f for f in reversed(used) if path in f['files'].get(rd.name(act), {})), None)
             if fix:
