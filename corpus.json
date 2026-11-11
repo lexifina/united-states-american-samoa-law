@@ -1,0 +1,17 @@
+{
+ "corpus": "as/national/acts",
+ "path": "united-states-american-samoa/national/acts",
+ "scope": "selected-acts",
+ "acts": 2,
+ "future_branch": "future",
+ "publisher": "American Samoa Government",
+ "name": "American Samoa",
+ "language": "en",
+ "coverage": "2 acts of American Samoa, the current text of each as of 2026-11-11",
+ "history": "current-only",
+ "history_from": "2022-09-06",
+ "record_to": "2026-11-11",
+ "checked_on": "2026-11-11",
+ "record_note": "Texts from American Samoa Government.",
+ "in_force_trailer": "In-force"
+}

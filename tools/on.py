@@ -23,12 +23,17 @@ def git(*args: str) -> str:
 
 
 def branches() -> tuple[str, str | None]:
-    """main, and the future branch named in data/repo.json (local or origin/), if it exists."""
+    """main and the descriptor's future branch, with the old data/repo.json as a read-only fallback."""
     import json
     try:
-        name = json.loads(git('show', 'main:data/repo.json')).get('future_branch')
+        name = json.loads(git('show', 'main:corpus.json')).get('future_branch')
     except (subprocess.CalledProcessError, ValueError):
         name = None
+    if not name:
+        try:
+            name = json.loads(git('show', 'main:data/repo.json')).get('future_branch')
+        except (subprocess.CalledProcessError, ValueError):
+            name = None
     if not name:
         return 'main', None
     for ref in (name, f'origin/{name}'):
@@ -277,7 +282,16 @@ def corrected(day: str, args: list[str], show_law: bool, rd_main: Reader, rd_fut
         acts = sorted({p.split('/')[0] for p in git('ls-tree', '-r', '--name-only', 'main').split('\n')
                        if '/' in p and p.split('/')[0] not in ('data', 'tools')})
         for act in acts:
-            files, hit, used = reader(act).files(act, day)
+            rd = reader(act)
+            files, hit, used = rd.files(act, day)
+            # Acts inside this folder with an Act-path of their own (a one-file act such as title-11/362,1.md in a
+            # folder shared with other acts): their corrections that hold on the day mark the folder too.
+            inner = sorted({p for f in rd.fixes for p in f['paths'].values() if p.startswith(act + '/')})
+            if inner:
+                seen = {f['commit'] for f in used}
+                for p in inner:
+                    seen |= {f['commit'] for f in rd.files(p, day)[2]}
+                used = [f for f in rd.fixes if f['commit'] in seen]  # in commit order
             if files is None:
                 print(f'{act}\tnot in force yet')
             elif hit:

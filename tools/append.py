@@ -61,6 +61,7 @@ sys.path.insert(0, str(HERE))
 import build as B  # noqa: E402
 import check_repo as K  # noqa: E402
 import published_parts  # noqa: E402
+import current_text as H  # noqa: E402
 
 
 def git(repo: Path, *args: str) -> str:
@@ -135,12 +136,7 @@ def correction_metadata(act: dict, version: dict) -> dict:
     for key in ('in_force_basis', 'text_as_of'):
         if key in version:
             meta[key] = version[key]
-    # Compatibility with the delivered date corrections: this assertion explicitly
-    # identifies `from` as the retained retrieval day. metadata_only alone does not.
-    legacy = act.get('editorial_date_correction', {})
-    if ('text_as_of' not in meta and
-            'Retrieval day retained because exact commencement is unknown.' in legacy.get('in_force_basis', '')):
-        meta['text_as_of'] = version['from']
+    # New writes never infer a capture date from a sentence. Historical Text-as-of trailers remain readable.
     for key in ('reason', 'in_force_basis', 'text_as_of', 'supersedes'):
         if key in meta and (not isinstance(meta[key], str) or not meta[key].strip() or
                             '\n' in meta[key] or '\r' in meta[key]):
@@ -452,6 +448,14 @@ def plan_corrections(repo: Path, c: dict, head: str, state: dict[str, str], reas
 def correction_message(c: dict, x: dict) -> tuple[list[str], list[str]]:
     """Subject and body, and trailers, of one correction commit (see the module doc)."""
     act, v, have, want = x['act'], x['version'], x['have'], x['want']
+    try:
+        B.M.require(act, v, required=c.get('country', {}).get('image_inventory_required', False))
+        assets = B.M.files(act, x['files'])
+    except ValueError as exc:
+        raise B.CorpusError(str(exc)) from exc
+    if assets:
+        x['files'].update(assets)
+        x['reason'] = 'image restored'
     s, a = act['slug'], v['from']
     start = x.get('range_from', a)
     span = f'from {start} to {x["to"]}' if x['to'] else f'from {start} on'
@@ -496,8 +500,9 @@ def correction_message(c: dict, x: dict) -> tuple[list[str], list[str]]:
     msg += B.pre_1970(a)
     trailers = ['Kind: correction', f'In-force: {a}', f'Corrects: {s} {start}..{x["to"] or ""}',
                 f'Supersedes: {x["supersedes"]}', f'Reason: {x["reason"]}', f'Act-path: {s}']
-    trailers += [f'Files: {f}' for f in sorted(x['files'])]
+    trailers += [f'Files: {f}' for f in sorted(x['files']) if f.endswith('.md')]
     trailers += [f'{key}: {value}' for key, value in metadata_trailers(act, v, x.get('metadata', {})).items()]
+    trailers.append('Corpus-standard: 1')
     return msg, trailers
 
 
@@ -520,7 +525,7 @@ def check_corrected(repo: Path, c: dict, docs_date: str) -> dict:
         p = Path(tmp) / 'corpus.json'
         p.write_text(json.dumps({**c, 'country': {**c['country'], 'future_branch': '.no-future-branch'}},
                                 ensure_ascii=False), encoding='utf-8', newline='\n')
-        res = K.check(repo, p)  # main only, whatever branches the clone holds
+        res = K.check(repo, p, checked_on=docs_date)  # main only, whatever branches the clone holds
     rd = Reader(repo, [a['slug'] for a in c['acts']])
     head = git(repo, 'rev-parse', 'main').strip()
     mismatches, tip, versions, details = 0, 0, 0, []
@@ -554,7 +559,9 @@ def check_corrected(repo: Path, c: dict, docs_date: str) -> dict:
                 details.append(f'{s} at the tip: {len(bad)} file(s) differ from the corpus, e.g. {bad[:3]}')
     finally:
         rd.close()
-    return {**{k: res[k] for k in ('acts', 'trailer_errors', 'missing_in_force', 'merges', 'backwards', 'future_dated')},
+    return {**{k: res[k] for k in ('acts', 'trailer_errors', 'missing_in_force', 'merges', 'backwards', 'future_dated',
+                                  'image_errors', 'image_warnings', 'image_details',
+                                  'tip_errors', 'tip_warnings', 'tip_details')},
             'versions': versions, 'mismatches': mismatches, 'tip_mismatches': tip, 'details': details,
             'corrections': len(rd.fixes)}
 
@@ -592,23 +599,38 @@ def published_log(repo: Path) -> list[dict]:
 class Appender:
     """`git fast-import` onto an existing main; separate author and committer dates."""
 
-    def __init__(self, repo: Path, head: str, head_ct: int, head_tz: str):
+    def __init__(self, repo: Path, head: str, head_ct: int, head_tz: str, branch: str = 'main',
+                 committer_ceiling: int | None = None):
+        if committer_ceiling is not None and head_ct > committer_ceiling:
+            raise B.CorpusError(f'published head {head} timestamp {head_ct} exceeds capped documentation '
+                                f'time {committer_ceiling}; wait or use a later docs-date; never rewrite it')
+        self.committer_ceiling = committer_ceiling
+        self.existing_tags = set(git(repo, 'tag', '--list').split())
         self.p = subprocess.Popen(['git', 'fast-import', '--quiet', '--done', '--date-format=raw'], cwd=repo,
-                                  stdin=subprocess.PIPE)
+                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.mark, self.parent, self.ct, self.tz = 0, head, head_ct, head_tz
+        self.branch = branch
 
     def _w(self, b: bytes):
         self.p.stdin.write(b)
 
     def _data(self, s: str):
-        b = s.encode('utf-8')
+        b = s if isinstance(s, bytes) else s.encode('utf-8')
         self._w(f'data {len(b)}\n'.encode() + b + b'\n')
 
     def commit(self, author: tuple[str, str], when: str, committer: tuple[str, str], message: str,
-               files: dict[str, str | None]) -> int:
+               files: dict[str, str | None], *, committer_when: str | None = None) -> int:
+        next_ct, next_tz = self.ct + 1, self.tz
+        if self.committer_ceiling is not None:
+            next_ct = min(next_ct, self.committer_ceiling)
+        if committer_when is not None:
+            stamp, next_tz = committer_when.split()
+            next_ct = int(stamp)
+            if next_ct < self.ct:
+                raise B.CorpusError('documentation timestamp would precede its parent')
         self.mark += 1
-        self.ct += 1
-        self._w(f'commit refs/heads/main\nmark :{self.mark}\n'.encode())
+        self.ct, self.tz = next_ct, next_tz
+        self._w(f'commit refs/heads/{self.branch}\nmark :{self.mark}\n'.encode())
         self._w(f'author {author[0]} <{author[1]}> {when}\n'.encode('utf-8'))
         self._w(f'committer {committer[0]} <{committer[1]}> {self.ct} {self.tz}\n'.encode('utf-8'))
         self._data(message)
@@ -623,17 +645,27 @@ class Appender:
         return self.mark
 
     def tag(self, name: str, mark: int):
+        if name in self.existing_tags:
+            raise B.CorpusError(f'append-only: refusing to replace existing tag {name}')
         self._w(f'reset refs/tags/{name}\nfrom :{mark}\n\n'.encode('utf-8'))
+        self.existing_tags.add(name)
 
     def finish(self):
         self._w(b'done\n')
         self.p.stdin.close()
         if self.p.wait():
             raise B.CorpusError('git fast-import failed')
+        self.p.stdout.close()
+
+    def checkpoint(self):
+        self._w(b'checkpoint\nprogress corpus-index-ready\n')
+        self.p.stdin.flush()
+        if self.p.stdout.readline().strip() != b'progress corpus-index-ready':
+            raise B.CorpusError('git fast-import checkpoint failed')
 
 
 def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corrections: bool = False,
-           reason: str = DEFAULT_REASON) -> dict:
+           reason: str = DEFAULT_REASON, refresh_docs: bool = False) -> dict:
     try:
         required = published_parts.required(repo, folder)
     except published_parts.PublishedPartError as exc:
@@ -644,6 +676,11 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     if errs:
         raise B.CorpusError('corpus has problems:\n  ' + '\n  '.join(errs[:60]))
     c['_docs_date'] = docs_date
+    c['_repo'] = str(repo)
+    try:
+        B.M.load(c, folder, repo)
+    except ValueError as exc:
+        raise B.CorpusError(str(exc)) from exc
     if git(repo, 'status', '--porcelain', '--untracked-files=no').strip():
         raise B.CorpusError(f'{repo} has uncommitted changes; refusing')
     head = git(repo, 'rev-parse', 'main').strip()
@@ -654,6 +691,8 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     head_ct, head_tz = git(repo, 'log', '-1', '--format=%ct %ci', 'main').split()[0::3]
     head_ct = int(head_ct)
     state = published_state(repo, c, verify=not corrections)
+    if any(day > docs_date for day in state.values()):
+        raise B.CorpusError('published main already has future versions; a docs update cannot move or rewrite them')
     sub, based = to_append(c, state, docs_date)
     commits = B.plan(sub) if sub['acts'] else []
     commits = [x for x in commits if not (x['kind'] == 'start' and x['act']['slug'] in based)]
@@ -673,10 +712,22 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
             for p in x['parts']:
                 files.update(B.act_files(p['act'], p['cur']['units'], p['prev']['units'], p['keys']))
             touched = [p['act']['slug'] for p in x['parts']]
+        trailers.append('Corpus-standard: 1')
         B.check_trailers(trailers)
         planned.append({'x': x, 'day': x['day'], 'author': author, 'files': files, 'touched': touched,
                         'text': '\n'.join(msg).rstrip('\n') + '\n\n' + '\n'.join(trailers) + '\n'})
     fixes = plan_corrections(repo, c, head, state, reason) if corrections else []
+    try:
+        H.ordinary_order(repo, planned)
+    except ValueError as exc:
+        raise B.CorpusError(str(exc)) from exc
+    if planned or fixes:
+        overrides = {}
+        for entry in fixes + planned:
+            overrides.update(entry['files'])
+        tip = H.check(repo, c, docs_date, overrides)
+        if tip['tip_errors']:
+            raise B.CorpusError('check 11: append would leave stale text at HEAD:\n  ' + '\n  '.join(tip['tip_details']))
     texts = []
     for x in fixes:
         msg, trailers = correction_message(c, x)
@@ -688,10 +739,23 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
         summary['corrected'] = {s: {'versions': sum(1 for x in fixes if x['act']['slug'] == s),
                                     'from': min(x['version']['from'] for x in fixes if x['act']['slug'] == s)}
                                 for s in sorted({x['act']['slug'] for x in fixes})}
-    if dry_run or not (planned or fixes):
+    if dry_run:
         summary['main'] = head
         return summary
-    w = Appender(repo, head, head_ct, head_tz)
+    summary['future_commits'] = append_future(repo, c, docs_date)
+    if not (planned or fixes or refresh_docs or summary['future_commits']):
+        summary['main'] = head
+        return summary
+    if not (planned or fixes):
+        # This path compares generated documentation with the published tree and
+        # skips an identical refresh before opening a writer.
+        import append_gate as G
+        changed = G.docs_only(folder, repo, docs_date)
+        summary.update(main=git(repo, 'rev-parse', 'main').strip(), tags_added=0,
+                       documentation_commits=int(changed), no_change=not changed)
+        return summary
+    docs_when = clock.docs_stamp(docs_date)
+    w = Appender(repo, head, head_ct, head_tz, committer_ceiling=int(docs_when.split()[0]))
     tags: dict[str, int] = {}
     log = []
     # Corrections first: the tip then holds each act's newest held version, which the appended versions build on.
@@ -708,21 +772,22 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
             tags.setdefault(f'law/{x["law"]}', mark)
         elif x['kind'] == 'start' and x['act'].get('first_law'):
             tags.setdefault(f'law/{x["act"]["first_law"]}', mark)
-        log.append({'day': x['day'], 'kind': x['kind'],
+        log.append({'day': x['day'], 'kind': B.S.planned_kind(c, x),
                     'law': x.get('law') or (x['act'].get('first_law') if x['kind'] == 'start' else None),
                     'acts': e['touched'], 'units': len(e['files']), 'branch': 'main', 'clamped': x['day'] < '1970-01-01'})
     full_log = published_log(repo) + log
+    w.checkpoint()
     all_tags = {t: 0 for t in existing_tags} | {t: m for t, m in tags.items()}
     docs = B.docs_files(c, folder, raw, full_log, all_tags, docs_date, part_records=part_records)
     # Ship this script beside build.py, so the repository says how its appended commits were made.
     docs['tools/append.py'] = Path(__file__).read_text(encoding='utf-8').replace('\r\n', '\n')
     # Never future-dated: a docs date of today is noon local, so before then it is capped at now (else every later
     # append fails the future-dated check until noon).
-    ts, tz = clock.stamp(docs_date).split()
-    w.commit(committer, f'{min(int(ts), int(time.time()))} {tz}', committer,
+    w.commit(committer, docs_when, committer,
              f'Documentation, tables, tools and REPRODUCE.md\n\nAppended {len(log)} commits to {head[:12]}'
              + (f' ({len(fixes)} of them corrections)' if fixes else '') + f'; corpus '
-             f'sha256 {B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n', docs)
+             f'sha256 {B.hashlib.sha256(raw).hexdigest()}, data retrieved {docs_date}.\n\nKind: documentation\n', docs,
+             committer_when=docs_when)
     for name, mark in sorted(tags.items()):
         if name not in existing_tags:
             w.tag(name, mark)
@@ -735,18 +800,78 @@ def append(folder: Path, repo: Path, docs_date: str, dry_run: bool = False, corr
     return summary
 
 
+def append_future(repo: Path, c: dict, docs_date: str) -> int:
+    """Grow the future branch without moving any previous commit or tag."""
+    if not any(v['from'] > docs_date for a in c['acts'] for v in a['versions']):
+        return 0
+    branch = B.S.future_branch(c['country'])
+    exists = bool(git(repo, 'branch', '--list', branch).strip())
+    remote = 'origin/' + branch
+    remote_exists = bool(subprocess.run(['git', 'rev-parse', '--verify', '-q', remote], cwd=repo,
+                                       capture_output=True).returncode == 0)
+    ref = branch if exists else remote if remote_exists else 'main'
+    head = git(repo, 'rev-parse', ref).strip()
+    rows = K.all_commits_by_act(repo, ref, [a['slug'] for a in c['acts']])
+    state = {a: max(d for _, d in values) for a, values in rows.items() if values}
+    # Already published future text is immutable too.
+    for act in c['acts']:
+        last = state.get(act['slug'])
+        if last and last > docs_date:
+            v = corpus_on(act['versions'], last)
+            have = _ls(repo, head, act['slug'])
+            want = unit_oids(act['slug'], v)
+            if {p: oid for p, oid in have.items() if p.endswith('.md') and not p.endswith('/README.md')} != want:
+                raise B.CorpusError(f'{act["slug"]}: existing future text differs; correction review is required')
+    sub, based = to_append(c, state, '9999-12-31')
+    if not sub['acts']:
+        return 0
+    planned = [x for x in B.plan(sub) if not (x['kind'] == 'start' and x['act']['slug'] in based)]
+    if not planned:
+        return 0
+    head_ct, head_tz = git(repo, 'log', '-1', '--format=%ct %ci', ref).split()[0::3]
+    committer = ('Lexifina', f'{c["country"]["slug"]}-law@lexifina.com')
+    clock = B.Clock(c['country']['tz'])
+    messages = []
+    for x in planned:
+        if x['kind'] == 'start':
+            author, msg, trailers = B.start_message(c, x)
+            files = B.act_files(x['act'], x['version']['units'], None)
+            acts = [x['act']['slug']]
+        else:
+            author, msg, trailers = B.change_message(c, x)
+            files = {}
+            for part in x['parts']:
+                files.update(B.act_files(part['act'], part['cur']['units'], part['prev']['units'], part['keys']))
+            acts = [p['act']['slug'] for p in x['parts']]
+        trailers.append('Corpus-standard: 1')
+        B.check_trailers(trailers)
+        messages.append((x, author, '\n'.join(msg).rstrip() + '\n\n' + '\n'.join(trailers) + '\n', files, acts))
+    w = Appender(repo, head, int(head_ct), head_tz, branch)
+    existing = set(git(repo, 'tag', '--list').split())
+    for x, author, message, files, acts in messages:
+        mark = w.commit(author, clock.stamp(x['day']), committer, message, files)
+        for act in acts:
+            tag = f'{act}/{x["day"]}'
+            if tag not in existing:
+                w.tag(tag, mark)
+                existing.add(tag)
+    w.finish()
+    return len(planned)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('folder')
     ap.add_argument('--repo', required=True)
     ap.add_argument('--docs-date', required=True)
     ap.add_argument('--dry-run', action='store_true')
+    ap.add_argument('--refresh-docs', action='store_true', help='append one documentation commit even with no new law')
     ap.add_argument('--corrections', action='store_true',
                     help='where main holds text that differs from the corpus, append correction commits instead of '
                          'refusing')
     ap.add_argument('--reason', default=DEFAULT_REASON, help='the Reason trailer of a correction commit (one line)')
     a = ap.parse_args()
-    print(append(Path(a.folder), Path(a.repo), a.docs_date, a.dry_run, a.corrections, a.reason))
+    print(append(Path(a.folder), Path(a.repo), a.docs_date, a.dry_run, a.corrections, a.reason, a.refresh_docs))
 
 
 if __name__ == '__main__':

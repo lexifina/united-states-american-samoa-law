@@ -45,6 +45,7 @@ class Cat:
     def close(self):
         self.p.stdin.close()
         self.p.wait()
+        self.p.stdout.close()
 
 
 def commits_by_act(repo: Path, branch: str, act: str) -> list[tuple[str, str]]:
@@ -124,10 +125,26 @@ def tree_oids(cat: 'Cat', commit: str, act: str, cache: dict) -> dict[str, str]:
     return cache[key]
 
 
-def check(repo: Path, corpus: Path) -> dict:
+def future_date_details(commits, now):
+    """Keep the existing safety thresholds and identify every offending commit."""
+    details = []
+    now_iso = dt.datetime.fromtimestamp(now, dt.timezone.utc).isoformat()
+    for index, (sha, stamp, date) in enumerate(commits):
+        allowance = 2 * 86400 if index == len(commits) - 1 else 0
+        if stamp > now + allowance:
+            details.append(f'{sha}: future_dated commit date {date} ({stamp}); now {now_iso} ({now})')
+    return details
+
+
+def check(repo: Path, corpus: Path, checked_on: str | None = None) -> dict:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from build import load  # the same corpus.json + corpus.d/ merge the build used
     c, raw = load(corpus.parent)
+    if checked_on is None:
+        descriptor = subprocess.run(['git', 'show', 'main:corpus.json'], cwd=repo, capture_output=True, text=True,
+                                    encoding='utf-8', timeout=120)
+        checked_on = json.loads(descriptor.stdout).get('checked_on') if descriptor.returncode == 0 else None
+    checked_on = checked_on or c['country'].get('checked_on') or dt.date.today().isoformat()
     future = c['country'].get('future_branch', 'futuro')
     has_future = bool(git(repo, 'branch', '--list', future).strip())
     cat = Cat(repo)
@@ -170,13 +187,18 @@ def check(repo: Path, corpus: Path) -> dict:
                     continue
                 if not rd.fixes:
                     files = tree_oids(cat, h, slug, trees)
-                expect ={f'{slug}/{k}.md': blob_oid(u['text']) for k, u in want['units'].items()}
+                expect = {f'{slug}/{k}.md': blob_oid(u['text']) for k, u in want['units'].items()}
                 for f in sorted(set(files) | set(expect)):
                     if files.get(f) != expect.get(f):
                         mismatches += 1
                         if len(details) < 50:
                             details.append(f'{slug} on {day}: {f} differs from version {want["from"]}')
             prev = v
+    import corpus_images as M
+    import provision_index as I
+    images = M.check(c, I.commit_records(repo, future), cat.read)
+    import current_text as H
+    tip = H.check(repo, c, checked_on)
     cat.close()
     trailer_errors, missing_in_force = 0, 0
     refs = ['main'] + ([future] if has_future else [])
@@ -194,14 +216,21 @@ def check(repo: Path, corpus: Path) -> dict:
         elif 'In-force' not in keys:
             missing_in_force += 1
     merges = int(git(repo, 'rev-list', '--merges', '--count', 'main').strip())
-    cts = [int(x) for x in git(repo, 'log', '--first-parent', '--reverse', '--format=%ct', 'main').split()]
+    dated = [line.split('\t') for line in git(repo, 'log', '--first-parent', '--reverse',
+                                             '--format=%H%x09%ct%x09%cI', 'main').splitlines()]
+    dated = [(sha, int(stamp), date) for sha, stamp, date in dated]
+    cts = [stamp for _, stamp, _ in dated]
     backwards = sum(1 for a, b in zip(cts, cts[1:]) if b < a)
     now = int(time.time())
     # The last commit is the docs commit, dated noon local time on --docs-date; built the same day before noon it is
     # a few hours ahead of now. Allow it up to two days; every law commit must be in the past.
-    future_dated = sum(1 for x in cts[:-1] if x > now) + (1 if cts and cts[-1] > now + 2 * 86400 else 0)
+    future_details = future_date_details(dated, now)
+    future_dated = len(future_details)
+    details.extend(future_details)
     extra = {'corrections': len(rd.fixes)} if rd.fixes else {}  # only when there are any: unchanged output otherwise
-    return {**extra, 'acts': len(c['acts']), 'versions': versions, 'mismatches': mismatches, 'trailer_errors': trailer_errors,
+    return {**extra, **tip, 'image_errors': len(images['errors']), 'image_warnings': len(images['warnings']),
+            'image_details': (images['errors'] + images['warnings'])[:50],
+            'acts': len(c['acts']), 'versions': versions, 'mismatches': mismatches, 'trailer_errors': trailer_errors,
             'missing_in_force': missing_in_force, 'merges': merges, 'backwards': backwards,
             'future_dated': future_dated, 'details': details,
             # Which corpus this check read (a main build reads only the verified parts), so REPRODUCE.md quotes a check
@@ -219,7 +248,7 @@ def main():
     res = check(Path(args.repo), Path(args.corpus))
     print(json.dumps(res, indent=1, ensure_ascii=False))
     ok = not (res['mismatches'] or res['trailer_errors'] or res['missing_in_force'] or res['merges'] or res['backwards']
-              or res['future_dated'])
+              or res['future_dated'] or res['image_errors'] or res['tip_errors'])
     if args.write:
         p = Path(args.corpus).parent / 'verification.json'
         ver = json.loads(p.read_text(encoding='utf-8')) if p.exists() else {}

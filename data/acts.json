@@ -1,0 +1,46 @@
+{
+ "acts": [
+  {
+   "slug": "constitution",
+   "path": "constitution",
+   "id": null,
+   "eli": null,
+   "title": "Revised Constitution of American Samoa",
+   "short": "ASCONST",
+   "law_kind": "other",
+   "enacted": null,
+   "published": null,
+   "in_force": null,
+   "repealed": null,
+   "repealed_by": null,
+   "status": "as captured",
+   "url": "https://www.americansamoa.gov/_files/ugd/4bfff9_637c7079564f4812ae2c848e48753e7d.pdf",
+   "images": 0,
+   "images_omitted": 0,
+   "images_source": null,
+   "images_complete": false,
+   "complete": false
+  },
+  {
+   "slug": "workmen-compensation-travel-reimbursement",
+   "path": "workmen-compensation-travel-reimbursement",
+   "id": null,
+   "eli": null,
+   "title": "Reimbursement Policy for Other Allowable Travel Expenses",
+   "short": "WCTR",
+   "law_kind": "other",
+   "enacted": null,
+   "published": null,
+   "in_force": null,
+   "repealed": null,
+   "repealed_by": null,
+   "status": "as captured",
+   "url": "https://www.americansamoa.gov/_files/ugd/4bfff9_1bc87458e18b4a19a6a845ac583b39cd.pdf",
+   "images": 0,
+   "images_omitted": 0,
+   "images_source": null,
+   "images_complete": false,
+   "complete": false
+  }
+ ]
+}
