@@ -14,6 +14,20 @@
      "sha256": "3a44c417f9af6ae32acc3e934d6b5518838d17ba19406924a6e8701485683b94"
     }
    ]
+  },
+  {
+   "slug": "workmen-compensation-travel-reimbursement",
+   "short": "WCTR",
+   "title": "Reimbursement Policy for Other Allowable Travel Expenses",
+   "url": "https://www.americansamoa.gov/_files/ugd/4bfff9_1bc87458e18b4a19a6a845ac583b39cd.pdf",
+   "versions": [
+    {
+     "from": "2023-01-09",
+     "units": 3,
+     "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_1bc87458e18b4a19a6a845ac583b39cd.pdf",
+     "sha256": "113bb4ba773dae2a629a6f2acff39b6aae2074b3efe2b5df392a0217d413a208"
+    }
+   ]
   }
  ]
 }
