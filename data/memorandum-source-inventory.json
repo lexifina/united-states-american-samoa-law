@@ -1,0 +1,518 @@
+{
+  "source_listing": "https://www.americansamoa.gov/generalmemorandums",
+  "checked_on": "2026-11-11",
+  "scope": "Official memorandum PDFs not previously inspected in the existing source inventory; this batch records source availability, not enacted-law coverage.",
+  "records": [
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_006283d369d54feab7e0d4a61bb74dea.pdf",
+      "source_labels": [
+        "General Memorandum 193-23 - GAO 106670 AMBER Alert Expansion  - 08/02/2023"
+      ],
+      "sha256": "745131a6d4cd23056af0ec120dadcca06281a15784f67532ba6fdeaaff879320",
+      "bytes": 166141,
+      "pages": 1,
+      "text_availability": "source text layer requires completeness and legal-status review"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_00b1cb419bca4a8db0e23b25c19178fb.pdf",
+      "source_labels": [
+        "General Memorandum 171-23 - Delegation of Authority - Criminal Justice Planning Agency - 07/12/2023"
+      ],
+      "sha256": "50910a48be08253ab65d74ed7296701f1397f38838d570a071a3872e6e91c1e3",
+      "bytes": 150823,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_00d22de7da1d47049bbb7ee7c75e6fa4.pdf",
+      "source_labels": [
+        "General Memorandum 130-23 - Delegation of Authority - Recess Appointment of Rep. Manumaua to DBAS Board - 05/11/2023"
+      ],
+      "sha256": "f2cdd13d930c61c4bdc3a60ced031cabe16f4c67df67a7d2576be847a737dc5e",
+      "bytes": 196444,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0172981f7fd7462795fd3ed528488eda.pdf",
+      "source_labels": [
+        "General Memorandum - 189-21 (Food Security and Safety Committee) - 12/29/2021"
+      ],
+      "sha256": "3f8f2e4047d674eb409afe99e4c8ffc5c95bae59d545441bc7397df6a8737cf0",
+      "bytes": 311333,
+      "pages": 2,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0187fb224bba4274bea652c936624005.pdf",
+      "source_labels": [
+        "General Memorandum 201-22 - Delegation of Authority - ASTCA - 10/28/2022"
+      ],
+      "sha256": "c9efbdcc9b55a0975ffbddedd106df5390ff9175f493515c768a51769c9e9ce3",
+      "bytes": 172940,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_01bde8ae6e1b4bbc9d6aaea9590e2805.pdf",
+      "source_labels": [
+        "General Memorandum 008-24 - Holiday - Martin Luther King Jr. Day - 01/08/2024"
+      ],
+      "sha256": "849eb3e407cb42ee054d68c31bfd94284054640d744d6e1b82cef4a283191a23",
+      "bytes": 170021,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_01d7e83ee50040ff99960adfca088ac1.pdf",
+      "source_labels": [
+        "General Memorandum # 068-21 (Island Wide Clean-up) - 3/22/2021"
+      ],
+      "sha256": "ef0a871e7400fec4744b6789b00174f7e98e487c3487a66e508932be7b6b96a4",
+      "bytes": 572715,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_022eea28f99b4b59b7168700a4e36d5c.pdf",
+      "source_labels": [
+        "General Memorandum - 150-21 (Island Wide Clean-up) - 9/21/2021"
+      ],
+      "sha256": "5f378b3dff6a5a6f8922e1bcac4e624e8889348493f671eec5479d8c9d9fb640",
+      "bytes": 216834,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_024bfae0bf5c4ac6b0b931734a0a598d.pdf",
+      "source_labels": [
+        "General Memorandum - 98-21 (Agriculture) - 5/13/2021"
+      ],
+      "sha256": "469774c33b7495a87177d3132e2d3a7f669ce80a8a9098a0df0fdf66e540c995",
+      "bytes": 145572,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_026ae7cdfe664f69ba823c3727739aaf.pdf",
+      "source_labels": [
+        "General Memorandum 215-24 - Delegation of Authority - Department of Commerce - 10/01/2024"
+      ],
+      "sha256": "5f1b662aaf59b10ee863a6e1f8404e5edd27f7461de14dd4ef9a6333063ff915",
+      "bytes": 133642,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_02dc7d36c8b3473abcf94a83011907e5.pdf",
+      "source_labels": [
+        "General Memorandum 195-22 - Delegation of Authority - Department of Treasury - 10/21/2022"
+      ],
+      "sha256": "dcabfa0b596f6ac66f399911359f9857ba3d7299c0a2204987f0d137f73c21b1",
+      "bytes": 174393,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0409b01669204942b366b5e7d6cee9f5.pdf",
+      "source_labels": [
+        "General Memorandum 226-24 - Cabinet Attendance - 10/16/2024"
+      ],
+      "sha256": "2ab0db16a4e85be6c54c03f0f20aae81149327ad7d7373cc165e450744920464",
+      "bytes": 166568,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0438b20051d44f369a9b72b155311c43.pdf",
+      "source_labels": [
+        "General Memorandum 269-25 - Delegation of Authority - Office of Vocational Rehabilitation - 11/26/2025"
+      ],
+      "sha256": "fc795a650a801b8b5964eb2f444b5b722769c862bad8c12bf06db5aa3eca9986",
+      "bytes": 141302,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_044bdc4d8fc249db8239ad1164338788.pdf",
+      "source_labels": [
+        "General Memorandum 133-24 - Delegation of Authority - Office of Veterans Military Affairs - 06/07/2024"
+      ],
+      "sha256": "fff4034e4b370cfa11d009aaa51178fd1d40945ce575b8d5e76cfd3ff24e837c",
+      "bytes": 134853,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0471fdc42fc345cf8d06e8715053e085.pdf",
+      "source_labels": [
+        "General Memorandum 143-21 (AS Parole Board) - 8/24/2021"
+      ],
+      "sha256": "9beff2b8b909971cf4176e11025c3bc4ad366320d0cdda2ca9331df2163f286e",
+      "bytes": 162678,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_051d7238ec1841458effaa818d01fbcf.pdf",
+      "source_labels": [
+        "General Memorandum 331-23 - Delegation of Authority - Office of Property Management - 11/30/2023"
+      ],
+      "sha256": "9f8ad137db5d73f89be299c57b7c2690c5503e477e3100720430f4c811fe7f33",
+      "bytes": 139983,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_05ec6df50979452b9b331a4af82ba0f0.pdf",
+      "source_labels": [
+        "General Memorandum 067-23 - Valaaulia Folosaga Faataualuga - 03/30/2023"
+      ],
+      "sha256": "94f70a5b572869c5fcfb7756a0e2f22c13249bc872e70ca32d4cbac75a344010",
+      "bytes": 238050,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_06411111b34842aaa54a734f5eb917f0.pdf",
+      "source_labels": [
+        "General Memorandum 266-24 - Delegation of Authority - Department of Search and Rescue - 12/18/2024"
+      ],
+      "sha256": "d0689ae6604250e6d308cc0fe6cb09981901066bf8d3123e06a9c574b8bfabcf",
+      "bytes": 130842,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0706b6e4a564456dbf092156ceccb035.pdf",
+      "source_labels": [
+        "General Memorandum 0104-22 (Delegation of Authority - AS Council on Arts) - 08/01/2022"
+      ],
+      "sha256": "b941f4072e74eef44c3cff02336567856435bef486732040a00da4ff72103918",
+      "bytes": 180061,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0730edeebabd4906a758b1dc3e6ca217.pdf",
+      "source_labels": [
+        "General Memorandum 276-25 - Delegation of Authority - Department of Marine and Wildlife Resources - 11/26/2025"
+      ],
+      "sha256": "eb087de1a65a1ca08904259dae6d9a8db1ce5e4348873f96b4e15a670ef846ac",
+      "bytes": 181108,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_07778e83232d4afba816859c31b7c1ee.pdf",
+      "source_labels": [
+        "General Memorandum 039-23 - Delegation of Authority - CJPA - 02/22/2023"
+      ],
+      "sha256": "b88eee71406f761bd2c90d8275a28d10159d9ac10c790b88cf648622c2b796c6",
+      "bytes": 140463,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_077cde1e2b9f4778a5d66f36b4f637aa.pdf",
+      "source_labels": [
+        "General Memorandum 150-22 - Delegation of Authority - Office of the Governor - 09/23/2022"
+      ],
+      "sha256": "4fefb97a46024e4069226ff14dd8da77327e1c5f6aec7871119af2756a403eb1",
+      "bytes": 228113,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_078f0f792dd04053a3b981bba3037c3f.pdf",
+      "source_labels": [
+        "​ General Memorandum 211-25 - Assistance and Cooperation with Records per Executive Order No.: 005-25 - 09/08/2025"
+      ],
+      "sha256": "ef642b28e7c3190200bfa2213fecd3ce88dd60097378d4ebe9767cf019b8415e",
+      "bytes": 233712,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_07dee2787187436192af60e814dc9b36.pdf",
+      "source_labels": [
+        "General Memorandum 054-23 - Appointment of Falenaoti Loi-On Fruean to Shipyard Services Authority - 03/14/2023"
+      ],
+      "sha256": "51a0264cbb77d4138f1ce9a9e4c38ceb1e06bc70a1b7c77415086ada8d84a2af",
+      "bytes": 138973,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0818ac61f6544b55ab6e454588a2cb3a.pdf",
+      "source_labels": [
+        "General Memorandum 181-23 - Delegation of Authority - Department of Homeland Security  - 07/24/2023"
+      ],
+      "sha256": "abacd20abe88b269ff2e2c449f0330b0685127173162e0c75a7945d2519c3813",
+      "bytes": 149570,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0828644aacc84608bf463379e43f384b.pdf",
+      "source_labels": [
+        "General Memorandum 151-25 - Appointment of American Samoa State Rehabilitation Council - 06/17/2025"
+      ],
+      "sha256": "7a42d92e17fd5cb3968c803819dd2f8780f3bdc30eb53a30ce32ef19075ea782",
+      "bytes": 254672,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0840618aa49542178c8eb3a4514d586f.pdf",
+      "source_labels": [
+        "General Memorandum 172-24 - Delegation of Authority - Department of Public Health - 07/30/2024"
+      ],
+      "sha256": "172daa8e07716b6ac19178bf45cb6b86b0f97279cbd5538e3dc1002d57c7e158",
+      "bytes": 133353,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_08567dc7339c461b9ecf93920a3e23dd.pdf",
+      "source_labels": [
+        "General Memorandum 003-25 - Delegation of Authority - Department of Health - 01/06/2025"
+      ],
+      "sha256": "55a614c404b229e4e09297c4ffbd62d3027841a5466078ceff18f825353cb17a",
+      "bytes": 138940,
+      "pages": 1,
+      "text_availability": "source text layer requires completeness and legal-status review"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_089b0c836a42400fa728528c51550811.pdf",
+      "source_labels": [
+        "General Memorandum 251-24 - Departmental Transition Reports and Inventories - 11/29/2024"
+      ],
+      "sha256": "5d2a9b4b1b5218177ad07a413105e0ce296715c0570549f020e5277960de4424",
+      "bytes": 165593,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_08ac490df3124464979f4fdf7514ae8a.pdf",
+      "source_labels": [
+        "General Memorandum 255-23 - Funeral Donations - Public Defender - 10/04/2023"
+      ],
+      "sha256": "603767929f9fd90e0b447e29b5371dd4aabaa9a57881f1438e9e0213aac5585e",
+      "bytes": 165271,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_08c033465f3945388094a2b51834f3a7.pdf",
+      "source_labels": [
+        "General Memorandum 222-22 - Island Wide Clean up and Christmas Decorations on Friday November 25, 2022 - 11/17/2022"
+      ],
+      "sha256": "052f7f780150051f147cd278a0119d90dcaf32fefeb3afdf6fe663bb497edde4",
+      "bytes": 1152373,
+      "pages": 5,
+      "text_availability": "source text layer requires completeness and legal-status review"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0930bde9255643058e8b7dc02591a784.pdf",
+      "source_labels": [
+        "General Memorandum 157-25 - Executive Director of ARPA Oversight Office - 07/01/2025"
+      ],
+      "sha256": "33b96e0188c5d37369fa32bbbad43115b71aa5aa2748c7f6931af0e1fde50f20",
+      "bytes": 180175,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0954180525074a3f8fce7ccfd0212591.pdf",
+      "source_labels": [
+        "General Memorandum 240-22 - Flying of Flags at Half-Staff in Honor of Toleafoa Henry Tavake - 12/09/2022"
+      ],
+      "sha256": "8414a3a25a154dd7791c8816f6877c1f593e2bbf68d5c0bb132c56daf00b5b0e",
+      "bytes": 134115,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0968354c103f47078e767ecfc80221c8.pdf",
+      "source_labels": [
+        "General Memorandum 002-22 (Cabinet Meeting) - 01/04/2022"
+      ],
+      "sha256": "c36b760092f44509a5d9807b3f749c2f566ec216365af954424930b295bfaf32",
+      "bytes": 135996,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_097509645d194d829149e9d9c4fbf047.pdf",
+      "source_labels": [
+        "General Memorandum 238-22 - Thank you - Holiday Music Festival - 12/07/2022"
+      ],
+      "sha256": "06001336f188fdf96d0c239680f7d414b7e9e7439d23e5896fd49cf9507b5efc",
+      "bytes": 166911,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_09cbe53d287843598485f947954ddad9.pdf",
+      "source_labels": [
+        "General Memorandum 227-24 - Cabinet Attendance - 10/17/2024"
+      ],
+      "sha256": "ed5603e2efb46ccf54c81b3cd69b7a6ab5e3a01180598c4485af50639692db35",
+      "bytes": 160540,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_09e72752b94e4f16b9a75dd1716c8f55.pdf",
+      "source_labels": [
+        "General Memorandum 078-22 (Delegation of Authority - Department of Commerce) - 06/16/2022"
+      ],
+      "sha256": "89f5b185452dc914aea831adfdc73ed3088358c138d1840bbfd92c577ff6c470",
+      "bytes": 185537,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_09eb346683964723b38e80bc05b0bb93.pdf",
+      "source_labels": [
+        "General Memorandum 191-23 - American Samoa Historic Preservation Office  - 08/02/2023"
+      ],
+      "sha256": "b92756f73b7775fff527d6cf1f5001cfbbbefe80e50abbe11df1eec5995ad573",
+      "bytes": 155958,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_09ee4ddb6e294cc78e8a3ce86bfd7446.pdf",
+      "source_labels": [
+        "General Memorandum 132-22 - Delegation of Authority - American Samoa Power Authority - 09/06/2022"
+      ],
+      "sha256": "b6998aa4c785f307aef0fbaaf458a2ceaa8ea905090abd6e973d37933991817b",
+      "bytes": 177162,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0a539ec2be6547dfa909d0cf39f3ddf7.pdf",
+      "source_labels": [
+        "General Memorandum 060-25 - Island Wide Clean-up: Friday, March 28, 2025 - 03/05/2025"
+      ],
+      "sha256": "b54229dc84dbadfb48b4310ee53b129a726e4a04aed2aa19ee2f293d1eb62b17",
+      "bytes": 143297,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0a91ea5733b3439cb96fbc6d988148b5.pdf",
+      "source_labels": [
+        "General Memorandum 037-23 - Delegation of Authority - Office of Veterans Affairs - 02/16/2023"
+      ],
+      "sha256": "6141aacfad478f60269ba5a07f8661a64d9776e7c112491b90f04fec60a9f375",
+      "bytes": 141744,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0aaf074b031346c484947b080968b420.pdf",
+      "source_labels": [
+        "General Memorandum 042-22 (Holiday - Good Friday) - 04/11/2022"
+      ],
+      "sha256": "f7f841981a95da743ef7dfcfa80faf716b00e65d674eccd68f4b74f14981f7b5",
+      "bytes": 247398,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0b43e79bb3404b01910b3ae6b2ec2422.pdf",
+      "source_labels": [
+        "General Memorandum 074-22 (Delegation of Authority - Department of Legal Affairs) - 06/02/2022"
+      ],
+      "sha256": "ea84a2b2f20ded320ead4c1f69274eb332d4b64008c01ea133009db26f3b7204",
+      "bytes": 178713,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0b458185f6b640f4b3caf2991b6d5a62.pdf",
+      "source_labels": [
+        "General Memorandum 227-22 - Delegation of Authority - Criminal Justice Planning Agency - 11/23/2022"
+      ],
+      "sha256": "a15d1a6d25cf669c8d3ae895d5e2a121ea1e7d8922bfd4d5c4d5cc23f2b16190",
+      "bytes": 135608,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0bd2c08a3b194145a0eecd1fe1bfd99d.pdf",
+      "source_labels": [
+        "General Memorandum # 023-21 (Appointment Shipyard Board) - 2/01/2021"
+      ],
+      "sha256": "db76a0a0bc4e6fb14ef8daa74cdd166f75d172edf89c93aba04fe740b9d64fc7",
+      "bytes": 279611,
+      "pages": 2,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0bf5cc2d4ff94587acccb0c3c79841cf.pdf",
+      "source_labels": [
+        "General Memorandum - 128-21 (Cabinet Meeting Postponed) - 7/21/2021"
+      ],
+      "sha256": "731b3c631620a0dc271c574646d8fe1c555a1c5228e8114fe85d03147a23842e",
+      "bytes": 134893,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0bfb61adc5b841bfa32b6a0230a6e0cd.pdf",
+      "source_labels": [
+        "General Memorandum 209-23 - Delegation of Authority - American Samoa Environmental Protection Agency  - 08/24/2023"
+      ],
+      "sha256": "8283c7de8254148da26c2e10638f5abd4ac020cc96791239dbf128196b41c43a",
+      "bytes": 152755,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0c9bd74dae1b440d9e75feec2f59f510.pdf",
+      "source_labels": [
+        "General Memorandum 043-24 - Delegation of Authority - Office of Public Information - 02/15/2024"
+      ],
+      "sha256": "bd7d8cbfc259ea8dc9633f07cca67a2232327a2ec91f8563cbcccf44580faeb2",
+      "bytes": 135673,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0cabcccb2e164095a3330c9c77ba6c27.pdf",
+      "source_labels": [
+        "​"
+      ],
+      "sha256": "2267fd965da33a247d5465694ea76713bba8c285121c79005bb910c124890a3f",
+      "bytes": 694204,
+      "pages": 27,
+      "text_availability": "source text layer requires completeness and legal-status review"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0cda1e6c9e3b4cc8b5d60898807cea4e.pdf",
+      "source_labels": [
+        "General Memorandum 167-22 - Appointment of Acting Governor - 10/09/2022"
+      ],
+      "sha256": "bac639aeb8992d274c45a5351467f146ae86717ecc9e348741cfc6c864ef09db",
+      "bytes": 167716,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    },
+    {
+      "source_url": "https://www.americansamoa.gov/_files/ugd/4bfff9_0cdf3fa8fb2c46df86e82541e0fbefcf.pdf",
+      "source_labels": [
+        "General Memorandum 282-25 - Delegation of Authority - Department of Education - 12/08/2025"
+      ],
+      "sha256": "bc3f6c3a45e6c8a0b680ec1b1791a364ca2b6b32ec7e566f8b97829e138c241c",
+      "bytes": 139971,
+      "pages": 1,
+      "text_availability": "no machine-readable text"
+    }
+  ],
+  "limitations": "Scanned source pages are not transcribed. Listing dates are not commencement dates. Enactment, current force and normative-image completeness are not established by this inventory."
+}
