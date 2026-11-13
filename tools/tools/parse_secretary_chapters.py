@@ -38,7 +38,7 @@ def main():
             assert quote in norm,(key,quote)
             slug=f'asac-{key[0]:02d}-{key[1]:02d}'
             units={f'page-{n:03d}':{'label':f'Official PDF page {n}','kind':'section','text':t} for n,t in ps}
-            part['acts'].append({'slug':slug,'short':f'ASAC {key[0]}.{key[1]:02d}','title':f'American Samoa Administrative Code, Title {key[0]}, Chapter {key[1]} – {title}','url':d['url'],'first_law':None,'earlier_laws':[],'versions':[{'from':date,'source_url':d['url'],'sha256':d['sha256'],'units':units}]})
+            part['acts'].append({'slug':slug,'short':f'ASAC {key[0]}.{key[1]:02d}','title':f'American Samoa Administrative Code, Title {key[0]}, Chapter {key[1]} – {title}','url':d['url'],'first_law':None,'earlier_laws':[],'versions':[{'from':date,'source_url':d['url'],'sha256':d['sha256'],'source_images':0,'units':units}]})
             part['decisions'].append(f'{slug}: one chapter snapshot from the Secretary\'s 2024 Code edition, dated {date} from the chapter\'s express history note "{quote}". Earlier wording is not reconstructed. Source front matter, history notes and native wording are retained. Source images 0, referenced 0, omitted 0.')
             manifest.append({'act':slug,'url':d['url'],'sha256':d['sha256'],'source_file':d['file'],'pages':[n for n,_ in ps],'from':date,'basis_quote':quote,'title':title})
         if groups:part['sources'].append({'name':'Secretary of American Samoa: American Samoa Administrative Code, 2024 edition','url':d['url'],'retrieved':'2026-11-13','licence':'Official government rules text; no reuse terms stated on source pages.'})

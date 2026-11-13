@@ -58,7 +58,7 @@ When a law gives no date of its own, the default rule applies: The Revised Const
 
 `tools/build.py` turns the corpus into this history in one pass: one commit per law, on the day it took effect. The same corpus always gives the same commit hashes. `tools/check_repo.py` reads every version back from git and compares it with the corpus. `tools/on.py` shows the law as it stood on any date. The corpus format is described in `tools/SCHEMA.md`.
 
-- Corpus: sha256 `bb16b69cb7816ab75addc3da3130a0742e18fd4b04b6fe80d2ade56daa5e081b` (249290 bytes).
+- Corpus: sha256 `d37750944a221d5d25045be8046526f5b7be763aaca0574eee5a423e62db2866` (249538 bytes).
 - Builder blob hashes (`git hash-object`): `build.py` `63170edd89e92292ac248dae17d79e486e4e9f19`, `check.py` `e340718c28cd5b0edbe37bdeab1aac31427ada66`, `on.py` `4a8aa1c9a5e6bd8cc831b90a6e68c5a6f448a13c`.
 - Python 3.12.10; git version 2.46.0.windows.1.
 
