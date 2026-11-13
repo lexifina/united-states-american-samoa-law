@@ -4,7 +4,7 @@
  "name": "American Samoa",
  "level": "national",
  "repo": "https://github.com/lexifina/united-states-american-samoa-law",
- "build": "Revised Constitution baseline (source dated 2022-09-06); reimbursement policy effective 2023-01-09 prepared for independent review",
+ "build": "Two retained law records and eight Administrative Code chapter snapshots from the official 2024 edition; incomplete jurisdiction coverage",
  "register_date": "2026-10-30",
  "parent": "united-states-american-samoa"
 }
