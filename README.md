@@ -1,3 +1,8 @@
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="data/effort-dark.svg">
+<img alt="American Samoa law in this repository: what it holds, changes by the year they took effect, completeness against the official sources, and the correctness of what is held" src="data/effort-light.svg" width="880">
+</picture>
+
 ﻿# American Samoa: law history in git
 
 Official American Samoa texts, part of [Lexifina global law](https://github.com/lexifina/global-law).
