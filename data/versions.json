@@ -34,6 +34,142 @@
      "sha256": "113bb4ba773dae2a629a6f2acff39b6aae2074b3efe2b5df392a0217d413a208"
     }
    ]
+  },
+  {
+   "slug": "asac-02-03",
+   "short": "ASAC 2.03",
+   "title": "American Samoa Administrative Code, Title 2, Chapter 3 – Government Records Management",
+   "url": "https://www.osas.as/_files/ugd/4c56eb_f41f45536a644a6db0b7226f85244552.pdf",
+   "versions": [
+    {
+     "from": "1987-08-04",
+     "to": null,
+     "status": "as captured",
+     "text_as_of": null,
+     "units": 4,
+     "source_url": "https://www.osas.as/_files/ugd/4c56eb_f41f45536a644a6db0b7226f85244552.pdf",
+     "sha256": "2a43d48b4dd97d6c43a17e8913feede37ceee4fde7fe0095d17f9d48211b7954"
+    }
+   ]
+  },
+  {
+   "slug": "asac-03-01",
+   "short": "ASAC 3.01",
+   "title": "American Samoa Administrative Code, Title 3, Chapter 1 – Election Contributions and Expenses",
+   "url": "https://www.osas.as/_files/ugd/4c56eb_96385b11dd024dfcac532e3d1eab44f5.pdf",
+   "versions": [
+    {
+     "from": "1985-05-02",
+     "to": null,
+     "status": "as captured",
+     "text_as_of": null,
+     "units": 16,
+     "source_url": "https://www.osas.as/_files/ugd/4c56eb_96385b11dd024dfcac532e3d1eab44f5.pdf",
+     "sha256": "adbd6fb6353516f79d16498081fb69390bf0053a7778e2a218359fcd651dd0e8"
+    }
+   ]
+  },
+  {
+   "slug": "asac-05-02",
+   "short": "ASAC 5.02",
+   "title": "American Samoa Administrative Code, Title 5, Chapter 2 – Economic Development Planning Commission",
+   "url": "https://www.osas.as/_files/ugd/4c56eb_3051fa88218c4ddc9a687f45773305f5.pdf",
+   "versions": [
+    {
+     "from": "1987-10-12",
+     "to": null,
+     "status": "as captured",
+     "text_as_of": null,
+     "units": 3,
+     "source_url": "https://www.osas.as/_files/ugd/4c56eb_3051fa88218c4ddc9a687f45773305f5.pdf",
+     "sha256": "e86242876052d4db03e3368cfb1378a127b922443b123b1b06b07f188b193e1b"
+    }
+   ]
+  },
+  {
+   "slug": "asac-06-02",
+   "short": "ASAC 6.02",
+   "title": "American Samoa Administrative Code, Title 6, Chapter 2 – Rental Space of Market Place for Bingo Games",
+   "url": "https://www.osas.as/_files/ugd/4c56eb_4fb914c716a44aeaa5ee66c900750acb.pdf",
+   "versions": [
+    {
+     "from": "1983-07-01",
+     "to": null,
+     "status": "as captured",
+     "text_as_of": null,
+     "units": 1,
+     "source_url": "https://www.osas.as/_files/ugd/4c56eb_4fb914c716a44aeaa5ee66c900750acb.pdf",
+     "sha256": "ca46a8ad99f50e79b240e44d22bbbb94172021cd7440ee7624c38350da0b4efb"
+    }
+   ]
+  },
+  {
+   "slug": "asac-13-01",
+   "short": "ASAC 13.01",
+   "title": "American Samoa Administrative Code, Title 13, Chapter 1 – Student Financial Aid",
+   "url": "https://www.osas.as/_files/ugd/4c56eb_ee7505b87f00426497c4e8d07f7d3318.pdf",
+   "versions": [
+    {
+     "from": "1988-05-25",
+     "to": null,
+     "status": "as captured",
+     "text_as_of": null,
+     "units": 5,
+     "source_url": "https://www.osas.as/_files/ugd/4c56eb_ee7505b87f00426497c4e8d07f7d3318.pdf",
+     "sha256": "4186a855d422113190ad7278c486054c5b2631b16cd6dab8919db0aab4cc9d33"
+    }
+   ]
+  },
+  {
+   "slug": "asac-13-02",
+   "short": "ASAC 13.02",
+   "title": "American Samoa Administrative Code, Title 13, Chapter 2 – Tuition Rates and Fees at American Samoa Community College",
+   "url": "https://www.osas.as/_files/ugd/4c56eb_ee7505b87f00426497c4e8d07f7d3318.pdf",
+   "versions": [
+    {
+     "from": "1983-12-28",
+     "to": null,
+     "status": "as captured",
+     "text_as_of": null,
+     "units": 1,
+     "source_url": "https://www.osas.as/_files/ugd/4c56eb_ee7505b87f00426497c4e8d07f7d3318.pdf",
+     "sha256": "4186a855d422113190ad7278c486054c5b2631b16cd6dab8919db0aab4cc9d33"
+    }
+   ]
+  },
+  {
+   "slug": "asac-19-01",
+   "short": "ASAC 19.01",
+   "title": "American Samoa Administrative Code, Title 19, Chapter 1 – Commercial Transportation",
+   "url": "https://www.osas.as/_files/ugd/4c56eb_c516ff39976742db9d5acfdabb2d7e11.pdf",
+   "versions": [
+    {
+     "from": "2023-07-19",
+     "to": null,
+     "status": "as captured",
+     "text_as_of": null,
+     "units": 14,
+     "source_url": "https://www.osas.as/_files/ugd/4c56eb_c516ff39976742db9d5acfdabb2d7e11.pdf",
+     "sha256": "6cf39a356bb1dc286bf341274c1c9ae68422bbcc4f49b39cdb85cc5b84c4a2c8"
+    }
+   ]
+  },
+  {
+   "slug": "asac-19-02",
+   "short": "ASAC 19.02",
+   "title": "American Samoa Administrative Code, Title 19, Chapter 2 – Commercial Transportation Chapter 2",
+   "url": "https://www.osas.as/_files/ugd/4c56eb_c516ff39976742db9d5acfdabb2d7e11.pdf",
+   "versions": [
+    {
+     "from": "2023-07-19",
+     "to": null,
+     "status": "as captured",
+     "text_as_of": null,
+     "units": 1,
+     "source_url": "https://www.osas.as/_files/ugd/4c56eb_c516ff39976742db9d5acfdabb2d7e11.pdf",
+     "sha256": "6cf39a356bb1dc286bf341274c1c9ae68422bbcc4f49b39cdb85cc5b84c4a2c8"
+    }
+   ]
   }
  ]
 }
